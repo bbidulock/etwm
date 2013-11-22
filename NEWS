@@ -1,0 +1,10 @@
+-- NEWS for ETWM
+
+Changes from ctwm 3.8.2 to etwm 3.8.3
+-------------------------------------
+
+ - moved old README to README.ctwm
+ - added necessary files for GNU autoconf build
+
+# vim: set ft=asciidoc tw=72 nocin nosi fo+=tcwlorn:
+

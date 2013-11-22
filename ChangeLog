@@ -1,0 +1,4533 @@
+# created with git log --stat=76 | fmt -sct -w80
+
+commit 8a8aa3a2ba187fc33161ea165faf4c72cca01f83
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Thu Nov 21 05:39:14 2013 -0700
+
+    moved old readme file
+
+ README      | 111 --------------------------------------------------------
+ README.ctwm | 111 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 111 insertions(+), 111 deletions(-)
+
+commit ed1a39f3509d9bc7186aeaa7b8b522fe824d75ac
+Author: rhialto <rhialto@falu.nl>
+Date:   Fri Sep 13 14:19:31 2013 +0000
+
+    3 - Selected a number of cleanups from Stefan Monnier
+    <monnier@IRO.UMontreal.CA>, including rate-limiting of animations using
+    a new _XA_WM_END_OF_ANIMATION message.  Added some similar changes,
+    improved the prevention of placing windows off-screen, the
+    "f.rescuewindows" function for emergencies, a hack-fix for
+    f.adoptwindow. More virtual screen tweaks/fixes.
+
+ CHANGES      |   8 ++
+ add_window.c |  10 +-
+ add_window.h |   2 +-
+ ctwm.c       |  36 +++++--
+ ctwm.h       |   7 ++
+ ctwm.man     |  23 +++++
+ events.c     | 132 ++++++++++++++------------
+ events.h     |   3 +
+ gnome.c      |   2 +-
+ gnome.h      |   3 +
+ gram.y       |   3 +
+ iconmgr.c    | 206 +++++++++++++++++++++-------------------
+ iconmgr.h    |   3 +
+ icons.c      |  17 ++--
+ icons.h      |   4 +-
+ lex.l        |   3 -
+ list.c       |   7 +-
+ list.h       |   2 +-
+ menus.c      | 282 ++++++++++++++++++++++++++++++++++++-------------------
+ menus.h      |  44 +++------
+ parse.c      |  31 +++---
+ parse.h      |  14 ++-
+ resize.c     |  35 +++++--
+ resize.h     |   1 -
+ screen.h     |  23 +++--
+ session.c    |  39 +++++---
+ twm.h        |  44 ++++++---
+ types.h      |  20 ++--
+ util.c       | 247 ++++++++++++++++++++++++++++++++++--------------
+ util.h       |  33 +++++--
+ vscreen.c    |  35 +++----
+ vscreen.h    |  10 +-
+ workmgr.c    | 223 ++++++++++++++++++++++---------------------
+ workmgr.h    |  54 +++++------
+ 34 files changed, 968 insertions(+), 638 deletions(-)
+
+commit 691ee3f073de96ba94b9bbb35a57e6e1b2bef3ca
+Author: rhialto <rhialto@falu.nl>
+Date:   Sun Jun 23 16:23:03 2013 +0000
+
+    Add an option (default off) to map and unmap workspaces in the "best"
+    order when switching workspaces.
+    The best order is to first unmap back-to-front (this avoid exposures of
+    parts of hidden windows), then map front-to-back (which prevents that
+    a just-mapped window gets partially hidden again).
+    Enable this code with
+
+    SwitchWorkspacesOrdered	1
+
+    in your .ctwmrc. If this option turns out to be ok (possibly after
+    improvement, it can be turned on by default. One possible improvement
+    would be if it were possible to keep track of the stacking order
+    without explicitly asking the X server with XQueryTree().
+
+ parse.c   |  7 +++++
+ util.c    | 39 +++++++++++++++++++++++-
+ util.h    |  1 +
+ workmgr.c | 97 ++++++++++++++++++++++++++++++++++++++++++++++++-----------
+ workmgr.h |  1 +
+ 5 files changed, 126 insertions(+), 19 deletions(-)
+
+commit 0a13e5d5c230c20a051157222129d29a48318434
+Author: rhialto <rhialto@falu.nl>
+Date:	Thu Feb 14 22:11:27 2013 +0000
+
+    Fix a bug where insufficient validation of the size hints
+    resulted in a division by zero when considering aspect ratio.
+
+ CHANGES  |  3 ++-
+ resize.c | 77 +++++++++++++++++++++++++++++++++---------------------------
+ 2 files changed, 44 insertions(+), 36 deletions(-)
+
+commit ea2fea5b4c81d4c56be5cee2f3fb4d56a1a0c030
+Author: rhialto <rhialto@falu.nl>
+Date:	Wed Feb 13 22:52:30 2013 +0000
+
+    Collect notes on changes.
+
+ CHANGES | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+commit 69b7ecbedeca92fa2697b065e836b1040718b86f
+Author: rhialto <rhialto@falu.nl>
+Date:	Wed Feb 13 20:21:44 2013 +0000
+
+    Eliminated TwmWindow TwmRoot from struct ScreenInfo. Mostly a mechanical
+    change.
+    I found some cases where the dummy TwmWindow was apparently mistakenly
+    included in a loop. Replaced .next with TwmWindow *FirstWindow and
+    .cmaps witn Colormaps RootColormaps. Other members were not used.
+
+ add_window.c	| 15 +++++----
+ clicktofocus.c | 10 +++---
+ ctwm.c		| 14 ++++----
+ cursor.c	|  4 +--
+ events.c	| 94 +++++++++++++++++++++++++++++++++---------------------
+ events.h	|  1 +
+ menus.c	| 49 ++++++++++++++--------------
+ screen.h	|  7 ++--
+ session.c	|  2 +-
+ util.c		| 27 +++++++++-------
+ windowbox.c	|  4 +--
+ workmgr.c	| 20 ++++++------
+ 12 files changed, 137 insertions(+), 110 deletions(-)
+
+commit e825bef13350195eb28278ed97856f3164e2149d
+Author: rhialto <rhialto@falu.nl>
+Date:	Tue Feb 12 23:54:01 2013 +0000
+
+    Logical hasfocusvisible cleanup.
+
+ util.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+commit c27b9748a82d6d69a322eedbddbc3d6732de9049
+Merge: da83db7 a830c27
+Author: rhialto <rhialto@falu.nl>
+Date:	Tue Feb 12 22:22:18 2013 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm' (head
+    b18c4bb7d183135b87e0d580ea4b1531e3fbceb7)
+		to branch 'free.lp.se:X.ctwm.rhialto.cleanup' (head
+		e04b96f6cb79bca3c5f5c048ea7c3d02bd847e20)
+
+commit da83db7206748826b3ec2348711a5a954c53d256
+Author: rhialto <rhialto@falu.nl>
+Date:	Tue Feb 12 19:42:54 2013 +0000
+
+    Cleanup re: raising and warping to windows (previous location of pointer in
+    windows), SaveWorkspaceFocus. A few extra NULL pointer checks.
+
+ ctwm.c    |  6 +++-
+ ctwm.man  |  8 ++++--
+ events.c  | 20 +++++++++++--
+ menus.c   | 90 +++++++++++++++++++++++++++++++++++++++++++++++------------
+ menus.h   |  2 +-
+ parse.c   |  8 +++++-
+ resize.c  |  3 ++
+ screen.h  |  2 +-
+ workmgr.c | 26 +++++++++--------
+ 9 files changed, 128 insertions(+), 37 deletions(-)
+
+commit 459533a1cd92b909fec1fe20d322906136b267f8
+Author: "Michael O'Donnell" <mod.ctwm@b0rken.com>
+Date:	Mon Dec 24 08:37:41 2012 +0000
+
+    * event.c (DispatchEvent2, DispatchEvent): when the screen for an event
+      can't be found, return to the current screen.
+
+ events.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+commit 9d2b36c8afd280b21a8e1b859b366b11bf4e0992
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Mon Jan 9 03:11:21 2012 +0000
+
+    sizeof() yields a size_t, which may well be bigger than an int.  Use %lu
+    as a format specifier for it, and cast it to unsigned long in case it's
+    some other size.
+
+    These uses are just in diagnostic messages, so if size_t really is bigger
+    than u_long on a given platform, the only outcome will be that the error
+    message is misleading (and if any of these numbers are nearly that big,
+    something is very wrong anyway).
+
+ list.c  | 4 ++--
+ menus.c | 4 ++--
+ parse.c | 4 ++--
+ util.c  | 4 ++--
+ 4 files changed, 8 insertions(+), 8 deletions(-)
+
+commit 5522af6b6cd779454704281a4992b84c85840e4d
+Author: Richard Levitte <richard@levitte.org>
+Date:	Thu Jan 5 09:59:13 2012 +0000
+
+    Do not include known system generated files...
+
+ Imakefile | 2 ++
+ 1 file changed, 2 insertions(+)
+
+commit d6306d25a4251a18b694d0d3d16f09d0c8f0baea
+Author: Richard Levitte <richard@levitte.org>
+Date:	Thu Jan 5 09:37:52 2012 +0000
+
+    Update version to 3.8.1
+
+ ctwm.spec | 4 +++-
+ version.c | 2 +-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+commit d5e7350bfa7b9ab69208aa2aa1a1aac187f3a7e3
+Author: Richard Levitte <richard@levitte.org>
+Date:	Thu Jan 5 09:33:56 2012 +0000
+
+    free.lp.se is the official site, not guardian.lp.se.  Currently, they
+    are the same, so people using guardian.lp.se as the server will not
+    notice so far.  Still, better advertise the correct name
+
+ CHANGES | 4 ++--
+ README  | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+commit 08ac487ec6e0bb876011185805e109cc2f9fb676
+Author: rhialto <rhialto@falu.nl>
+Date:	Tue Jan 3 10:03:57 2012 +0000
+
+    f.fill patch, from Matthias Kretschmer <kretschm@cs.uni-bonn.de>.
+
+ CHANGES | 11 +++++++++++
+ menus.c | 16 ++++++++++------
+ 2 files changed, 21 insertions(+), 6 deletions(-)
+
+commit cb3270ab738042a7f10916a240ffcc7ef0f2a493
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Sat Jun 13 06:42:13 2009 +0000
+
+    Treat OpaqueResizeThreshold >= 1000 (the default setting) as infinity,
+    and always OpaqueResize without doing the math to figure if we're over
+    the threshold.
+
+ menus.c | 29 ++++++++++++++++-------------
+ 1 file changed, 16 insertions(+), 13 deletions(-)
+
+commit 94ead32da2330b139448bb92cdbaa4d8b1f214ee
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Sat Jun 13 06:10:55 2009 +0000
+
+    Fix an completely insane mis-sizing of the occupy window.
+
+    When WMgr{Vert,Horiz}ButtonIndent aren't set in the config file, the
+    occupy window's vertical and horizontal spacing are never initialized.
+    But they're still used later on for scaling the occupy window, which can
+    lead to it getting sizes like:
+
+    height=1010580661  width=-252644963
+
+    which has bad side effects.  So initialize them.
+
+ workmgr.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+commit 659d327356db08d073ea84e91a51b1d973631a13
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Tue Oct 28 14:27:17 2008 +0000
+
+    Drop a comment about future work that should be done on the
+    OpaqueResize'ing stuff.
+
+ menus.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+commit 6d7a09050daf81fdfc279d340ecf19fc11c2f4c6
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Tue Oct 28 14:24:35 2008 +0000
+
+    In certain [admittedly specialized] situations, calculating whether we're
+    over the OpaqueResizeThreshold can cause overflows of the variables we're
+    holding info with.	Work around it in two different ways; firstly,
+    increase the size of the variables, and secondly, rearrange the
+    calculations to yield much smaller results by using floating point
+    operations.  The added overhead from the FP is likely to be considerable
+    in computer terms, but utterly meaningless in human terms.
+
+ menus.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+commit a4b59a6540e51f9e57bbae4518234ee7f46074aa
+Author: rhialto <rhialto@falu.nl>
+Date:	Sat Dec 29 16:08:28 2007 +0000
+
+    Fixes [rt.lp.se #134] ctwm crashed by ClickToFocus function
+    Make sure that a TwmWindow always gets set up with a valid VirtalScreen
+    pointer, even if there is no workspace manager.
+
+ workmgr.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+commit 80cd0abaaecb376321d1f7685b7ab8089d13fded
+Merge: 9036d52 39b663b
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Tue Dec 4 05:21:13 2007 +0000
+
+    merge of '19e3aac6d8ea17bfc30ec83fe2c1abe131314f19'
+	 and '2908d36e5ff6dd239c46e45b4a47c70137421375'
+
+commit 9036d52d588b013c8b62afe12c4406bd9a5336cd
+Merge: d6abf2b 80977c0
+Author: Richard Levitte <richard@levitte.org>
+Date:	Mon Dec 3 06:01:17 2007 +0000
+
+    merge of '9134f0e690b467c9667be1296c4906ef12e0cfdc'
+	 and 'c13f0ceb0494f3e8c3597df5aeaedf460f46f216'
+
+commit 80977c054ca07c9c5aa9373bf5840a6007e6e1bd
+Author: Martin Blais <blais@furius.ca>
+Date:	Mon Dec 3 06:01:12 2007 +0000
+
+    A statement that shouldn't be commented.
+
+ workmgr.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit d6abf2bd9fd353ef6ad533f88833e4dd434fe83d
+Merge: 2eafa42 f8f4d6b
+Author: Richard Levitte <richard@levitte.org>
+Date:	Mon Dec 3 04:25:01 2007 +0000
+
+    merge of '4d3ee0d05160c5d1078ef35ef494949c9c8ef636'
+	 and '93cd0f835730be71d5d34d311e8c5c27c373b32f'
+
+commit f8f4d6b37fbb37eaf5985ee999ee82e58599f968
+Author: Martin Blais <blais@furius.ca>
+Date:	Mon Dec 3 04:24:46 2007 +0000
+
+    Remove a few debugging statements that came with the 'SaveWorkspaceFocus'
+    change.
+
+ workmgr.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
+
+commit 2eafa42519a892c8097fefc77971e69cd4c0ed62
+Merge: abc6b2e 3b4e8fa
+Author: Richard Levitte <richard@levitte.org>
+Date:	Sat Dec 1 23:15:27 2007 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm-3.8-fixes' (head
+    0bb87cb06f688c0e9af0959aa2f309a774184d46)
+		to branch 'free.lp.se:X.ctwm' (head
+		3d7aa71e56e415dbb3603d9633fc2d72537a078d)
+
+commit 3b4e8fa987b32fd317ac8afb8763d9f3e31d1a87
+Author: Martin Blais <blais@furius.ca>
+Date:	Sat Dec 1 23:13:32 2007 +0000
+
+    Add the 'SaveWorkspaceFocus' feature.
+
+ CHANGES   |  7 +++++++
+ ctwm.c    |  1 +
+ ctwm.man  |  7 +++++++
+ parse.c   |  6 ++++++
+ screen.h  |  1 +
+ workmgr.c | 28 ++++++++++++++++++++++++----
+ workmgr.h |  1 +
+ 7 files changed, 47 insertions(+), 4 deletions(-)
+
+commit 8f551638f2395ecd52ca6c461c3ac2769bf966b8
+Author: Martin Blais <blais@furius.ca>
+Date:	Sat Dec 1 23:10:56 2007 +0000
+
+    Fix a bug in the warpring 'next' function.	Submitted by Martin Blais
+
+ CHANGES | 6 ++++++
+ menus.c | 4 +++-
+ 2 files changed, 9 insertions(+), 1 deletion(-)
+
+commit 39b663b3b39ff55934db35d68f5f4b554bebf8a4
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Thu Nov 22 23:18:20 2007 +0000
+
+    I don't see any evidence that alloca.c was ever used.  It probably
+    shouldn't be.  And even if it were, it's setup to only be used on non-gcc
+    or gcc versions less than 2.  Cast it loose.
+
+ alloca.c | 564 -----------------------------------------------------------
+ 1 file changed, 564 deletions(-)
+
+commit e23e03eddde5b4bce72b46afdba5db9df588c241
+Merge: f48d9ae b0a82a7
+Author: Richard Levitte <richard@levitte.org>
+Date:	Thu Nov 22 19:41:16 2007 +0000
+
+    merge of '1dfd5be037e9fb09f9aee3d938dcca2848aa7744'
+	 and 'e4bdcfe0db22e2b61ca33b39a74dd8c6c440b808'
+
+commit f48d9ae696668aee6484e3eac3dc04d2cf423546
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Thu Nov 22 19:24:08 2007 +0000
+
+    Update CHANGES for the last few updates.
+
+ CHANGES | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+commit a85f4d6bb88b99ceb9d23bf99ef98c650730a467
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Thu Nov 22 19:14:47 2007 +0000
+
+    Make sure our WorkSpaceWindow is properly initialized.  Otherwise we'll
+    get uninitialized fields in it in certain situations (like with no
+    WorkSpaces{} defined in .ctwmrc), which can lead to hard to track crashes
+    when certain actions (like f.menu "TwmWindows") try to grub through them.
+
+ workmgr.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+commit d17e18297fd6a06d873b17360539743270102cf2
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Tue Oct 30 01:01:20 2007 +0000
+
+    flex generates yylineno on its own, so don't declare it redundantly.
+
+ lex.l | 1 -
+ 1 file changed, 1 deletion(-)
+
+commit 2611cb63d48ef88984123cd753b3afd999884e22
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Tue Oct 30 00:57:48 2007 +0000
+
+    Move another twmrc_error_prefix() extern to global scope.
+
+ vscreen.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+commit e9fe4986b997c8af6a67e8e92e560b2252b4dd2d
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Tue Oct 30 00:56:41 2007 +0000
+
+    Catch another unnecessary extern of captive.
+
+ util.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+commit ac07a5e6475dae66f501bad3b98be47cdfe6b424
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Tue Oct 30 00:54:48 2007 +0000
+
+    Fix a comment on an extern function declaration to point to the right
+    file for definition.
+
+ workmgr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 1995130e8823cb751f3646c28a71ae8dc7715108
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Tue Oct 30 00:53:52 2007 +0000
+
+    Clean up redundant and mis-scoped externs in events.c.
+
+ events.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+commit ccd95c2e8f509c9042937b554f35a4b48bff648e
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Tue Oct 30 00:48:21 2007 +0000
+
+    Clean up some duplicate and tightly-scoped externs in menus.c.
+
+ menus.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
+
+commit 01e64a744120bfa9a93f4345ac9dfaf3971105e1
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Tue Oct 30 00:44:53 2007 +0000
+
+    Move extern declarations up to the file scope.
+
+ parse.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+commit 32575db245428320318607cb50f2829fa12f3bb0
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Tue Oct 30 00:19:40 2007 +0000
+
+    Dump a few more declarations in parse.c that just duplicate ones in the
+    header file.
+
+ parse.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+commit 71fe2ba48e011fcdc1687f7892e4e43f4bfbeec4
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Tue Oct 30 00:14:36 2007 +0000
+
+    twmrc_lineno is declared in parse.h; don't bother redundantly declaring
+    it elsewhere.
+
+ lex.l	 | 1 -
+ parse.c | 1 -
+ 2 files changed, 2 deletions(-)
+
+commit 97cb906c11b500106fcc646e4be3234f938059a1
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Tue Oct 30 00:11:03 2007 +0000
+
+    Get rid of a few redundant declarations.
+
+ ctwm.c | 3 ---
+ 1 file changed, 3 deletions(-)
+
+commit 8b46e76bced5d1eb312dcf64d0dd36e4a99ee522
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Tue Oct 30 00:06:05 2007 +0000
+
+    Let's just skip -Wsign-compare for now; I think it's more trouble than
+    it's worth.
+
+ Imakefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit abf937dbf5c68c6ddb19a12212569b4fb048be8e
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Mon Oct 29 23:45:09 2007 +0000
+
+    add_window.c #include's screen.h, so don't bother extern'ing a var
+    already extern's in screen.h.
+
+ add_window.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+commit 69e9c04f5ab3f02763ee1104da52e5ff749b7695
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Mon Oct 29 23:44:00 2007 +0000
+
+    If a var's only purpose is to compare against an unsigned long, just make
+    it an unsigned long too.
+
+ libctwm.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+commit 1b38892c4e15e4a7ef84043b42cedc644e1e6a85
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Mon Oct 29 23:43:41 2007 +0000
+
+    Add another handful of -W flags to try and clean up.
+
+ Imakefile | 2 ++
+ 1 file changed, 2 insertions(+)
+
+commit 5725a9e60410a74c3b42f791d6915f6def3d1314
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Mon Oct 29 23:08:02 2007 +0000
+
+    Cast a char * to unsigned for an X function that wants it that way.
+
+ vscreen.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 4710d896fde9bde267cc31af09e4b89801364c56
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Mon Oct 29 23:06:51 2007 +0000
+
+    Only one place we include siconify.bm uses the siconify_bits array which
+    is declared statically, so wrap it in an #ifdef to silence a compiler
+    warning.
+
+ iconmgr.c   | 1 +
+ siconify.bm | 3 +++
+ 2 files changed, 4 insertions(+)
+
+commit 98a3a9d0f9aa62c0eb331edac275de4d36bb6205
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Mon Oct 29 23:05:20 2007 +0000
+
+    Cast to sufficiently long types for outputting components of struct
+    timeval.
+
+ util.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 01462933e4fa1ca5857ab05861d050529c0983fb
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Mon Oct 29 22:57:09 2007 +0000
+
+    FreeWMPropertyString is used everywhere on char *'s, so don't declare it
+    as taking unsigned char *'s.
+
+ util.c | 2 +-
+ util.h | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+commit d6ef0e8c68e96528c3ff63cac359fadf66cbac6e
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Mon Oct 29 22:51:55 2007 +0000
+
+    Move dragroot definition earlier so it's initialized before it's used.
+
+ menus.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 1752e17fbf8983c3d90a19cdc130d3e582f000e1
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Mon Oct 29 22:45:25 2007 +0000
+
+    Don't shadow a 'w' variable in a tiny inner scope.
+
+ menus.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+commit e63253584a13931d3703a4313af4af6b2d860519
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Mon Oct 29 22:44:02 2007 +0000
+
+    Window is a numeric type (which is why we can cram a hex number into it),
+    but sscanf() needs to be bludgeoned to accept it.
+
+ ctwm.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+commit 06a34cb9545e392c2694ff002a3321b555f02981
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Mon Oct 29 22:34:31 2007 +0000
+
+    Rename 'dpy' arg to DealWithNonSensicalGeometries() to not clash with
+    global 'dpy' var.
+
+ add_window.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 23d051b942ffbac0ed939a759619f5d81788240d
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Mon Oct 29 22:32:59 2007 +0000
+
+    lex.l needs a prototype to avoid warnings too.
+
+ lex.l | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit 5a0d0a36357d3392df2f858facfe3ecee8fa3519
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Mon Oct 29 22:11:21 2007 +0000
+
+    Add in a prototype for yyparse() to quiet compiler warnings.
+
+ gram.y | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit b0a82a73f8d8972e3521c073a9a651c94fb0403f
+Author: Richard Levitte <richard@levitte.org>
+Date:	Tue Jun 5 11:31:25 2007 +0000
+
+    There are bigger mice these days
+
+ CHANGES | 7 +++++++
+ twm.h	 | 2 +-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
+
+commit a830c27e97f73ab0e100e92b3feca913c30c45da
+Author: rhialto <rhialto@falu.nl>
+Date:	Thu Mar 29 16:06:16 2007 +0000
+
+    Rename TwmWindow.list to iconmanagerlist, and various smaller cleanups.
+
+ Imakefile |   3 +-
+ events.c  | 139 +++++++++++++++++++++++++++++++++-------------------------
+ iconmgr.c |  20 +++++----
+ menus.c   |  23 +++++-----
+ twm.h	   |   4 +-
+ util.c    |  14 +++---
+ workmgr.c |   8 ++--
+ 7 files changed, 118 insertions(+), 93 deletions(-)
+
+commit abc6b2e122d727baac1d1cffd28d1e9ca367689a
+Author: richard <richard@levitte.org>
+Date:	Thu Mar 8 13:19:18 2007 +0000
+
+    applied changes from d3f2af2a654ab0ce5003140e3704ebc924d555e2
+		 through 4d3c304422e28c21b2c955e2f028dad19d08f046
+
+ menus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 81242db81b833aff28a1dbb34b7fa7ca8487e170
+Merge: 4b5fab8 16e0521
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Thu Mar 8 12:41:54 2007 +0000
+
+    merge of '4d3c304422e28c21b2c955e2f028dad19d08f046'
+	 and 'd3bc6616513028456d2f7bdae116dd9b9f939ef9'
+
+commit 4b5fab85b173a2cf30570961b66d49e5c10631af
+Author: fullermd <fullermd@over-yonder.net>
+Date:	Thu Mar 8 11:23:33 2007 +0000
+
+    Fix apparent typo in d3f2af2a654ab0ce5003140e3704ebc924d555e2
+    which causes [de]iconfied status to not propogate across
+    workspaces correctly.
+
+ menus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 16e05215cd5fd942402a10c534fb61af9f80c23a
+Merge: 264b635 0fac64f
+Author: richard <richard@levitte.org>
+Date:	Fri Feb 16 09:58:13 2007 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm-3.8-fixes' (head
+    850ea07ebde6c7a6abb901e32d60967eaceb336e)
+		to branch 'free.lp.se:X.ctwm' (head
+		3e7fc50104e174082a0ce36136b968c62f391eed)
+
+commit 0fac64f5d077d16b483a9f089ad92b72b6e8b04a
+Author: richard <richard@levitte.org>
+Date:	Fri Feb 16 09:53:12 2007 +0000
+
+    CTWM 3.8a
+
+ ctwm.spec | 4 ++--
+ version.c | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+commit 0b2980f92e2e3a0287635e872844e6e2ca274754
+Author: richard <richard@levitte.org>
+Date:	Fri Feb 16 09:50:52 2007 +0000
+
+    Corrections of the (really dated) information in README
+
+ README | 20 +++++++++-----------
+ 1 file changed, 9 insertions(+), 11 deletions(-)
+
+commit 264b6354457b5a2016449c15abfdf948f5797ab6
+Author: richard <richard@levitte.org>
+Date:	Fri Feb 16 09:23:03 2007 +0000
+
+    Change version information for development of 3.9
+
+ ctwm.spec | 2 +-
+ version.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+commit c28e8ce0844dc7e25667383b98d0cf1587257c0f
+Author: richard <richard@levitte.org>
+Date:	Fri Feb 16 09:22:20 2007 +0000
+
+    Change version information for the release of 3.8
+
+ ctwm.spec | 4 +++-
+ version.c | 2 +-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+commit 6891a72041bb5636aec591383f8326df9cc91a39
+Author: richard <richard@levitte.org>
+Date:	Fri Feb 16 08:38:39 2007 +0000
+
+    DEBUG printouts should only happen when DEBUG is defined
+
+ parse.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+commit 93198b9b8c757e6a675ba6222c1b02e79bc91391
+Author: richard <richard@levitte.org>
+Date:	Fri Feb 16 08:35:48 2007 +0000
+
+    Modified the initial random placement to make more sense with regard to
+    the sign
+
+ CHANGES      |  7 +++++++
+ add_window.c | 11 +++++++++--
+ 2 files changed, 16 insertions(+), 2 deletions(-)
+
+commit 9124808e11c6600f4a7fa634eec07d3441aa8e17
+Author: richard <richard@levitte.org>
+Date:	Fri Feb 16 06:14:32 2007 +0000
+
+    Don't free ->HiliteImage unconditionally, since it can reside in the
+    image cache
+
+ add_window.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
+
+commit 4cd1d18aac39ff875b384aa3094398e9b9daaa13
+Author: richard <richard@levitte.org>
+Date:	Wed Feb 14 11:50:48 2007 +0000
+
+    Don't destroy or delete the Occupy window
+
+ menus.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+commit 42928a0f0372eadcc8c7b200cd78017073ea4d76
+Author: rhialto <rhialto@falu.nl>
+Date:	Tue Feb 13 23:57:41 2007 +0000
+
+    Add ExposureMask to the selected inputs for Occupy-subwindows.
+    The lack of that kept them from being repainted properly.
+
+ workmgr.c | 17 ++++++-----------
+ 1 file changed, 6 insertions(+), 11 deletions(-)
+
+commit 6f35a1739bcf786c6586bb3e69c41e32e1546c73
+Merge: abd8ed3 f539202
+Author: rhialto <rhialto@falu.nl>
+Date:	Thu Feb 8 23:43:13 2007 +0000
+
+    merge of '046dbe63b42bdbc8ef18f03a923ba0f95952a1a3'
+	 and '0acd56e3399963382be80f5d00423b65944445bc'
+
+commit abd8ed3d2956f75c61c56695a81e933ab8795ea1
+Author: rhialto <rhialto@falu.nl>
+Date:	Thu Feb 8 23:39:16 2007 +0000
+
+    Keep a copy of tmp_win->isicon because calling ReMapOne() destroys
+    its value.
+
+ menus.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+commit f53920269edb885ed40ab26bb5eabbe6b3ec193a
+Author: richard <richard@levitte.org>
+Date:	Sun Feb 4 09:39:41 2007 +0000
+
+    Cleaned out X11R4
+
+ CHANGES |  3 ++-
+ twm.h	 | 14 ++------------
+ util.c  |  4 ----
+ 3 files changed, 4 insertions(+), 17 deletions(-)
+
+commit 44fc8fe6a9662bf5eebb6d1e3e200770cf7716af
+Author: richard <richard@levitte.org>
+Date:	Fri Feb 2 10:46:16 2007 +0000
+
+    Make RandomPlacement respect the BorderLeft, BorderRight, BorderTop and
+    BorderBottom settings
+
+ add_window.c | 43 +++++++++++++++++++++++++------------------
+ 1 file changed, 25 insertions(+), 18 deletions(-)
+
+commit 94cf2b206e104cc0ef35ee2939481395c4e0c505
+Author: richard <richard@levitte.org>
+Date:	Fri Feb 2 09:25:16 2007 +0000
+
+    Clean out USE_SESSION, X11R6 and the remainders of I18N
+
+ CHANGES		  |  6 ++++++
+ Imakefile		  | 20 +++++------------
+ Imakefile.local-template |  6 ------
+ README			  |  3 ---
+ add_window.c		  | 20 +----------------
+ ctwm.c			  | 51 ++++++--------------------------------------
+ ctwm.man		  |  8 -------
+ descrip.local-template   | 32 +++++++--------------------
+ descrip.mms		  | 31 +++------------------------
+ descrip.submms		  |  9 ++++----
+ events.c		  | 11 ++--------
+ make.com		  |  2 +-
+ menus.c		  | 13 ++---------
+ parse.c		  |  3 ---
+ resize.c		  |  3 +--
+ session.c		  | 22 +------------------
+ session.h		  |  2 --
+ twm.h			  | 16 ++++----------
+ types.h		  |  2 --
+ version.c		  |  3 +--
+ 20 files changed, 46 insertions(+), 217 deletions(-)
+
+commit de15dad5349055cce28aaa710b06ab8fa1cf717f
+Author: rhialto <rhialto@falu.nl>
+Date:	Sun Jan 28 23:54:41 2007 +0000
+
+    Fix "pasto".
+
+ add_window.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 6097d69ddaa53cc5d79710c8e2b20ed8a21d12d3
+Author: richard <richard@levitte.org>
+Date:	Fri Jan 26 08:18:44 2007 +0000
+
+    A few semicolons missings.	Thanks, Debian, for having so clear diffs
+
+ gram.y | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+commit eeecdb93cce489fe3b532085df3b4f4961b7d983
+Author: richard <richard@levitte.org>
+Date:	Fri Jan 26 07:45:25 2007 +0000
+
+    Unnecessary .PP
+
+ ctwm.man | 1 -
+ 1 file changed, 1 deletion(-)
+
+commit 110ecb8840249662f99e9922d5deebf0bc30112d
+Author: richard <richard@levitte.org>
+Date:	Fri Jan 26 04:07:33 2007 +0000
+
+    It's better to use sizeof() to determine the length of a buffer, so
+    we don't
+    have to change the number twice
+
+ workmgr.c | 4 ++--
+ workmgr.h | 1 -
+ 2 files changed, 2 insertions(+), 3 deletions(-)
+
+commit e8d88753f072dbfdf573a04a529a4662aae4720e
+Merge: 10ba72c 6814e45
+Author: richard <richard@levitte.org>
+Date:	Fri Jan 26 03:59:46 2007 +0000
+
+    merge of '18c16f1d7fac4f189b0c3a10e77b92aa40a86ba9'
+	 and 'ac784829d3f758d5a86c2a87b7d7c14ab6a3f72d'
+
+commit 6814e455ca50d9a9a769ecac3ac38032f017b752
+Author: rhialto <rhialto@falu.nl>
+Date:	Fri Jan 26 00:23:53 2007 +0000
+
+    Small style change, and some more due to "gcc -pedantic".
+
+ add_window.c |  3 ++-
+ workmgr.c    | 36 ++++++++++++++++++++++--------------
+ 2 files changed, 24 insertions(+), 15 deletions(-)
+
+commit 10ba72c9afe21edb4bb6759f0b0777b46da1bfb0
+Author: richard <richard@levitte.org>
+Date:	Thu Jan 25 23:27:04 2007 +0000
+
+    Remove unused variables.
+    Declare CanChangeOccupation().
+    Hide code with #if 0..#endif instead of comments.
+
+ menus.c   |  1 -
+ workmgr.c | 11 ++++++-----
+ workmgr.h |  1 +
+ 3 files changed, 7 insertions(+), 6 deletions(-)
+
+commit a73ebe4f0daff089d966b60f92c9b222a552da52
+Author: rhialto <rhialto@falu.nl>
+Date:	Thu Jan 25 20:19:40 2007 +0000
+
+    Simplifications c.q. de-duplications of code regarding the
+    WorkSpaceManager and Occupation windows. This includes coding
+    the layout of these windows only once instead of twice (at
+    initialisation and when resizing). If it's wrong now at least it
+    should be consistent.
+    When changing occupation via functions like
+    f.movetonextworkspace, also move complete window groups (just
+    like when you do it via the Occupation window).
+    Also fixed changing the occupation of the Occupation window.
+    Documented (so far) undocumented possibility to edit the labels
+    of workspaces on the fly (what use this is, I'm not sure).
+    Removed some unused variables.
+
+ CHANGES   |  14 ++
+ ctwm.man  |   7 +
+ twm.h	   |   2 +-
+ workmgr.c | 576 ++++++++++++++++++++++++++++------------------------------
+ workmgr.h |  17 +-
+ 5 files changed, 306 insertions(+), 310 deletions(-)
+
+commit af72a77975363e067153aa8235d3e29f745f626a
+Merge: 40728f4 7c33fa2
+Author: rhialto <rhialto@falu.nl>
+Date:	Wed Jan 24 22:16:44 2007 +0000
+
+    merge of 'b5170bb901e42ca14d705b4ab9e2c6f2fa78fb61'
+	 and 'd3f2af2a654ab0ce5003140e3704ebc924d555e2'
+
+commit 7c33fa20b57a841e69a361953c1c666a285d84b7
+Author: rhialto <rhialto@falu.nl>
+Date:	Wed Jan 24 22:13:42 2007 +0000
+
+       18 - When Squeezing a window group leader, unmap the member windows,
+	just like happens with iconification.
+	[Olaf "Rhialto" Seibert]
+
+ CHANGES |   4 ++
+ menus.c | 190 +++++++++++++++++++++++++++++++-----------------------------
+ 2 files changed, 101 insertions(+), 93 deletions(-)
+
+commit 40728f45c9ee3680c8759808c5e2d07c591bbe58
+Author: richard <richard@levitte.org>
+Date:	Wed Jan 24 08:54:48 2007 +0000
+
+    Update the distribution target to newer monotone, and make sure it
+    depends in Makefile
+
+ Imakefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 27cf9774deca6477ed1e5719ec1af7dd3414f499
+Author: rhialto <rhialto@falu.nl>
+Date:	Mon Jan 22 23:00:13 2007 +0000
+
+    "TwmWindow.group" was once apparently set to 0 when a window had
+    no group leader but this was changed to pointing to its own
+    window.  This resulted however in many places checking for both
+    conditions, and several checking only for 0 which could not
+    occur anymore. Changed it back to 0 (so we can now distinguish
+    again windows that really indicate themselves as group leader,
+    if we wish) and this gave rise to some simplifications.
+
+    Also, there were various loops through all TwmWindows looking
+    for a group leader (or a transientfor), I replaced them with
+    GetTwmWindow() which uses the Xlib function XFindContext() which
+    uses a hash table lookup. This should be more efficient.
+
+    When you change the occupation of a group member window, it is
+    now applied to the group leader (which in turn affects all
+    members).
+
+    I tried this with ExMH, the only program that uses a real group
+    leader that I could find. Iconifying the leader unmaps the
+    members. What should "squeezing" do? ExMH also has an icon
+    window (see ICCCM 4.1.9, 3rd option) which behaves weirdly; this
+    may be a bug in ExMH (see exmh-2.7.2/exmh.BUGS) even though fvwm
+    somehow handles it better.
+
+ CHANGES      | 25 +++++++++++++++++++
+ add_window.c | 75 ++++++++++++++++++++++++++++++++++++--------------------
+ add_window.h |  1 +
+ events.c     | 49 ++++++++++++++----------------------
+ icons.c      | 13 ++++++++--
+ menus.c      | 50 +++++++++++++++++--------------------
+ resize.c     |  2 +-
+ util.c       |  2 +-
+ workmgr.c    | 30 ++++++++++++++---------
+ 9 files changed, 146 insertions(+), 101 deletions(-)
+
+commit 7cf598a0a1652b4ec195ecf6780038b178d27a97
+Author: rhialto <rhialto@falu.nl>
+Date:	Mon Jan 22 22:20:28 2007 +0000
+
+    Fix position of buttons in Occupy window, to make them centered.
+    (and spread the remaining space evenly in 4).
+
+ CHANGES   | 3 +++
+ workmgr.c | 8 ++++----
+ 2 files changed, 7 insertions(+), 4 deletions(-)
+
+commit b4916f592013a27de59ee59328f54f966910e657
+Author: richard <richard@levitte.org>
+Date:	Mon Jan 22 15:52:11 2007 +0000
+
+    - Extend the button specification for title buttons to take modifiers.
+    - Modify the manual pages for better clarity of the different subsections
+      in BINDINGS.
+    - Deprecate the "Button {j} : {function}" for of title pointer button
+      specification.
+
+ CHANGES  | 16 ++++++++++++++++
+ ctwm.man | 28 ++++++++++++++++++++++++----
+ events.c | 36 ++++++++++++++++++++++--------------
+ gram.y   | 10 ++++++++--
+ menus.c  | 33 +++++++++++++++++++++++++--------
+ menus.h  |  2 +-
+ twm.h	  | 11 +++++++----
+ 7 files changed, 103 insertions(+), 33 deletions(-)
+
+commit 84ba54c2cd4c5724d68b1996d4c3e6da3af6aefb
+Author: richard <richard@levitte.org>
+Date:	Mon Jan 22 12:56:17 2007 +0000
+
+    Info window enhanced with geometry from the lower right corner
+
+ CHANGES |  3 +++
+ menus.c | 23 +++++++++++++++--------
+ 2 files changed, 18 insertions(+), 8 deletions(-)
+
+commit 814d6fc3048506542fe1429839dd4a65d8899c35
+Author: richard <richard@levitte.org>
+Date:	Sat Jan 20 20:13:26 2007 +0000
+
+    Enhance RandomPlacement with a displacement argument.
+    This resolves ticket [rt.lp.se #108]
+
+ CHANGES      |  9 +++++++++
+ add_window.c | 45 ++++++++++++++++++++++++++++++++-------------
+ ctwm.c       |  2 ++
+ ctwm.man     | 17 +++++++++++------
+ gram.y       | 29 ++++++++++++++++++++++++++++-
+ parse.c      | 51 ++++++++++++++++++++++++++++++++++++---------------
+ parse.h      |  5 +++--
+ screen.h     |  4 +++-
+ 8 files changed, 124 insertions(+), 38 deletions(-)
+
+commit e3c719b768229138e7b39a9d4dffe955e6816b5b
+Author: richard <richard@levitte.org>
+Date:	Sat Jan 20 18:18:48 2007 +0000
+
+    Debian fixed their bug report #375240, which is the same as [rt.lp.se
+    #117].
+    I'm simply stealing the fix.  Thanks, Mike O'Connor
+
+ menus.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+commit 69143ec5a003e133003f1a47e942912563cba365
+Author: richard <richard@levitte.org>
+Date:	Thu Jan 18 11:47:53 2007 +0000
+
+    Since the fonts in a font set can vary in sizes, let's use the specific
+    extents
+    of the work space manager titles to figure out the string height
+
+ workmgr.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+commit eceda1ec2f999ab9215ef02bbf9af4b74b26425c
+Author: richard <richard@levitte.org>
+Date:	Thu Jan 18 11:20:59 2007 +0000
+
+    A line that disappeared for some reason
+
+ workmgr.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit 7ce318280ccba24a7f234010cfc11b318260e1cc
+Author: richard <richard@levitte.org>
+Date:	Wed Jan 17 08:58:06 2007 +0000
+
+    I forgot to remove the I18N condition in lex.l...
+
+ lex.l | 4 ----
+ 1 file changed, 4 deletions(-)
+
+commit 238415b4e3781a45d6105d1a86482c2938a1d68f
+Author: richard <richard@levitte.org>
+Date:	Tue Jan 16 16:49:09 2007 +0000
+
+    Remove all traces of I18N and NO_LOCALE and make locale usage the default
+
+ CHANGES		  |  6 +++
+ Imakefile		  |  8 +---
+ Imakefile.local-template |  6 ---
+ README			  |  2 -
+ add_window.c		  | 43 +--------------------
+ ctwm.c			  | 51 +------------------------
+ cursor.c		  | 13 -------
+ events.c		  | 42 ---------------------
+ gc.c			  |  3 --
+ icons.c		  |  8 +---
+ menus.c		  | 89 ++------------------------------------------
+ parse.c		  | 28 --------------
+ resize.c		  |  8 ----
+ twm.h			  |  7 ----
+ util.c			  | 89 --------------------------------------------
+ version.c		  |  4 --
+ workmgr.c		  | 79 +--------------------------------------
+ 17 files changed, 17 insertions(+), 469 deletions(-)
+
+commit f082e051adfb3a3e8d53df2271b2a7191bb59c0d
+Author: richard <richard@levitte.org>
+Date:	Tue Jan 16 16:11:29 2007 +0000
+
+    I18N problem solved by running XA_STRINGs through
+    XmbTextPropertyToTextList()
+    as well, thereby converting ISO-8859-1 to UTF8 if that's your locale
+
+ util.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
+
+commit fa8857854a94275a37ef61162ee10403c495a77f
+Author: rhialto <rhialto@falu.nl>
+Date:	Fri Dec 29 18:24:46 2006 +0000
+
+    Introduce Scr->XineramaRoot to store the root window that
+    encompasses all virtual screen rootwindows. This further reduces
+    any need to use RealRoot and/or CaptiveRoot.
+    Add a schematic drawing that clarifies the relation between the
+    various root-type windows.
+    Rename "oldvs" to "old_parent_vs" which hopefully captures the meaning
+    better. (I tried naming it "parent_vs" and renaming "vs" to "visible_vs"
+    too, but that got too confusing, I thought, since in some cases it would
+    then be more logical to use parent_vs instead of visible_vs.)
+
+ CHANGES      |  7 +++++++
+ add_window.c | 10 +++++-----
+ ctwm.c       |  5 +++--
+ events.c     | 21 ++++++++++++---------
+ events.h     |  4 ++--
+ gnome.c      |  2 +-
+ menus.c      | 44 +++++++++++++++++++++++++-------------------
+ screen.h     | 32 ++++++++++++++++++++++++++++----
+ twm.h	      |  2 +-
+ vscreen.h    |  4 ++--
+ workmgr.c    | 17 +++++++++++++----
+ 11 files changed, 99 insertions(+), 49 deletions(-)
+
+commit a625e3e8f4ae266d1b948d43527d1b9de3f4216f
+Author: richard <richard@levitte.org>
+Date:	Mon Dec 25 04:11:35 2006 +0000
+
+    A small typo krept in the latest changes
+
+ parse.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 47246581fc2c39b432f2d1b08b0d4a65294e0e35
+Author: rhialto <rhialto@falu.nl>
+Date:	Fri Dec 22 23:46:38 2006 +0000
+
+    Fixed interaction between "inner" and "outer" workspace
+    selection with "captive" windows. This was because the Gnome
+    "_WIN_WORKSPACE" property is used in 2 conflicting ways: for
+    client windows it indicates which workspace they are in, for
+    root windows it indicates which workspace they show. Captive
+    windows are both. Also, the initially selected inner workspace
+    is now the first, not the same as the outer workspace (this had
+    a different cause).
+
+ CHANGES   | 10 ++++++++++
+ ctwm.c    |  2 +-
+ gnome.c   |  5 +++--
+ screen.h  |  4 ++--
+ workmgr.c | 15 +++++++++++----
+ 5 files changed, 27 insertions(+), 9 deletions(-)
+
+commit baba3ff82725347407bd51257d7e49f42a2c6b42
+Author: rhialto <rhialto@falu.nl>
+Date:	Fri Dec 22 17:06:01 2006 +0000
+
+    Fix small merge error.
+
+ workmgr.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+commit 509fb16ab4f23010cfc0139237b387474f669849
+Merge: 025396e 17c0861
+Author: rhialto <rhialto@falu.nl>
+Date:	Fri Dec 22 17:02:23 2006 +0000
+
+    merge of '71f800b1b574ec52483dc65b87534bd3d2e8c26c'
+	 and 'bfdb8bf787aa2b65b2987740e6ee3abd9368f2eb'
+
+commit 17c08610f269b74e343077617dc43a1aba615a51
+Author: rhialto <rhialto@falu.nl>
+Date:	Fri Dec 22 16:18:45 2006 +0000
+
+    Re-introduced TwmWindow.oldvs, used to avoid calling
+    XReparentWindow() when possibe (it messed up the stacking order
+    of windows). However, maybe the use of .vs should be rethought a
+    bit: in Vanish() it is now set to NULL with the old value kept
+    in .oldvs.	However the window is still a child of the same vs.
+    Maybe it is better not to set it to NULL and then, when *really*
+    changing the virtual screen, .vs can be used instead of .oldvs.
+
+    This whole "virtual screen" thing is unexplained in the manual,
+    which even uses it as a synonym for "workspace" already in the
+    introduction paragraph. (There also does not seem to be a way
+    now to test virtual screens in captive windows) I suspect that
+    all this causes lots of confusion, and when cleared up, can
+    simplify the code a lot.
+
+    I also fixed up the horrible indentation in the functions
+    where I changed something.
+
+ CHANGES      | 19 +++++++++++++
+ add_window.c |  3 ++
+ twm.h	      |  1 +
+ workmgr.c    | 84 +++++++++++++++++++++++++++++++++-----------------------
+ 4 files changed, 73 insertions(+), 34 deletions(-)
+
+commit c007252f8c1169e587f66ded2ff1e97213bd939c
+Author: rhialto <rhialto@falu.nl>
+Date:	Thu Dec 21 21:37:49 2006 +0000
+
+    There were some directives in the config file that wanted to set some
+    setting for all virtual screens. However since that list is (now) only
+    set up after parsing the config file, they failed to work.	Moreover,
+    these settings were basically meant to be global to all virtual
+    screens, so a better place for them is somewhere in *Scr.  They all
+    related to the Workspace Manager, so I moved them from struct
+    WorkSpaceWindow to struct WorkSpaceMgr.
+
+    The affected directives are StartInMapState, WMgrVertButtonIndent,
+    WMgrHorizButtonIndent, MapWindowCurrentWorkSpace,
+    MapWindowDefaultWorkSpace.	The window and icon_name, even though not
+    user-settable, were also moved.
+
+    This is basically the previous change done right.
+
+ CHANGES   |  18 ++++++-
+ parse.c   |  13 ++---
+ workmgr.c | 152 ++++++++++++++++++++++++++++++----------------------------
+ workmgr.h |  25 +++++-----
+ 4 files changed, 111 insertions(+), 97 deletions(-)
+
+commit 177349dc95b5a95e5bffff846e0bf1e0faa085e9
+Author: rhialto <rhialto@falu.nl>
+Date:	Sat Dec 16 12:14:49 2006 +0000
+
+    Oops, continue would work only in a for() loop of course.
+
+ workmgr.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
+
+commit fdcf35be892cfba6e0905b3eb9d2fab67449a55b
+Author: rhialto <rhialto@falu.nl>
+Date:	Sat Dec 16 11:59:49 2006 +0000
+
+    WMapCreateCurrentBackGround() and WMapCreateDefaultBackGround()
+    would skip remaining virtual screens if not all parameters are present.
+
+    small type errors.
+
+ CHANGES   |  5 +++++
+ workmgr.c | 32 +++++++++++++++++---------------
+ 2 files changed, 22 insertions(+), 15 deletions(-)
+
+commit 025396ed7da10b9d399bf7d601f5b59f0a01cfb0
+Author: richard <richard@levitte.org>
+Date:	Fri Dec 15 20:02:15 2006 +0000
+
+    Oops...
+
+ vscreen.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 671b0a3bebb9cfd6f7a4a2fa3906d18b184575a4
+Author: richard <richard@levitte.org>
+Date:	Fri Dec 15 20:01:27 2006 +0000
+
+    Unused variables, undeclared functions and a few other things corrected
+
+ events.c  |  3 ++-
+ menus.c   |  2 --
+ vscreen.c | 24 +++++++++++++-----------
+ vscreen.h |  4 ++++
+ workmgr.c |  4 ++--
+ 5 files changed, 21 insertions(+), 16 deletions(-)
+
+commit 4c14e3b9e9c7c5ff8f96165ac385ac02606a9c93
+Author: richard <richard@levitte.org>
+Date:	Fri Dec 15 19:36:43 2006 +0000
+
+    This change responds to ticket #121, which says this:
+
+    ctwm 3.7 crashes on startup on 64-bit sparcs. The backtrace is:
+
+    #0 0x000000004136a16c in _XData32 () from /usr/X11R6/lib/libX11.so.6
+    #1 0x0000000041390a84 in XChangeProperty () from /usr/X11R6/lib/libX11.so.6
+    #2 0x0000000000141ea8 in InitGnome () at gnome.c:70
+    #3 0x00000000001105cc in main (argc=<value optimized out>,
+
+    This is the because the variable `curws' that is passed to
+    XChangeProperty()
+    is an int not a long. The X code deferences the variable as a long and on
+    a 64-bit sparc this must be aligned on an 8-byte boundary. Because it is
+    an int, it is aligned on a 4-byte boundary, causing a bus error.
+
+ gnome.c   | 2 +-
+ menus.c   | 3 ++-
+ workmgr.c | 8 ++++----
+ workmgr.h | 4 ++--
+ 4 files changed, 9 insertions(+), 8 deletions(-)
+
+commit fd703e97ca1cdbcfd00787fa37baf7d1c3035088
+Author: richard <richard@levitte.org>
+Date:	Mon May 22 18:24:43 2006 +0000
+
+    Tmp_win, not Tmp_Win...  and removed an unused variable
+
+ events.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+commit ea17077ae4681c21d50fc4667726f444004f1f2d
+Author: richard <richard@levitte.org>
+Date:	Mon May 22 02:52:47 2006 +0000
+
+    Yet another reset of a pointer that was free'd
+
+ events.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit 3006daf6839a80abb06026bfe5adba3de5243315
+Author: kovert <kovert@omniscient.com>
+Date:	Sun May 21 20:25:25 2006 +0000
+
+    - improve algoritm to deal with mismatched geometry of virtual
+      screens
+
+    - allow windows to be dragged from one virtual screen to another and
+      have them switch workspaces appropriately
+
+    - handle restarts properly with virtual screens, including preserving
+      where windows were placed within workspaces regardless of which
+      virtual screen a window was on; preserve virtual screen state and
+      window placement much better across restarts
+
+    - add comments descirbing a double-free bug, #if 1 it for now so it's
+      easy to identify.
+
+ CHANGES      | 11 ++++++++
+ add_window.c | 27 +++++++++++++++----
+ events.c     | 38 +++++++++++++++++++++++---
+ libctwm.c    |  2 --
+ menus.c      | 53 +++++++++++++++++++++++++-----------
+ twm.h	      |  1 -
+ vscreen.c    | 62 +++++++++++++++++++++++++++++++++++++++++-
+ vscreen.h    |  1 +
+ workmgr.c    | 82 +++++++++++++++++++++++++++++++++++++++++++++-----------
+ 9 files changed, 233 insertions(+), 44 deletions(-)
+
+commit 633a5eae07eb829d46d25219f4209ae5d3d0fb1f
+Author: richard <richard@levitte.org>
+Date:	Sun Apr 23 06:28:28 2006 +0000
+
+    Adjustments to ctwm.man.  Closes #116
+
+ CHANGES  | 11 +++++++++++
+ ctwm.man | 12 ++++++------
+ 2 files changed, 17 insertions(+), 6 deletions(-)
+
+commit c7594e21278492b108b3e113eb186b1ead91f50e
+Author: richard <richard@levitte.org>
+Date:	Sat Apr 22 05:43:35 2006 +0000
+
+    Fix the following issues:
+
+     - InitVirtualScreens() and ConfigureWorkSpaceManager() were called too
+       early
+     - Menu shadows on the right screen in a Xinerama setup could appear on
+       the left screen
+     - Menu shadows on the left screen appeared on top of the window
+     - Windows on the right screen disappeared after startup
+
+ CHANGES      | 18 ++++++++++++++++++
+ add_window.c | 49 +++++++++++++++++++++++++++++++++++++++++++++++++
+ ctwm.c       | 10 ++++++----
+ menus.c      |  5 +++--
+ 4 files changed, 76 insertions(+), 6 deletions(-)
+
+commit def496059eac8f1cb364e8a8266c6a95f9a87827
+Merge: 93cc92d dc65707
+Author: rhialto <rhialto@falu.nl>
+Date:	Tue Jan 31 20:17:03 2006 +0000
+
+    merge of 3b6ffab9419cb7047f355bb69f5f85e1d207cb5c
+	 and c77699540a3d978b106d690b7b4d72c5f90fbc88
+
+commit dc65707ad6fcae2faa07f45e3b459814b95ed606
+Author: rhialto <rhialto@falu.nl>
+Date:	Tue Jan 31 20:16:57 2006 +0000
+
+    Fix bug where resizing from the top or left border when AutoRelativeResize
+    is set, resizes from the opposite border instead. Also some layout.
+
+ menus.c  | 10 +++++-----
+ resize.c | 16 +++++++++++-----
+ 2 files changed, 16 insertions(+), 10 deletions(-)
+
+commit 22ead05565cc3ed8d78e5fd0451f2b8da141305a
+Author: rhialto <rhialto@falu.nl>
+Date:	Tue Jan 31 20:15:00 2006 +0000
+
+    Fix redundancy (and layout) of tests in SetBorderCursor().
+
+ util.c | 111 ++++++++++++++++++++++++++++---------------------------------
+ 1 file changed, 50 insertions(+), 61 deletions(-)
+
+commit 93cc92dc7dce197ed58556ec458ab81a2ab52412
+Author: richard <richard@levitte.org>
+Date:	Sun Jan 29 12:41:48 2006 +0000
+
+    Mention that you need to install the man page separately
+
+ README | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit a55eb5dbb00c9559fb8265aa73d7e5f08bf611e6
+Author: richard <richard@levitte.org>
+Date:	Sun Jan 29 12:03:05 2006 +0000
+
+    Cut and paste error
+
+ Imakefile.local-template | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 4d540edc8e28c9653b9287c60041b0938113c27e
+Merge: 66b12da 518bc62
+Author: richard <richard@levitte.org>
+Date:	Mon Jan 16 15:38:24 2006 +0000
+
+    merge of 7ff965763aab627b99d0b64ef26830a37fe0f221
+	 and a078259827ad319e2d4fd38102026cfe8dd9fc19
+
+commit 518bc6284702ccea1bb33d5b5cd5f0f5cfaec716
+Author: richard <richard@levitte.org>
+Date:	Mon Jan 16 15:36:18 2006 +0000
+
+    Fix for RT ticket #113, submitted by Amnon Aaronsohn <bla@cs.huji.ac.il>
+
+    There's a bug in ctwm-3.7's workspace manager: when you try to move
+    awindow with the mouse using its workspace manager icon, the window
+    sticksto the right and you can't change its x position. Probably due
+    to a typoin the code. The attached patch fixes this.
+
+ workmgr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 66b12daa7dfc0c9900694a7e773221d893163ebf
+Author: richard <richard@levitte.org>
+Date:	Mon Oct 3 22:04:17 2005 +0000
+
+    New versions of the Imakefile structure require leading hashes to be
+    replaced witg XCOMM
+
+ ctwm.man | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 35f40548dc1102df35aae37d71a1db09691ef73d
+Author: rhialto <rhialto@falu.nl>
+Date:	Mon Oct 3 20:24:40 2005 +0000
+
+    Fix 3-way merge error, and add entry for f.movetitlebar.
+
+ CHANGES | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+commit 39c60d1adb4cacd9dc7d0b94314d111ca565fd92
+Merge: 83c56c0 c3175d4
+Author: rhialto <rhialto@falu.nl>
+Date:	Mon Oct 3 20:16:10 2005 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm.rhialto.movetitlebar' (head
+    806a0899a79007fec6ed84fef19d3dbd7511dac0)
+		to branch 'free.lp.se:X.ctwm' (head
+		2f9bf78bde0e65405a1d986fec9bceb426334b1f)
+
+commit 83c56c0fa8a5aa624ac00ac1726d4d332631e8e1
+Author: richard <richard@levitte.org>
+Date:	Thu Sep 29 11:52:07 2005 +0000
+
+    Duplication due to a mer glitch, maybe?  Renumbered Olaf's memory
+    leak note.
+
+ CHANGES | 13 +------------
+ 1 file changed, 1 insertion(+), 12 deletions(-)
+
+commit 1d362940f81397b5961430c100ba184e611c5fc8
+Author: richard <richard@levitte.org>
+Date:	Thu Sep 29 06:15:13 2005 +0000
+
+    Syntax correction.
+    Discard the monotone administrative directory as well.
+
+ Imakefile | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+commit b2cbcdeee2ec5dc0a19727f2e1d062d6d7b0f638
+Author: richard <richard@levitte.org>
+Date:	Thu Sep 29 06:12:42 2005 +0000
+
+    Have dist produce a snapshot if development is going on
+
+ Imakefile | 3 +++
+ 1 file changed, 3 insertions(+)
+
+commit 147eb207013dbd9ac2d6740b4bd2d845953b03f1
+Merge: c4b7b95 766b74e
+Author: richard <richard@levitte.org>
+Date:	Thu Sep 29 05:52:56 2005 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm.3_7-RELEASE' (head
+    8fa78a7b62b60465f5eb86d7a3c8574b2a9ef044)
+		to branch 'free.lp.se:X.ctwm' (head
+		dd2e4e3ac40076182226445f9186d16f7eb7563b)
+
+commit c3175d4c7e5ac750da888a5b49e889116988b36c
+Merge: 0780f7b 766b74e
+Author: rhialto <rhialto@falu.nl>
+Date:	Wed Sep 28 23:09:26 2005 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm' (head
+    dd2e4e3ac40076182226445f9186d16f7eb7563b)
+		to branch 'free.lp.se:X.ctwm.rhialto.movetitlebar' (head
+		e90829f4fbcd38fd223ed2fa2e89677bf15ccfa3)
+
+commit 766b74e434aa5c3a2d67658750d3e44996b7d506
+Author: rhialto <rhialto@falu.nl>
+Date:	Wed Sep 28 23:08:55 2005 +0000
+
+    Add message to CHANGES file.
+
+ CHANGES | 3 +++
+ 1 file changed, 3 insertions(+)
+
+commit 0780f7b27be737297544b18788ee1ad0e2c2f812
+Merge: ce92c11 0ed3825
+Author: rhialto <rhialto@falu.nl>
+Date:	Wed Sep 28 22:37:42 2005 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm' (head
+    4e403285baf0360b9b0816be74b4a3829d6741a8)
+		to branch 'free.lp.se:X.ctwm.rhialto.movetitlebar' (head
+		da2746ba88426c916db9f7879d2b8957e68163ac)
+
+commit ce92c117ba42bd1f9e03d43119a09279f675b7b1
+Author: rhialto <rhialto@falu.nl>
+Date:	Wed Sep 28 22:09:11 2005 +0000
+
+    Fix a handful of memory leaks found by "Nadav Har'El"
+    <nyh@math.technion.ac.il>.	It is clear much more rearrangement of code
+    could be done to create better symmetry and matching of abstraction
+    levels.
+
+ add_window.c | 39 ++++++++++++----------
+ add_window.h |  1 +
+ events.c     | 98 +++++++++++++++++++++++++++++---------------------------
+ icons.c      | 12 ++++++-
+ icons.h      |  1 +
+ util.c       | 36 +++++++++++++++++----
+ util.h       |  3 +-
+ 7 files changed, 116 insertions(+), 74 deletions(-)
+
+commit 13a275e4aa7b98569d4527bc5791599779f9953f
+Author: rhialto <rhialto@falu.nl>
+Date:	Tue Sep 20 09:10:31 2005 +0000
+
+    Put the "shrinkicontitles" keyword in its alphabetically correct location.
+
+ parse.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit c4b7b957077a367f2ad17f8d751107748928e5bd
+Author: richard <richard@levitte.org>
+Date:	Tue Jul 19 06:51:20 2005 +0000
+
+    Releasing 3.7
+
+ ctwm.spec | 4 ++--
+ version.c | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+commit cc53ce3519bc5494d34398ff62789c18640357cf
+Author: richard <richard@levitte.org>
+Date:	Tue Jul 19 06:48:12 2005 +0000
+
+    Correct find syntax
+
+ Imakefile | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+commit 0ed38256c2616db2107913e196a0adaa4bdc3b79
+Author: rhialto <rhialto@falu.nl>
+Date:	Sun May 29 00:55:33 2005 +0000
+
+    Add the actual f.movetitlebar functionality. It may need some refinement.
+    Add the actual f.movetitlebar functionality. It may need some refinement.
+    [ redo from free.lp.se/X.ctwm.rhialto.movetitlebar revision
+    d6b6e4d643af164f3b546f51ecad4617546c3ffb ]
+
+ add_window.c  |   1 +
+ ctwm.man      |  18 +++++-
+ events.c      |   3 +
+ menus.c       | 186 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ parse.c       |   8 ++-
+ parse.h       |   1 +
+ system.ctwmrc |   1 +
+ twm.h	       |   1 +
+ 8 files changed, 217 insertions(+), 2 deletions(-)
+
+commit c3256e9ab13cf0936d5bb08223894339354e7f2c
+Merge: cac37e5 ce4bc82
+Author: richard <richard@levitte.org>
+Date:	Sat May 28 05:03:52 2005 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm.3_7-RELEASE' (head
+    7d4417d6aa2fbcb8c01b0647ad3884864aca5290)
+		to branch 'free.lp.se:X.ctwm' (head
+		42054b19752d88ef4b09d58a94a7fd7f9d6ea6cb)
+
+commit 0a383f596f20907f9d965054787b9b1cc493fb98
+Author: rhialto <rhialto@falu.nl>
+Date:	Sat May 28 01:02:56 2005 +0000
+
+    Preliminary work for f.movetitlebar: move and simplify special-case
+    processing of si->num and si->denom.
+    Preliminary work for f.movetitlebar: move and simplify special-case
+    processing of si->num and si->denom.
+    [ redo of old-name branch ree.lp.se/X.ctwm.rhialto.movetitlebar]
+
+ add_window.c | 16 ++++------------
+ ctwm.man     | 24 ++++++++++++++++--------
+ parse.c      | 20 ++++++++++++++++----
+ 3 files changed, 36 insertions(+), 24 deletions(-)
+
+commit ce4bc82675265a49c9b5af6be7116036ee14b0df
+Author: rhialto <rhialto@falu.nl>
+Date:	Sat May 28 00:14:44 2005 +0000
+
+    [Poor mans cherry pick from free.lp.se/X.ctwm. /Richard]
+    Correct the misspelling of "Schrink" to "Shrink" and "schrinked" to
+    "shrunk".
+    Still accept the incorrect spelling in the ctwmrc.
+
+ ctwm.c   |  2 +-
+ ctwm.man |  7 ++++---
+ events.c | 12 ++++++------
+ icons.c  | 20 ++++++++++----------
+ icons.h  |  4 ++--
+ menus.c  |  2 +-
+ parse.c  |  9 +++++----
+ screen.h |  2 +-
+ util.c   |  2 +-
+ 9 files changed, 31 insertions(+), 29 deletions(-)
+
+commit cac37e5aebd5dbdcef3b0ee46d377d1375752643
+Author: richard <richard@levitte.org>
+Date:	Fri May 27 15:09:56 2005 +0000
+
+    Uhmm, no.  In this branch, it's 3.8devel...
+
+ CHANGES   | 11 +++++++++++
+ version.c |  2 +-
+ 2 files changed, 12 insertions(+), 1 deletion(-)
+
+commit 86fec84c6e0e52e061f7b2ea9f5f1a0b60ff95ed
+Merge: 571edae 9ca5169
+Author: richard <richard@levitte.org>
+Date:	Fri May 27 15:08:53 2005 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm.3_7-RELEASE' (head
+    52c4ff48fd4d34f1a490c0bd32a730639ba61fb6)
+		to branch 'free.lp.se:X.ctwm' (head
+		910a090a444ac497772c1790b79b672f71deacd4)
+
+commit 571edae35fc0ace228cd368b5c99f4b282570511
+Author: richard <richard@levitte.org>
+Date:	Fri May 27 15:02:29 2005 +0000
+
+    Represent version identity once only.  Adadpt the build system.
+    Make sure commas are only used when needed.
+
+ Imakefile   |	2 +-
+ descrip.mms |	2 +-
+ menus.c     | 33 ++++++++++++++++++++++++---------
+ version.c   | 10 ++++++----
+ 4 files changed, 32 insertions(+), 15 deletions(-)
+
+commit 9ca516969d4c0a26ab29a64db796a7a3c0e77e3d
+Merge: 4efa7cc b85c30e
+Author: richard <richard@levitte.org>
+Date:	Fri May 27 13:45:45 2005 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm.3_7-RELEASE' (head
+    7effb0792ada084b5023ce59bafe1d71713b89e4)
+		to branch 'free.lp.se:X.ctwm' (head
+		24d65bf6e0e5748cf0ca0dd33e50bdbef6d1ce64)
+
+commit b85c30e5644af4c6a840efdfe07c1a3e78d807f3
+Author: richard <richard@levitte.org>
+Date:	Fri May 27 13:45:29 2005 +0000
+
+    Documentation changes
+
+ CHANGES    |  5 +++++
+ Imakefile  |  2 +-
+ README     |  2 +-
+ README.VMS | 13 +++++++++----
+ 4 files changed, 16 insertions(+), 6 deletions(-)
+
+commit f046c2a8f12c16074b31fccecd9d87fb5f58f799
+Author: richard <richard@levitte.org>
+Date:	Fri May 27 07:36:15 2005 +0000
+
+    Have a local configuration for VMS as well
+
+ CHANGES		|   7 ++
+ README.VMS		|  13 +-
+ descrip.local-template | 159 ++++++++++++++++++++++++
+ descrip.mms		| 300 ++++++++++++++++++++++++++-------------------
+ descrip.submms		| 108 +++++++++++++---
+ 5 files changed, 440 insertions(+), 147 deletions(-)
+
+commit 4efa7ccfc83570778f8a28e55d5e6510da69fba2
+Merge: b066094 60cb387
+Author: richard <richard@levitte.org>
+Date:	Sun May 15 19:10:25 2005 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm.3_7-RELEASE' (head
+    49edefb830f5589e2052fe9adf46729f4869352a)
+		to branch 'free.lp.se:X.ctwm' (head
+		2246d67f7c81f0ccbedb8e908b036b862ae9fc87)
+
+commit 60cb387c66586d5446b027d8c31e1f471c690362
+Author: richard <richard@levitte.org>
+Date:	Sun May 15 19:10:25 2005 +0000
+
+    Typos, omissions, duplicates and other errors fixed.
+
+    From: Derik van Zuetphen <dz@426.ch>
+
+ ctwm.man | 117 +++++++++++++++++++++++++++++------------------------------
+ 1 file changed, 57 insertions(+), 60 deletions(-)
+
+commit 1c8b1c2915ab7cc803165d63e1ec54aacce0af44
+Author: richard <richard@levitte.org>
+Date:	Mon May 9 23:26:41 2005 +0000
+
+    Just released beta5, so let's move to beta6.  Hopefully, we won't need
+    more betas.
+
+ version.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit b066094ff70bff870fda2013ddb470c276f4b458
+Merge: 41336ef e9a0c0d
+Author: richard <richard@levitte.org>
+Date:	Mon May 9 23:11:57 2005 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm.3_7-RELEASE' (head
+    ad9271b3f5e6ba11e43d207d3cc6abb3215d457f)
+		to branch 'free.lp.se:X.ctwm' (head
+		211c0cf47171487d7260dc52bef6bb6a7a50bd00)
+
+commit e9a0c0d2ebb22d3eceee24cda993973d7f0dfb9d
+Author: richard <richard@levitte.org>
+Date:	Mon May 9 23:11:48 2005 +0000
+
+    Fixed problem with overlapping pinned menus.  See PR 111 for more
+    info.
+
+    Closes: PR 111
+
+ menus.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit 41336ef84377e8c54a9c1370674bb38b0823eb8d
+Merge: 72324e7 2ef899e
+Author: richard <richard@levitte.org>
+Date:	Mon May 9 23:04:24 2005 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm.3_7-RELEASE' (head
+    cb822b64f799046e534f147a41dcfbf698d58d0a)
+		to branch 'free.lp.se:X.ctwm' (head
+		b650563cb7b32f728f13f355a9d3fe19b6cfe245)
+
+commit 2ef899ed7cf6041e7ca0a970587da2d0ddfab835
+Author: richard <richard@levitte.org>
+Date:	Mon May 9 23:04:14 2005 +0000
+
+    When unzooming a window, restore it's previous position.
+
+ resize.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+commit 72324e75dc8fa33da960cd25f57b3486a9505782
+Merge: 8966190 6b41db9
+Author: richard <richard@levitte.org>
+Date:	Fri May 6 06:06:59 2005 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm.3_7-RELEASE' (head
+    81dee9b11d45b0012e0fab9b5d56cde9cb856a1d)
+		to branch 'free.lp.se:X.ctwm' (head
+		122f711ba7040171d3dfb8388cdaef173d7ff8fa)
+
+commit 8966190d4c30bc9e39074aee716c8f873cc21396
+Author: richard <richard@levitte.org>
+Date:	Fri May 6 06:04:42 2005 +0000
+
+    Session management only happens when X11R6 is defined, so let's only
+    include session.h then.
+
+ add_window.c | 4 +++-
+ ctwm.c       | 4 +++-
+ descrip.mms  | 2 +-
+ session.c    | 4 +++-
+ 4 files changed, 10 insertions(+), 4 deletions(-)
+
+commit 27a9f74f51e0aedcfc6423c7e107f52a3d4063ce
+Author: richard <richard@levitte.org>
+Date:	Thu May 5 15:44:57 2005 +0000
+
+    Functions with no argument should have (void) instead of (), to make
+    sure they don't get mixed up with K&R-style functions.
+
+ sound.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+commit ce4b67aa08220faf0e96bf063923b6ce5940e66e
+Author: richard <richard@levitte.org>
+Date:	Thu May 5 15:43:59 2005 +0000
+
+    Remove unneeded casts.
+
+ libctwm.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+commit 6b41db9302d52840747cbd9ee13f6bca444a192b
+Merge: 9ff0912 c7e6d67
+Author: richard <richard@levitte.org>
+Date:	Thu May 5 14:49:18 2005 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm.3_7-RELEASE' (head
+    0aacda76bebd16c172e69345c48187acb2653051)
+		to branch 'free.lp.se:X.ctwm' (head
+		f40f0dec00186f52ba6cd2ef02c1ecfca1fc5a5b)
+
+commit 9ff091219cfd203b9dfaf8bbf798cc6b3a8a2374
+Author: richard <richard@levitte.org>
+Date:	Thu May 5 14:35:17 2005 +0000
+
+    It started with a notification about tout not being properly
+    initialised in CtwmNextEvent().  I then build with a variant of
+    GCC_PEDANTIC that wouldn't tell me about all the variable shadowing
+    (I'm saving that for 3.8), and corrected almost all the warnings I
+    got.  Improperly initialized variables, improperly declared functions,
+    unused variables, signed vs. unsigned conflicts, all of those got
+    corrected.
+
+    Thank you, Derik van Zuetphen <dz@ndh.net>
+
+ ctwm.c    |  3 +++
+ events.c  | 10 +++++-----
+ libctwm.c | 19 +++++++++++--------
+ list.c    |  4 ++++
+ menus.c   | 12 +++++-------
+ parse.c   |  7 +++----
+ resize.c  |  4 ++--
+ sound.c   | 19 +++++++++++++------
+ sound.h   | 32 ++++++++++++++++++++++++++++++++
+ util.c    |  3 +--
+ workmgr.c | 11 +++--------
+ 11 files changed, 82 insertions(+), 42 deletions(-)
+
+commit fd89e357c03181a256caadbedc674b391821f00e
+Author: richard <richard@levitte.org>
+Date:	Thu May 5 14:31:39 2005 +0000
+
+    Have Makefile depend on Imakefile.local as well.
+
+ Imakefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 59ed5964a5758a453c085e4338aaa3c368a740aa
+Author: richard <richard@levitte.org>
+Date:	Thu May 5 14:08:15 2005 +0000
+
+    Casting a pointer to an int may lose some bits.  Casting to short is
+    even worse, and may make a pointer that's at a 64K boundary look like
+    it's NULL.	Bad idea!
+
+    Notified and contributed by Rhialto <rhialto@azenomei.knuffel.net>
+
+ add_window.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
+
+commit c7e6d67cf56fb052c4b54d3ea5cdc1f49384198f
+Merge: 6d9c9da 0f1053e
+Author: richard <richard@levitte.org>
+Date:	Thu May 5 09:16:25 2005 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm.3_7-RELEASE' (head
+    29e9078c16bce059a7a47146334358cb3ee507d9)
+		to branch 'free.lp.se:X.ctwm' (head
+		d0787f95d393fef49939072c069168482fdca83b)
+
+commit 6d9c9da50e0a5abea43fa45d47a5c9940c8c9554
+Author: richard <richard@levitte.org>
+Date:	Thu May 5 09:15:07 2005 +0000
+
+    Actually, there's no reason I should be set as the package if someone
+    else is using this .spec file.  I trust the packager to be smart
+    enough to have a %packager macro.
+
+ ctwm.spec | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+commit 98ea219ff3b4740e994ee0e0567ecacb4cff5ff8
+Author: richard <richard@levitte.org>
+Date:	Thu May 5 08:55:22 2005 +0000
+
+    Now that beta4 is tagged, move to beta5.  Maybe this will be the final
+    release?
+
+ ctwm.spec | 4 ++--
+ version.c | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+commit 0f1053e6456863d0b4a5bc114a8f058d5266ebb6
+Merge: ceceb8c 4b38803
+Author: richard <richard@levitte.org>
+Date:	Thu May 5 08:42:11 2005 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm.3_7-RELEASE' (head
+    9d194fd5678df81c997332b648b74c4cb504761e)
+		to branch 'free.lp.se:X.ctwm' (head
+		fe375c59110e81c14e9a56fa190b84afcf39808f)
+
+commit 4b38803d6bc420b2edafb63a11806e92eed95376
+Author: richard <richard@levitte.org>
+Date:	Thu May 5 08:40:51 2005 +0000
+
+    Added the possibility to configure library and header file locations
+    through USER_* make variables in Imakefile.local.  More comments in
+    Imakefile.local-template.
+
+ CHANGES		  |   7 +++
+ Imakefile		  |  62 ++++++++++++++-----------
+ Imakefile.local-template | 106 ++++++++++++++++++++++++++++++++++++++-----
+ 3 files changed, 137 insertions(+), 38 deletions(-)
+
+commit ceceb8c94bdbe87675001aa3f1c9e055349d9aa2
+Merge: abb0cfa ca9910e
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 22:54:31 2005 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm.3_7-RELEASE' (head
+    ed7078de51a11e58dc14fadaa3e11cacb4eee317)
+		to branch 'free.lp.se:X.ctwm' (head
+		dade0387212a596a74dc0174aea069f45a33f21e)
+
+commit abb0cfafa014773ba56df00a93aaa71d35ead3f7
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 22:53:47 2005 +0000
+
+    Document the latest changes.
+
+ CHANGES | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+commit ca9910e516a05a9f4d1ddf71e12feab2f60f3fda
+Merge: 85a5f77 cd7abef
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 22:16:34 2005 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm.3_7-RELEASE' (head
+    a5c6cea422a0f68c6335c38f17d8fb6ef41b7c24)
+		to branch 'free.lp.se:X.ctwm' (head
+		61dd5194a18aee533f33023059dff090a9b9d9d1)
+
+commit 85a5f779fc4e488964619ef6d9246ef602559dea
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 22:16:01 2005 +0000
+
+    Add documentation on new M4 macros defined by ctwm.
+
+ ctwm.man | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+
+commit cd7abefca86b0e34d8c9effa354c90ae21e2cd11
+Merge: 3b78376 c1a9763
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 22:11:11 2005 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm.3_7-RELEASE' (head
+    7f9a613de6d5ce98cca8b376b6199450a0917e8a)
+		to branch 'free.lp.se:X.ctwm' (head
+		515e71f5ad0a32652becb17cb6432734639f83a3)
+
+commit 3b783761cb41db454b1be5ce5a810f71ec25e53b
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 22:10:22 2005 +0000
+
+    Add information about sounds.
+
+ ctwm.man | 65 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 64 insertions(+), 1 deletion(-)
+
+commit c1a97636e4b8e11b0b27e9e25e6965224815f472
+Merge: 52330f3 8ed1f41
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 21:53:23 2005 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm.3_7-RELEASE' (head
+    099c0b9365ce3f5d65a4b253f5665aee0051adb9)
+		to branch 'free.lp.se:X.ctwm' (head
+		74d3ca9c9e8761c099112e2618cef7e5965c8668)
+
+commit 8ed1f411742ef3ebd513eac8095ab5b1b9f9a474
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 21:51:34 2005 +0000
+
+    Because RPM can't stand dashes in version numbers, I'm removing it.
+    Some other tweaks as well.
+
+ ctwm.spec | 27 +++++++++++++++++----------
+ version.c |  4 ++--
+ 2 files changed, 19 insertions(+), 12 deletions(-)
+
+commit 2ea6a6a516bd7b5dfad6c400ebc36c428e06a3d5
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 21:50:42 2005 +0000
+
+    Make sure to define PIXMAP_DIRECTORY for parse.c
+
+ Imakefile | 21 ++++++++++++++++++---
+ 1 file changed, 18 insertions(+), 3 deletions(-)
+
+commit 07cff1dc47198004ce6c1d321cc01f6de00bd134
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 21:49:54 2005 +0000
+
+    Send a bit more information to m4.
+
+ parse.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+commit 8016faabb779617816baafa29fbb5f1e39b1b428
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 18:38:07 2005 +0000
+
+    Document that there's a ctwm.spec.
+
+ CHANGES | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+commit 451f541d662d65f12f350e48d2998352a6d9f59b
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 18:37:52 2005 +0000
+
+    Tweak to follow RedHat standards as much as I understand them.
+
+ ctwm.spec | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
+
+commit 7432f0a40cf524a7d9a4cfe7a06700cfaf6d62bb
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 18:37:20 2005 +0000
+
+    Allow the pixmaps and the standard configuration file to end up
+    somewhere other than our standard.
+
+ Imakefile | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
+
+commit 52330f3d521fd2985965f76955f48ac4cd470c55
+Merge: 988788b 52d5f70
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 17:21:20 2005 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm.3_7-RELEASE' (head
+    479e2e1f03c6b1be1be02e75cb0c780ce23da929)
+		to branch 'free.lp.se:X.ctwm' (head
+		fbb6e8ec6313bb07d471a4a8930240b2b00a4bad)
+
+commit 988788b8d91b1738f9dd3f428f8708f65fefcf2e
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 17:16:20 2005 +0000
+
+    Document the change in the .ctwm-sources parser.
+
+ CHANGES | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+commit 816ad71ed4789b2d7069e71823320468f72f01c1
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 17:12:49 2005 +0000
+
+    Comment on the trimming function and simplify it.
+
+ sound.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+commit 1fded03af2432c22a490d3a77a784c1cf0e9c764
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 17:11:27 2005 +0000
+
+    Teach the sound file reader to trim spaces.
+
+ sound.c | 33 +++++++++++++++++++++++++--------
+ 1 file changed, 25 insertions(+), 8 deletions(-)
+
+commit 1e0276633eb331fc88eb9b51f73a925f8708039d
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 16:52:05 2005 +0000
+
+    Allow white space in sound file names.
+
+ sound.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 52d5f70edc11c0a3356be62273b19e701e0e04f6
+Merge: e7920d1 b3e3223
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 16:23:15 2005 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm.3_7-RELEASE' (head
+    d5bdd103a514acd6fb210cdd922036b1e197dba0)
+		to branch 'free.lp.se:X.ctwm' (head
+		04cfa989f0d6bcb8492cacde6efe892514840907)
+
+commit b3e3223150f4c07b4988d2e32c1fe599f912e80c
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 16:20:27 2005 +0000
+
+    Initialize x, y, w and h properly.
+
+    Contributed by Brian Campbell <brianc@pobox.com>
+
+ vscreen.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+commit e7920d14f3bba385a19999d0e1fad8e4815a9bb9
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 16:10:24 2005 +0000
+
+    Document what's going on.
+
+ CHANGES | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+commit 3198609cb0db4cf90c2a1b04d160fd8107bbefc8
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 16:08:04 2005 +0000
+
+    Initialize local variables before they're used.
+    Add a comment about things missing.
+
+ vscreen.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+commit 55775b3fd68f80e4b2474b6b5b4f8f024868a7d0
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 16:07:06 2005 +0000
+
+    Avoid shadowing higher level local variables.
+
+ workmgr.c | 38 +++++++++++++++++++-------------------
+ 1 file changed, 19 insertions(+), 19 deletions(-)
+
+commit eca4671e9fe76165a938f9f4ddf6edb1301773fc
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 16:06:25 2005 +0000
+
+    Avoid shadowing the function time, and a bunch of other variables.
+
+ util.c | 21 ++++++++++-----------
+ util.h |  2 +-
+ 2 files changed, 11 insertions(+), 12 deletions(-)
+
+commit 87ce300c8ab400c52b6237558010d24ecaff55c4
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 16:05:14 2005 +0000
+
+    Add sound.h to declare the sound functions properly.
+    ANSIfy the sound functions.
+
+ sound.c | 27 +++++++++++++++++----------
+ sound.h | 32 ++++++++++++++++++++++++++++++++
+ 2 files changed, 49 insertions(+), 10 deletions(-)
+
+commit bb8cef0515cb799a20c472b9a565ca351d2919c0
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 16:04:21 2005 +0000
+
+    Avoid shadowing the global variable smcConn.
+
+ session.c | 24 ++++++++++++------------
+ session.h | 10 +++++-----
+ 2 files changed, 17 insertions(+), 17 deletions(-)
+
+commit 94594e548e4a640c8a896f85c03d51968a81b0f9
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 16:03:06 2005 +0000
+
+    Avoid shadowing.
+
+ menus.c | 132 ++++++++++++++++++++++++++++++------------------------------
+ 1 file changed, 65 insertions(+), 67 deletions(-)
+
+commit b4abf116d0f8b99cbb3a71791f71000db3f3070b
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 16:02:00 2005 +0000
+
+    Avoid shadowing the global variable dpy.
+    Move a local variable definition to avoid false shadowing warnings.
+    Avoid shadowing the global function match.
+
+ events.c | 83 ++++++++++++++++++++++++++++++------------------------------
+ 1 file changed, 42 insertions(+), 41 deletions(-)
+
+commit 692dd1dc92fc7477025acb49aecdfe00e2f7e57b
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 15:58:14 2005 +0000
+
+    Avoid shadowing the global variable dpy.
+
+ ctwm.h    | 14 +++++++-------
+ libctwm.c | 57 +++++++++++++++++++++++++++++----------------------------
+ 2 files changed, 36 insertions(+), 35 deletions(-)
+
+commit cdd94e025c1a74ed2991691091d3b0dcef87dfb1
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 15:55:54 2005 +0000
+
+    Include sound.h to declare sound functions properly.
+
+ ctwm.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+commit e3edde742f65176e16d350b27359b723d904f7bb
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 15:40:34 2005 +0000
+
+    Remove unused variables.
+
+ workmgr.c | 5 -----
+ 1 file changed, 5 deletions(-)
+
+commit a4f73ca142e0b5a3af60295adb8c4453056505d4
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 15:39:53 2005 +0000
+
+    Avoid shadowing time.
+    Declare a global variable that's used by other modules.
+
+ twm.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+commit 6e009430821d7784519e2396a6ab5173705bc69f
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 15:39:06 2005 +0000
+
+    Initialize some local variables that might get undefined values
+    otherwise.
+
+ resize.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 1dc70830058d543dd895fb89ea89e086f213d52a
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 15:38:27 2005 +0000
+
+    Get declarations of sound functions properly, and don't redeclare
+    things that are already declared in header files.
+
+ parse.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
+
+commit 13b39060456dd8efd018dcf2c941f9894107fac9
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 15:36:56 2005 +0000
+
+    Remove (wrap with #if 0 .. #endif) is_pattern(), as it's not used
+    anywhere.
+
+ list.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+commit dd72b28636a7e7bfadd348d3b126e10f5c1b1c01
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 15:36:01 2005 +0000
+
+    Fix signed vs. unsigned conflict
+
+ libctwm.c | 29 ++++++++++++++++-------------
+ 1 file changed, 16 insertions(+), 13 deletions(-)
+
+commit 8e2e5672ef6d169e1469a00e792ad307f9c8b929
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 14:22:14 2005 +0000
+
+    Try to discourage people from using GCC_PEDANTIC for now.
+
+ Imakefile.local-template | 2 ++
+ 1 file changed, 2 insertions(+)
+
+commit c179b538c856fa2de549644c280bce31290e0b1f
+Merge: d3006c6 85ba6ba
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 14:18:31 2005 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm.3_7-RELEASE' (head
+    d4fa8b56a2a26ad870cee64bb02d3f014bbf8839)
+		to branch 'free.lp.se:X.ctwm' (head
+		035ba321be760f1029a3d96fd828ba3c0ee5c021)
+
+commit 85ba6ba6578ed1e196e60a66943c59a18045c8c3
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 14:17:02 2005 +0000
+
+    Don't add the border widths to the window width prior to calling
+    SetupWindow(), since it does so itself.
+
+ resize.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 2cd463e8c1faa94e157f48afd7ff563e0dab08cb
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 11:58:10 2005 +0000
+
+    I've released beta 3, time to move on to beta 4
+
+ ctwm.spec | 2 +-
+ version.c | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+commit d3006c62fdb389591379fdc8dfe737aa512db24d
+Merge: ada2178 b0d269a
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 11:53:54 2005 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm.3_7-RELEASE' (head
+    1f6d27b8215fbd9f35d2b535f1344faca8db785f)
+		to branch 'free.lp.se:X.ctwm' (head
+		a77f80076d7d13f92afc5d1dd9c5f7de78075d10)
+
+commit ada2178de99b336b5296e4fdc8b5c004b8a88755
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 11:50:22 2005 +0000
+
+    Document the Imakefile change
+
+ CHANGES | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+commit eee751260111ff0ec2393762bb3f0bf23fbc747d
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 11:48:52 2005 +0000
+
+    Allow gcc users to build with a lot of paranoia :-).
+
+ Imakefile		  | 10 +++++-----
+ Imakefile.local-template |  4 ++++
+ 2 files changed, 9 insertions(+), 5 deletions(-)
+
+commit c3a9e15b74744dbfe89767956a51392c7457b1d7
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 11:48:19 2005 +0000
+
+    Resolve a lot of unsigned vs. signed conflicts, and a few other
+    problems on VMS.
+
+ CHANGES      |  9 +++++++++
+ add_window.c | 15 ++++++++-------
+ add_window.h |  8 ++------
+ ctwm.c       |  3 ++-
+ events.c     | 20 ++++++++++----------
+ gram.y       |  6 +++---
+ lex.l	      |  7 +++----
+ menus.c      | 34 +++++++++++++++-------------------
+ parse.c      |  4 ++--
+ resize.c     | 28 +++++++++++++++-------------
+ resize.h     |  3 ++-
+ twm.h	      | 26 ++++++++++++++------------
+ util.c       | 25 ++++++++++++++-----------
+ util.h       |  5 ++++-
+ workmgr.c    | 15 ++++++++-------
+ workmgr.h    |  5 ++++-
+ 16 files changed, 115 insertions(+), 98 deletions(-)
+
+commit 9fbce58e4dfe3e303a5789ff9c07887a26bbfbc3
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 09:32:49 2005 +0000
+
+    Use a make rule to compile .C files, and make the targets
+    command-less, so they act as dependency targets only.
+
+    The option file needs two more lines, so we get the ICE and SM
+    libraries.
+
+ descrip.submms | 107 +++++++++++++++++++++--------------------------------
+ 1 file changed, 42 insertions(+), 65 deletions(-)
+
+commit 07e41b39186876a575ac3a488645733f81abd93a
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 09:31:28 2005 +0000
+
+    Since we build the Gnome module, we need to define the GNOME macro.
+    (it actually works :-))
+
+ descrip.mms | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit f5f5dcc4fae58bf64aade42a2e9597d7349eca58
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 09:30:52 2005 +0000
+
+    A variable changed name.  On second thought, VMS has strdup() these
+    days, so there's really no need to have a special case for VMS.  I'm
+    keeping it around just to be safe, though...
+
+ workmgr.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+commit 1482076e24e9fb04ee30b8545b0713bb95996f5d
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 08:50:22 2005 +0000
+
+    Typos...
+
+ iconmgr.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
+
+commit 95085ff1601bc1510e978f5579b6ddd31625b7e9
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 08:37:55 2005 +0000
+
+    On VMS, strcmp and XmuCompareISOLatin1 ended up having different
+    types, so let's rearrange the code so we don't need a function
+    pointer.
+
+ iconmgr.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
+
+commit 0bcc54e3cafd71e9c51d32718ea598b15a90e0b9
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 08:22:54 2005 +0000
+
+    Define a few more C flag macros, and make sure X11SM is actually used.
+
+ descrip.mms	| 3 ++-
+ descrip.submms | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+commit 8b8fe0d90cb82972c6b97e8c4137a61490ab9f34
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 08:21:57 2005 +0000
+
+    On VMS, strcmp and XmuCompareISOLatin1 ended up having different
+    types, so let's rearrange the code so we don't need a function
+    pointer.
+
+ menus.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
+
+commit e93128da8affb98c6b8614f26a53a85539ad03ab
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 07:46:40 2005 +0000
+
+    For VMS, include X11SM/SMlib.h instead of X11/SM/SMlib.h.
+    display_name is used even if m4 isn't...
+
+ ctwm.c    | 16 ++++++++++++----
+ menus.c   | 20 +++++++++++---------
+ session.h |  6 +++++-
+ 3 files changed, 28 insertions(+), 14 deletions(-)
+
+commit 21d8612aeb3ad760946acfca639674b724c85a71
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 07:45:25 2005 +0000
+
+    Add a logical name for X11/SM
+
+ descrip.mms | 3 +++
+ 1 file changed, 3 insertions(+)
+
+commit 8a5cbdb92906d2a478eac5f45b52b3dfb2b68aaa
+Author: richard <richard@levitte.org>
+Date:	Wed May 4 07:44:55 2005 +0000
+
+    Add a note on where one can find an XPM library.
+
+ README.VMS | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+commit b0d269acbd4442919538ea7fa8ec19056caea41e
+Merge: 7806c27 92ac981
+Author: richard <richard@levitte.org>
+Date:	Tue May 3 20:26:42 2005 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm.3_7-RELEASE' (head
+    6e69e6ca077a7382a55dc2d3586f7a2ab00c5267)
+		to branch 'free.lp.se:X.ctwm' (head
+		f8a4372d691fc2647692167b1d0a53a981a4c83a)
+
+commit 7806c27fa6ca066921471c4ab10f8610b1125c9c
+Merge: 85420e2 135d7e6
+Author: richard <richard@levitte.org>
+Date:	Thu May 26 12:43:56 2005 +0000
+
+    merge of 3f1a16da9693817fb38ca4d05243c9f5341dfa22
+	 and e2a8743826c61d40ade0a847f2722dcf35afb363
+
+commit 92ac9819119491285e308f656a494c4d368efcfd
+Author: richard <richard@levitte.org>
+Date:	Tue May 3 20:26:42 2005 +0000
+
+    Fix bugs, simplify.
+
+ ctwm.spec | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
+
+commit 270e6e5ede11739de960df4e9dd52672ff0dcc24
+Author: richard <richard@levitte.org>
+Date:	Tue May 3 20:03:40 2005 +0000
+
+    Add a .spec file, originally received from Johan Vromans
+    <jvromans@squirrel.nl>
+
+ ctwm.spec | 60 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 60 insertions(+)
+
+commit 85420e2cf13e93842b86c205288cad927b07f4e3
+Author: richard <richard@levitte.org>
+Date:	Tue May 3 20:03:30 2005 +0000
+
+    Add a .spec file, originally received from Johan Vromans
+    <jvromans@squirrel.nl>
+
+ ctwm.spec | 60 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 60 insertions(+)
+
+commit a33ce117001bcd2b4bddcfc46446f82731c42936
+Author: richard <richard@levitte.org>
+Date:	Tue May 3 15:50:14 2005 +0000
+
+    I just tagged beta2, so now, we're working on beta3
+
+ version.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 135d7e65f726388e6791492a3c68f956f5ed9290
+Merge: 3797f38 6a50d68
+Author: richard <richard@levitte.org>
+Date:	Tue May 3 15:46:16 2005 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm.3_7-RELEASE' (head
+    5282cc9680f015ebc91179043c8a31c065a31d32)
+		to branch 'free.lp.se:X.ctwm' (head
+		b400fe0c1e5c039458fc4feca5f3ac9085f241ad)
+
+commit 6a50d68c932c208b852738d388dbd65b64cab5fa
+Author: richard <richard@levitte.org>
+Date:	Tue May 3 15:43:16 2005 +0000
+
+    - Move the restarting code from Restart() to DoRestart().
+    - Integrate the restart code from 'case F_RESTART', and have it simply
+      call DoRestart().
+    - Change Restart() to only set a flag.
+    - Change CtwmNextEvent() to handle non-animation cases, and to check
+      for the restart flag.  If that one is set, call DoRestart().
+
+ CHANGES  | 10 ++++++++++
+ ctwm.c   | 27 ++++++++++++++++++++++-----
+ events.c | 50 +++++++++++++++++++++++++++++++-------------------
+ menus.c  | 19 +------------------
+ twm.h	  |  3 +++
+ 5 files changed, 67 insertions(+), 42 deletions(-)
+
+commit 75c9e750d5a107d1469e79299a13e8473df3029e
+Author: richard <richard@levitte.org>
+Date:	Tue May 3 09:32:35 2005 +0000
+
+    I should have changed this earlier.  Since beta 1 has been released,
+    we're now working on beta 2.
+
+ version.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 3797f386cae61319b61d4cfbea44a6382ec6134d
+Merge: d71cfad de68293
+Author: richard <richard@levitte.org>
+Date:	Tue May 3 08:59:59 2005 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm.3_7-RELEASE' (head
+    32731aa80243c48a630664599cb2b4160c609bad)
+		to branch 'free.lp.se:X.ctwm' (head
+		927326b911f4d68bc05de89d78f71bdb16e23955)
+
+commit de68293b9a74c7fde4b836ea1c21932a682742a0
+Author: richard <richard@levitte.org>
+Date:	Tue May 3 08:59:29 2005 +0000
+
+    Someone requested a little more information in the information window.
+
+ CHANGES | 5 +++++
+ menus.c | 9 +++++++--
+ 2 files changed, 12 insertions(+), 2 deletions(-)
+
+commit d71cfad193f2d1d8cfccbf2fe2e86d56e87befc2
+Merge: 4fcea4b 5a82117
+Author: richard <richard@levitte.org>
+Date:	Tue May 3 08:08:17 2005 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm.3_7-RELEASE' (head
+    2638ab400b7f8bf852c34fa8787dbf801a5d2d3e)
+		to branch 'free.lp.se:X.ctwm' (head
+		c75d2b70a78bed9206c354550dd7409cefff7007)
+
+commit 4fcea4bccc8a8ff10fddaa6cc94eccfeeba93446
+Author: richard <richard@levitte.org>
+Date:	Tue May 3 08:06:10 2005 +0000
+
+    Picked up from the Debian dist: make sure the icon manager has a
+    geometry as well.
+
+ system.ctwmrc | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit 079df3c8a85f8a5a11315f4434afc90e2f0c9c3f
+Author: richard <richard@levitte.org>
+Date:	Tue May 3 08:05:42 2005 +0000
+
+    Picked up from the Debian dist: X11R6 really means to use session
+    management.
+
+ Imakefile		  | 8 ++++----
+ Imakefile.local-template | 4 ++--
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+commit b96ee9dd40fde28b0cf4650e5adbffb5303c141d
+Author: richard <richard@levitte.org>
+Date:	Tue May 3 00:08:21 2005 +0000
+
+    add_window.c: Initialise a few variables.
+    ctwm.c: Default font settings for the workspace manager.
+    iconmgr.c: if there is no workspace manager, set the occupation to 1.
+
+    Contributed by Peter Berg Larsen <pebl@math.ku.dk>
+
+ add_window.c | 4 ++--
+ ctwm.c       | 4 ++++
+ iconmgr.c    | 5 ++++-
+ 3 files changed, 10 insertions(+), 3 deletions(-)
+
+commit 5a8211753bf268e48460984d6f0483d9995a5c4d
+Merge: 4ed4569 8f88e70
+Author: richard <richard@levitte.org>
+Date:	Mon May 2 20:38:24 2005 +0000
+
+    propagate from branch 'free.lp.se:X.ctwm.3_7-RELEASE' (head
+    076ee6e6e9d344637bf60cfa86760185490abdc5)
+		to branch 'free.lp.se:X.ctwm' (head
+		0930eb7d20a0201463e1635da5c5362a48b5144e)
+
+commit 8f88e705a8c478489a78844c9b32f1a4db1c14f5
+Author: richard <richard@levitte.org>
+Date:	Mon May 2 20:35:03 2005 +0000
+
+    Since 3.7 is in beta and in a branch of it's own, the main trunk can
+    go on to develop the next version.	Currently, the version is set to
+    3.8-devel ("devel" signals that it is under development), but it might
+    as well become 4.0, depending on what goes in.
+
+ version.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 4ed4569daa17fc71749a9e60abcb2f7bde07ac6f
+Author: richard <richard@levitte.org>
+Date:	Mon May 2 20:30:17 2005 +0000
+
+    Forgot a CHANGES entry.
+
+ CHANGES | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+commit 9548a849b18528023c1f12af4c710a5f85163cd2
+Author: richard <richard@levitte.org>
+Date:	Mon May 2 20:15:04 2005 +0000
+
+    Don't show Imakefile.local
+
+ .cvsignore | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit 2b7d158e6c7a31a0d61bf86c3086e5c9b8a8a468
+Author: richard <richard@levitte.org>
+Date:	Mon May 2 20:14:04 2005 +0000
+
+    Don't distribute Imakefile.local.
+
+ Imakefile | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+commit 3935bd68086e93f569ffe194387850a536f865a4
+Author: richard <richard@levitte.org>
+Date:	Mon May 2 20:11:00 2005 +0000
+
+    Let's move to the first beta.
+    The CVS tag will be ctwm-3_7-beta1
+    (the monotone tag will be ctwm-3.7-beta1)
+
+ version.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit a1a91a40eacceb31882dde2eb504d92f8bb756cd
+Author: richard <richard@levitte.org>
+Date:	Mon May 2 20:10:06 2005 +0000
+
+    Resize from menu didn't respect the non-3D border size.
+
+ resize.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit d730f71c961d0ee2c686aac13db5f9da1ac892a7
+Author: richard <richard@levitte.org>
+Date:	Mon May 2 20:09:25 2005 +0000
+
+    AddToMenu was called with incorrect arguments
+
+ gram.y | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit d6f859f7034299b3959b810b12f22ab8b946c207
+Author: richard <richard@levitte.org>
+Date:	Mon May 2 20:09:02 2005 +0000
+
+    Enhance the README with configuration information adapted to the
+    changes to Imakefile.
+
+ README | 51 ++++++++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 38 insertions(+), 13 deletions(-)
+
+commit df61155e71021f64f573185931c01db49a1225a3
+Author: richard <richard@levitte.org>
+Date:	Mon May 2 20:08:24 2005 +0000
+
+    Move the Imakefile configuration to a separate file, to make it easier
+    for users to get new source and not lose their changes.
+
+ Imakefile		  | 12 +-----------
+ Imakefile.local-template | 38 ++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 39 insertions(+), 11 deletions(-)
+
+commit 076b7543ebe32c72575cd905ffd95d691a81e853
+Author: richard <richard@levitte.org>
+Date:	Tue Apr 19 15:13:10 2005 +0000
+
+    Fix RandomPlacement and DontMoveOff combined.
+
+ CHANGES      |  13 ++++++
+ add_window.c | 134 +++++++++++++++++++++++++++++++++++++++++++++++--------
+ 2 files changed, 128 insertions(+), 19 deletions(-)
+
+commit f18f085cb9515522fc2cf9f899c42edb9218674e
+Author: richard <richard@levitte.org>
+Date:	Tue Apr 12 21:40:02 2005 +0000
+
+    I just tagged ctwm-3_7-alpha6, and it's time to at least move to
+    beta.  If we're lucky, there will be no beta, we will just release
+    immediately.
+
+ version.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 133b34bdf3664cb7c96465ef6433f45ec4ccff4b
+Author: richard <richard@levitte.org>
+Date:	Tue Apr 12 21:36:50 2005 +0000
+
+    Only use the DefaultFunction if no function was found.
+
+ CHANGES  | 2 ++
+ events.c | 2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+commit 2c47db315be66e2a3a4140ba180766c4e02b6d43
+Author: richard <richard@levitte.org>
+Date:	Sun Feb 27 23:43:17 2005 +0000
+
+    Cosmetic changes.
+
+ ctwm.man      | 911 +++++++++++++++++++++++++++---------------------------
+ gram.y        | 144 +++++----
+ system.ctwmrc |  24 +-
+ workmgr.c     |   4 +-
+ 4 files changed, 535 insertions(+), 548 deletions(-)
+
+commit b316634b89878094c11e15d970c2af9f2e34efc5
+Author: richard <richard@levitte.org>
+Date:	Sun Feb 27 23:32:12 2005 +0000
+
+    A window that has explicit geometry should be considered randomly
+    placed.
+
+    Inspired by changes made in Debian by Branden Robinson <branden@debian.org>
+
+ add_window.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+commit a8a43f6be4384736af9ec466758834964ad0ab7f
+Author: richard <richard@levitte.org>
+Date:	Sun Feb 27 21:07:50 2005 +0000
+
+    Fix copied from debian sources:
+
+      * Remove redundant AllTarget(ctwm) rule from Imakefile; this is already
+	handled by ComplexProgramTarget(ctwm).
+     -- Branden Robinson <branden@debian.org>  Fri, 18 Jun 2004 23:21:26 -0500
+
+ Imakefile | 2 --
+ 1 file changed, 2 deletions(-)
+
+commit 68c79dfd9cc73e71c5049a7375c5910d03e4d434
+Author: richard <richard@levitte.org>
+Date:	Sun Feb 27 00:56:52 2005 +0000
+
+    Handle SloppyFocus properly (or so we hope) for newly squeezed
+    windows.
+
+    Closes ticket 47 by Dan Debertin <daniel@nodewarrior.org>
+
+ events.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit ce120ca42299e8dcef50448e7212f631b1718410
+Author: richard <richard@levitte.org>
+Date:	Fri Jun 25 16:15:08 2004 +0000
+
+    When reparenting icons, make sure they reappear in the same place as
+    before instead of all moving to +0+0.
+
+    Submitted by Rhialto <rhialto@azenomei.knuffel.net>
+    Verified by Anthony Thyssen <anthony@griffith.edu.au>
+
+ workmgr.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+commit b50fd84f760b66b9a0e4793f299d315831670b67
+Author: richard <richard@levitte.org>
+Date:	Fri Jun 18 12:50:25 2004 +0000
+
+    Added a change note about the K&R -> ANSI C function argument
+    definition/declaration style.
+
+ CHANGES | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+commit a58d6ddfd16d11e82bc530d7067dda3209bd6591
+Author: dl <dl@dl.nu>
+Date:	Fri Jun 18 12:15:35 2004 +0000
+
+    Fixing two bugs in vertical zoom:
+    * The windows now grow down the right amount.
+    * Repeated vertical zoom now won't force the window up over
+      windows above.
+
+    Tested with 3d borders and with normal borders.
+
+    The code looks a bit cleaner now, too.
+
+ menus.c | 21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
+
+commit 175f78ce0702028d15b010eab24d5135346c07e6
+Author: richard <richard@levitte.org>
+Date:	Wed Jun 16 22:47:35 2004 +0000
+
+    Scr->workSpaceMgr.initialstate has already been used by
+    ConfigureWorkSpaceManager(), so we must really set the state variable
+    in each virtual screen.  Just to make sure nothing goes wrong, we
+    still set the initialstate value as well...
+
+ parse.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+commit c29ad163cc17f6a3f82e58e7c7cc316022246d73
+Author: richard <richard@levitte.org>
+Date:	Wed Jun 16 15:41:56 2004 +0000
+
+    Rudolph T Maceyko <rm55@pobox.com> just told me that Scr->currentvs
+    should work, at least with a single screen.  Not quite certain with
+    multiple screens, but at least, this is better than nothing.
+
+ events.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
+
+commit 762c4c6980f7d8670b2107d0f005d6c77ef3b7c3
+Author: richard <richard@levitte.org>
+Date:	Wed Jun 16 14:31:44 2004 +0000
+
+    Mark the NULL to GotoWorkSpaceByNumber as suspicious (/* XXXXX */).
+
+ events.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit d850dbe3d253f836d255019ac39182bbb34e948b
+Author: richard <richard@levitte.org>
+Date:	Wed Jun 16 14:17:03 2004 +0000
+
+    - Convert all functions to use proper prototypes.
+    - Remove unused variables and other unused stuff.
+    - Move almost all typedefs to a new file, types.h.	This is to avoid
+      circular dependencies between two or more header files.
+
+    Variable shadows are currently ignored, as well as unsigned vs. signed
+    warnings.
+
+ add_window.c	| 153 ++++++++-----------
+ add_window.h	|  45 +++---
+ clicktofocus.h |   5 +-
+ ctwm.c		|  95 ++++++------
+ ctwm.h		|  16 +-
+ cursor.c	|  14 +-
+ cursor.h	|   6 +-
+ events.c	| 238 +++++++++++------------------
+ events.h	|  82 +++++-----
+ gc.c		|   6 +-
+ gc.h		|   2 +-
+ gnome.c	|   2 +-
+ gnome.h	|  11 +-
+ gram.y		|  77 ++++------
+ iconmgr.c	|  65 +++-----
+ iconmgr.h	|  39 ++---
+ icons.c	|  66 +++-----
+ icons.h	|  34 +++--
+ lex.l		|   4 +-
+ libctwm.c	|  32 ++--
+ list.c		|  66 +++-----
+ list.h		|  21 +--
+ menus.c	| 385 ++++++++++++++++-------------------------------
+ menus.h	| 156 ++++++++++---------
+ parse.c	| 181 ++++++++++------------
+ parse.h	|  33 +++-
+ resize.c	|  83 +++-------
+ resize.h	|  40 ++---
+ screen.h	|  14 +-
+ session.c	| 164 ++++++--------------
+ session.h	|  71 +++++++++
+ twm.h		|  80 +++++-----
+ types.h	|  88 +++++++++++
+ util.c		| 432 ++++++++++++++++++++---------------------------------
+ util.h		| 101 ++++++++-----
+ vscreen.c	|   6 +-
+ vscreen.h	|  10 +-
+ windowbox.c	|  26 ++--
+ windowbox.h	|  12 +-
+ workmgr.c	| 389 ++++++++++++++++++-----------------------------
+ workmgr.h	| 194 ++++++++++++------------
+ 41 files changed, 1561 insertions(+), 1983 deletions(-)
+
+commit d17e74bf024325381d4a3e928ece331eb9bb1e90
+Author: richard <richard@levitte.org>
+Date:	Wed Jun 16 14:14:34 2004 +0000
+
+    Add a variant for hard-core gcc users.  This helps detect functions
+    that aren't declared or defined with prototypes, unused variables,
+    shadows, and all other kinds of interesting things :-).
+
+ Imakefile | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+commit 54728712304d4f180273901883c8bd452094e2e9
+Author: richard <richard@levitte.org>
+Date:	Wed Jun 16 13:54:41 2004 +0000
+
+    More files to ignore.
+
+ .cvsignore | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit 52852afd04f4244f0682def9a3d443bdbcd9654b
+Author: dl <dl@dl.nu>
+Date:	Wed Jun 16 06:44:00 2004 +0000
+
+    Bugfixes in the configuration of the workspacemanager.
+
+ ctwm.c    |  4 +---
+ parse.c   | 10 ++++++++++
+ workmgr.c | 24 ++++++------------------
+ 3 files changed, 17 insertions(+), 21 deletions(-)
+
+commit 42c8e7fdca7cbdcbfd8757b9ec51637dbe3220e7
+Author: richard <richard@levitte.org>
+Date:	Mon Jun 14 13:11:44 2004 +0000
+
+    It's a BAD IDEA to use C++ comments in a C program.  There are still a
+    lot of compiler who till understand them.
+
+ add_window.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit ea3c76bb060580954cf6f7d91ffd1c60d32167be
+Author: dl <dl@dl.nu>
+Date:	Mon Jun 14 12:54:31 2004 +0000
+
+    Fixes workspace context bug.
+
+ add_window.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit b710eb44c3ebcd60d825018a0d1aace902fdff68
+Author: dl <dl@dl.nu>
+Date:	Mon Jun 14 11:13:09 2004 +0000
+
+    Committing fix for problems when warping to windows on other workspaces.
+    Fix submitted by Rudy.
+
+ menus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 94fb3f828ae167f401fc64ac1f7546a3373059ab
+Author: richard <richard@levitte.org>
+Date:	Fri Jun 11 23:08:50 2004 +0000
+
+    Change the mail address mentioned in the crash log from
+    Claude.Lecommandeur@epfl.ch to ctwm-bugs@free.lp.se.
+
+ CHANGES | 3 +++
+ ctwm.c  | 2 +-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+commit 75d557ce524d345d9d48e30d6805dc425ffec7a8
+Author: dl <dl@dl.nu>
+Date:	Fri Jun 11 10:03:35 2004 +0000
+
+    Bugfix and added functionality in f.changesize.
+
+ CHANGES  |   9 +++
+ ctwm.man |  11 +++-
+ resize.c | 188 ++++++++++++++++++++++++++++++++++++++---------------------
+ 3 files changed, 142 insertions(+), 66 deletions(-)
+
+commit 07a3c3d93bbbd45102b950d43379b00ddbe8dac3
+Author: richard <richard@levitte.org>
+Date:	Wed Jun 9 12:53:52 2004 +0000
+
+    Version 3.7-alpha5 has been tagged, we're now developping 3.7-alpha6
+    (or better...).
+
+ version.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit d431ccf3c62dd5858dd4f80c8ffd7685b9588229
+Author: dl <dl@dl.nu>
+Date:	Wed Jun 9 15:14:07 2004 +0000
+
+    Bugfix which was missed in previous checkin.
+
+ util.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+commit b998395ed2f3849e91cf06f09a5fee1d9ac963fc
+Author: richard <richard@levitte.org>
+Date:	Wed Jun 9 12:21:49 2004 +0000
+
+    Some beautification, or at least consistency with the surrounding
+    source.
+
+ menus.c | 4 ++--
+ menus.h | 6 +++---
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+commit a7d7c8d06d4f5e4e0554bca51b91e9c8e6ad3239
+Author: dl <dl@dl.nu>
+Date:	Wed Jun 9 11:42:17 2004 +0000
+
+    Changed "AllIcons" to "All Icons".
+
+ menus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 21041810cd0bccab59e3a3548cf3f3dffaec60d9
+Author: richard <richard@levitte.org>
+Date:	Wed Jun 9 10:35:19 2004 +0000
+
+    (Small thing: please end the last line with a \n)
+
+ CHANGES | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 907b2549b5871938d1a4e2a6f2f767985b689070
+Author: dl <dl@dl.nu>
+Date:	Wed Jun 9 07:22:59 2004 +0000
+
+    Lots of updates and bugfixes.
+
+    Patches applied after ctwm-3.7-alpha4.
+
+    (the patches are not documented in the code or the manpage
+     and I hade to insert many of the pathces manually, also
+       without commenting)
+
+    * ctwm-3.6.daniel.patch
+      http://tigerdyr.wheel.dk/ctwm-archive/1225.html
+      * pbl alfa 2 (bugfixes)
+	http://tigerdyr.wheel.dk/ctwm-archive/1197.html
+	* pbl alfa 3 (ignore transients)
+	  http://tigerdyr.wheel.dk/ctwm-archive/1197.html
+	  * MC workmanager performance fix
+	    http://tigerdyr.wheel.dk/ctwm-archive/1162.html
+	* Olaf GTK fix
+	  http://tigerdyr.wheel.dk/ctwm-archive/1062.html
+	  * olafresizecursorpatch
+	    http://tigerdyr.wheel.dk/ctwm-archive/1064.html
+	    * Simons memory leak patch
+	      http://tigerdyr.wheel.dk/ctwm-archive/1115.html
+	      * Takahashis warpring patch
+		http://tigerdyr.wheel.dk/ctwm-archive/1209.html
+		* Julians NoWarpToMenuTitle patch
+		  http://tigerdyr.wheel.dk/ctwm-archive/1213.html
+		  * Andys java fix
+		    http://tigerdyr.wheel.dk/ctwm-archive/1151.html
+		    * Martins font init fix
+		      http://tigerdyr.wheel.dk/ctwm-archive/1192.html
+		      * Claudes regex patch (NOTE: turned off in dls patched
+		      version)
+			http://tigerdyr.wheel.dk/ctwm-archive/1073.html
+
+    Plus some other additions by dl: allicons, notoggleswmstate, changesize,
+    zoom bugfix etc.
+
+ CHANGES      |  97 +++++++++++++++++++++++++++
+ Imakefile    |  11 +++-
+ add_window.c |  20 ++++++
+ ctwm.c       |  17 ++++-
+ ctwm.man     |  42 +++++++++++-
+ events.c     |   9 ++-
+ gram.c_VMS   |   4 +-
+ gram.y       |  10 ++-
+ iconmgr.c    |   8 ++-
+ lex.c_VMS    |   4 +-
+ list.c       |  39 +++++++++++
+ menus.c      | 116 +++++++++++++++++++++++++++++----
+ menus.h      |   3 +
+ parse.c      |  14 ++++
+ parse.h      |   6 ++
+ resize.c     | 167 +++++++++++++++++++++++++++++++++++++++--------
+ screen.h     |   5 ++
+ util.c       |  49 +++++++++++---
+ vscreen.c    |   4 ++
+ workmgr.c    | 195 ++++++++++++++++++++++++++++++++++++++++++++++++-------
+ workmgr.h    |   6 ++
+ 21 files changed, 743 insertions(+), 83 deletions(-)
+
+commit 7297a0230dba66b36fc34b62df7e8d73a6a70ab2
+Author: richard <richard@levitte.org>
+Date:	Wed Jun 4 08:00:40 2003 +0000
+
+    Add missing ;
+
+ gram.y | 2 ++
+ 1 file changed, 2 insertions(+)
+
+commit 2e9c4c27d9ae0b5a3e17c41c1476f92abd15b2a9
+Author: richard <richard@levitte.org>
+Date:	Tue Jun 3 12:03:30 2003 +0000
+
+    Memory leak prevention.  Notified by Simon Burge <simonb@wasabisystems.com>
+    through Claude Lecommandeur <Claude.Lecommandeur@Epfl.Ch>.
+
+ util.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit 304291735dc6f345a445f3c10215e5784da08596
+Author: richard <richard@levitte.org>
+Date:	Mon Mar 3 22:56:57 2003 +0000
+
+    Merge the newer readme.vms with README.VMS
+
+ README.VMS | 113 ++++++++++++++++++++++++++++++++++++++++++++--------
+ readme.vms | 123 ---------------------------------------------------------
+ 2 files changed, 96 insertions(+), 140 deletions(-)
+
+commit ef8cde1e5c52e6e2bc9c17bf2e9da3361e580d79
+Author: richard <richard@levitte.org>
+Date:	Sun Mar 2 21:48:25 2003 +0000
+
+    And now I figured out how to do it properly, so now, all object files
+    depend on Makefile, which in turn depends on Imakefile...
+
+ Imakefile | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+commit 61f5365ecc4cfdfdb26561e54948c4d9f83ea20d
+Author: richard <richard@levitte.org>
+Date:	Sun Mar 2 21:39:46 2003 +0000
+
+    Ever grown tired of getting crashes because you forgot a 'make clean'
+    after chaging the configuration?  Me too.  This change makes all
+    object files and Makefile depend on Imakefile.  Additionally, 'all'
+    depends on Makefile.  Thereby, there's no way you'll forget to rerun
+    xmkmf, and there's no way your ctwm will crash because you forgot a
+    'make clean'...  At least in theory...  In practice, it's still
+    possible to go around this, but in that case, you'd better know damn
+    well what you're doing either way...
+
+ Imakefile | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+commit 4b0410615acbb25d94cbc9fc0a9f6f4cfc6b418b
+Author: richard <richard@levitte.org>
+Date:	Sun Mar 2 18:03:39 2003 +0000
+
+    Say a little more about key and button events...
+
+ events.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+commit 66d6dfc3f57e44d965041bdefe7168e10cb2667b
+Author: richard <richard@levitte.org>
+Date:	Sun Mar 2 18:02:52 2003 +0000
+
+    Make the debug option non-optimizing...
+
+ Imakefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit fd39d8df494e1bdee8505a0d5c6f55e4d08e9dc0
+Author: richard <richard@levitte.org>
+Date:	Sun Mar 2 16:23:56 2003 +0000
+
+    Uhmmm, some tracing code wasn't meant to be committed :-)
+
+ events.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+commit 6e96851f399d450b074e46a0cbf427756a9469a9
+Author: richard <richard@levitte.org>
+Date:	Sun Mar 2 16:23:19 2003 +0000
+
+    Restore some tracing code.
+
+ events.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+commit 5229194bb22b3f93438bc6ec62201b8c32f4f453
+Author: richard <richard@levitte.org>
+Date:	Sun Mar 2 14:49:17 2003 +0000
+
+    Change to code that expresses addition rather than an alternate
+    altogether.
+
+ iconmgr.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
+
+commit ada3f593ae9375dccbc3f62185247ee1a6ce471d
+Author: richard <richard@levitte.org>
+Date:	Sat Mar 1 00:41:53 2003 +0000
+
+    When not building for GNOME, the Gnome module shouldn't be built.
+
+ Imakefile | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+commit a3058e401c93e50463403f60f0ef4ead0adb02f0
+Author: richard <richard@levitte.org>
+Date:	Fri Mar 28 18:25:30 2003 +0000
+
+    Add missing colon.
+
+ gram.y | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 6d01648faa3efa17f36c2aab4309448f4db15bb2
+Author: richard <richard@levitte.org>
+Date:	Fri Mar 28 18:21:11 2003 +0000
+
+    Most people run X11R6 these days...
+
+ Imakefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 0c392c565329e4d5a752a42cd31241fd89c4f076
+Author: richard <richard@levitte.org>
+Date:	Fri Mar 28 18:20:52 2003 +0000
+
+    I just tries I18N, it makes my CTWM crash...
+
+ README | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit bdd5b6aff40b5013f58dab23998d5c61c84b0df5
+Author: richard <richard@levitte.org>
+Date:	Fri Mar 28 18:12:47 2003 +0000
+
+    Explain the use of certain C macros in Imakefile a little more
+    thoroughly.
+
+ README | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+commit 93f7f1a9027060d7bb0139d9979e62ecaeb03882
+Author: richard <richard@levitte.org>
+Date:	Fri Mar 28 17:50:31 2003 +0000
+
+    If JPEG isn't defined, the Makefile was set to clear the XPM
+    settings???
+
+ Imakefile | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+commit 8dca742f3574d17d9625fc66c1fb51f8f70d1a6d
+Author: richard <richard@levitte.org>
+Date:	Fri Mar 28 17:48:11 2003 +0000
+
+    Rework the README.
+
+ README | 91 +++++++++++++++++++++++++++++++++++++-------------------------
+ 1 file changed, 54 insertions(+), 37 deletions(-)
+
+commit 32ef1724af9b36a1edc1092ebb07d70b30c291f8
+Author: richard <richard@levitte.org>
+Date:	Fri Mar 28 17:40:02 2003 +0000
+
+    Remove some files that patch generates.
+
+ Imakefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 86cb0856aa5bf4fc6cf34dd58841a2abc8cd38d1
+Author: richard <richard@levitte.org>
+Date:	Fri Mar 28 17:39:38 2003 +0000
+
+    Keep Claude's README, for historical reasons...
+
+ README.Claude | 56 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 56 insertions(+)
+
+commit 261bc17c6f6ad8773ffc2bae48c82697546f7697
+Author: richard <richard@levitte.org>
+Date:	Fri Mar 28 16:57:36 2003 +0000
+
+    Start working on alpha5
+
+ version.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 68c2dd582a89ae3398a1c7e4699de5fa56791ff7
+Author: richard <richard@levitte.org>
+Date:	Fri Mar 28 16:46:37 2003 +0000
+
+    Hey, we're working on alpha4!
+
+ version.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 300bc4e650e036c295a218edfc67d9ea08445892
+Author: richard <richard@levitte.org>
+Date:	Fri Mar 28 16:39:40 2003 +0000
+
+    Include BjÃ¶rns f.warpring patch.
+
+ CHANGES   |  6 ++++++
+ iconmgr.c | 11 ++++++++---
+ 2 files changed, 14 insertions(+), 3 deletions(-)
+
+commit c1f64bcfa75ad295e76f7ca9ba6cb9175df06072
+Author: richard <richard@levitte.org>
+Date:	Fri Mar 28 16:32:49 2003 +0000
+
+    Include BjÃ¶rns random placement and DontMoveOff change, with some
+    changes.
+
+ CHANGES      | 10 ++++++++++
+ add_window.c | 20 ++++++++++++++++++--
+ 2 files changed, 28 insertions(+), 2 deletions(-)
+
+commit 8b67cf4b0d52062e955026d7fb8dfa6950ba0ea9
+Author: richard <richard@levitte.org>
+Date:	Fri Mar 28 16:06:10 2003 +0000
+
+    Include BjÃ¶rns DontMoveOff change.
+
+ CHANGES | 11 +++++++++++
+ util.c  | 28 ++++++++++++++++++++++------
+ 2 files changed, 33 insertions(+), 6 deletions(-)
+
+commit ec041b91b79f27ae1d6c9f4a39ff9b85b26f38ee
+Author: richard <richard@levitte.org>
+Date:	Mon Mar 24 11:21:41 2003 +0000
+
+    Correct a few faults with my first try at the slightly different
+    variant, where the middle of the cross is surface colored.
+
+    Remove dead code.
+
+ util.c | 21 +++++++++------------
+ 1 file changed, 9 insertions(+), 12 deletions(-)
+
+commit 2ddc09d8ed77875271d42425045ca2a6205a5df7
+Author: richard <richard@levitte.org>
+Date:	Mon Mar 24 10:57:04 2003 +0000
+
+    Try a slightly different variant, where the middle of the cross is
+    surface colored.
+
+ util.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+commit 6189f2f856ec326913f745de78cd3a4517182449
+Author: richard <richard@levitte.org>
+Date:	Fri Mar 21 17:20:35 2003 +0000
+
+    Add a TODO list
+
+ TODO | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+commit d56b2ed55df69025aa368d8277a847d0ac29ca78
+Author: richard <richard@levitte.org>
+Date:	Fri Mar 21 15:30:02 2003 +0000
+
+    Incorrect attribution
+
+ CHANGES | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 300a285a8923ca194e0413d1c7cc857f00c64be4
+Author: richard <richard@levitte.org>
+Date:	Fri Mar 21 07:50:42 2003 +0000
+
+    Add correct attribution to AlwaysSqueezeToGravity.
+
+ CHANGES | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+commit eada5bb2f6d2358cd6bdbb51f1d5d5d91228d76e
+Author: richard <richard@levitte.org>
+Date:	Thu Mar 20 23:15:07 2003 +0000
+
+    Beautify
+
+ ctwm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 0dda8ef92ce897049f8e780bd4d299730487bace
+Author: richard <richard@levitte.org>
+Date:	Thu Mar 20 23:00:55 2003 +0000
+
+    Document who contributed the change.
+
+ CHANGES | 2 ++
+ 1 file changed, 2 insertions(+)
+
+commit 9bb4f6f3a047f429a236f3995717e347320d9b2c
+Author: richard <richard@levitte.org>
+Date:	Thu Mar 20 22:59:57 2003 +0000
+
+    Add the -cfgchk option.
+
+ CHANGES  |  5 +++++
+ ctwm.c   | 32 ++++++++++++++++++++++++++------
+ ctwm.man |  6 +++++-
+ 3 files changed, 36 insertions(+), 7 deletions(-)
+
+commit aa2ac073c95948dea2155c19b661e15b23473002
+Author: richard <richard@levitte.org>
+Date:	Thu Mar 20 22:52:58 2003 +0000
+
+    Working on alpha3.
+
+ version.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit e1d913fae92e5d046cc31ff7cb4faef6bb98b464
+Author: richard <richard@levitte.org>
+Date:	Thu Mar 20 22:40:12 2003 +0000
+
+    Document
+
+ CHANGES | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+commit 5df1c286f451c8052c18cdb3e97f6593af4135cb
+Author: richard <richard@levitte.org>
+Date:	Thu Mar 20 22:40:02 2003 +0000
+
+    BeautifyImplement the NoImagesInWorkSpaceManager keyword.
+
+ screen.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 2f07a48ef252e021c0456281c8e286cda21aff6d
+Author: richard <richard@levitte.org>
+Date:	Thu Mar 20 22:09:44 2003 +0000
+
+    Implement the NoImagesInWorkSpaceManager keyword.
+
+ CHANGES   |  7 +++++++
+ ctwm.man  |  4 ++++
+ parse.c   |  6 ++++++
+ screen.h  |  1 +
+ workmgr.c | 12 +++++++-----
+ 5 files changed, 25 insertions(+), 5 deletions(-)
+
+commit b10a0a005157f3227a3313987954224f9ac93130
+Author: richard <richard@levitte.org>
+Date:	Thu Mar 20 20:49:05 2003 +0000
+
+    The shadowing looks a little better now.
+
+ util.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+commit ee562201eecc20b1017f4a2ae050e7f291dc71c0
+Author: richard <richard@levitte.org>
+Date:	Thu Mar 20 20:18:37 2003 +0000
+
+    Files to ignore
+
+ .cvsignore | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+commit 182d9dd513f731c683811292d7bac23d1ddc5a35
+Author: richard <richard@levitte.org>
+Date:	Thu Mar 20 20:17:20 2003 +0000
+
+    Make :xpm:cross thicker.
+
+ util.c | 22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
+
+commit fc9f605797b4ac1bb19b02bd36611df8295ecaa2
+Author: richard <richard@levitte.org>
+Date:	Thu Mar 20 20:17:02 2003 +0000
+
+    Add possibility to debug the parser...
+
+ parse.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+commit 8f91c519892b195349044c4ed77a30049481291c
+Author: richard <richard@levitte.org>
+Date:	Thu Mar 20 20:16:42 2003 +0000
+
+    Add the possibility to get AlwaysSqueezeToGravity for all windows.
+
+ add_window.c | 5 +++--
+ ctwm.c       | 7 ++++---
+ ctwm.man     | 8 +++++---
+ gram.y       | 3 ++-
+ screen.h     | 3 ++-
+ 5 files changed, 16 insertions(+), 10 deletions(-)
+
+commit 7642fdb9624471f8d59541479257a50470d70cf3
+Author: richard <richard@levitte.org>
+Date:	Thu Mar 20 20:11:56 2003 +0000
+
+    We're working on the second alpha release.
+
+ version.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 6557f64bd0d9fa65904cd7ad85575ff58d555f2d
+Author: richard <richard@levitte.org>
+Date:	Thu Mar 20 20:11:36 2003 +0000
+
+    Add possibility to debug the parser...
+
+ Imakefile | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+commit 84d223bb19138f1acff5b9e4e210837d2a58c485
+Author: richard <richard@levitte.org>
+Date:	Thu Mar 20 18:05:30 2003 +0000
+
+    Heh, looks like Claude used a C++ compiler, or at least a C99 one...
+
+ workmgr.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+commit 0bb3522af26331d1643ffea861d583b76402a5d5
+Author: richard <richard@levitte.org>
+Date:	Thu Mar 20 17:59:34 2003 +0000
+
+    Name the tar file correctly.
+
+ Imakefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 7a53a179e6b1b2b1019fbda1a8f9eb1f43c55869
+Author: richard <richard@levitte.org>
+Date:	Thu Feb 20 16:53:03 2003 +0000
+
+    Time to release 3.7 alpha 1.
+
+ version.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit e8213159581993f584153859926a8c038fba8a99
+Author: richard <richard@levitte.org>
+Date:	Thu Feb 20 16:52:47 2003 +0000
+
+    Document the changes
+
+ CHANGES | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+commit b43866dd93a3be2969e60181b85de0ee235b97bb
+Author: richard <richard@levitte.org>
+Date:	Thu Feb 20 16:52:22 2003 +0000
+
+    Beautification and a bit of code that I'm not too sure about (it was
+    there in the original patch).
+
+ events.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+commit b091a68a2811cd16682724852d8a75d3c9346f75
+Author: richard <richard@levitte.org>
+Date:	Thu Feb 20 16:51:32 2003 +0000
+
+    Make :xpm:cross more consistent with the other icons, and make it
+    visible in dark configurations.
+
+ util.c | 23 ++++++++++++++++++++---
+ 1 file changed, 20 insertions(+), 3 deletions(-)
+
+commit 41e666285761639cfa172953a2ca4f370e8dc14f
+Author: richard <richard@levitte.org>
+Date:	Thu Feb 20 16:49:49 2003 +0000
+
+    Remove .flc files (created by CVS in some cases).
+    Add a dist target for easy generation of distributions.  This requires
+    tardy and is inspired by the same target in the main OpenSSL Makefile.
+
+ Imakefile | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
+
+commit 2d5464aed84f5036e310a246b6fa0771a5bb190d
+Author: richard <richard@levitte.org>
+Date:	Wed Feb 19 10:41:57 2003 +0000
+
+    Some :xpm: images were drawn with a hard-coded border of 2.
+
+ util.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
+
+commit 3ae4f94b40117dc13952d83eeb206ce8307766d7
+Author: richard <richard@levitte.org>
+Date:	Wed Feb 19 10:35:10 2003 +0000
+
+    Add :xpm:cross and :xpm:sunkresize to the manpage.
+
+ ctwm.man | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 0684044a21348daecbf9e4b8a729a240cddc1c6c
+Author: richard <richard@levitte.org>
+Date:	Tue Feb 11 22:49:57 2003 +0000
+
+    Make an attempt to have CTWM 3.7 compilable on VMS.
+
+ descrip.mms	|  2 +-
+ descrip.submms |  8 +++++++-
+ make.com	| 42 ++++++++++++++++++++++++++----------------
+ 3 files changed, 34 insertions(+), 18 deletions(-)
+
+commit d60ffa5e9c7b5e280b5e9e971a030b7ceec7f6f4
+Author: richard <richard@levitte.org>
+Date:	Tue Feb 11 22:45:12 2003 +0000
+
+    Junk
+
+ pat.linux | 505 ----------------------------------------------------------
+ 1 file changed, 505 deletions(-)
+
+commit 3a85d0828a37b0b692b9460bab2ee558b91893e6
+Author: richard <richard@levitte.org>
+Date:	Tue Feb 11 22:40:36 2003 +0000
+
+    Some last-minute Gnome-related corrections that Claude sent me
+
+ deftwmrc.c |  166 ----
+ gram.c     | 3039 --------------------------------------------------------
+ gram.h     |  111 ---
+ lex.c	    | 1755 --------------------------------
+ 4 files changed, 5071 deletions(-)
+
+commit 0d8a35ddb485c56dd6989b81b520dc44e555d83b
+Author: richard <richard@levitte.org>
+Date:	Wed May 25 13:53:07 2005 +0000
+
+    Removed because they also exist in the xpm/ directory
+
+ datebook.xpm | 60 --------------------------------------------------------
+ hpterm.xpm   | 58 ------------------------------------------------------
+ xedit.xpm    | 60 --------------------------------------------------------
+ xman.xpm     | 55 ---------------------------------------------------
+ xrn.xpm      | 57 -----------------------------------------------------
+ xterm.xpm    | 56 ----------------------------------------------------
+ 6 files changed, 346 deletions(-)
+
+commit 1618941c48fc5a7f7fd64de1e1a10f8fedc2e5e4
+Author: richard <richard@levitte.org>
+Date:	Tue Feb 11 15:51:22 2003 +0000
+
+    Some last-minute Gnome-related corrections that Claude sent me.
+
+ gnome.c  | 63 +++++++++++++++++++++++++++++++++++-------------------------
+ gnome.h  | 11 +++++++++++
+ screen.h |  8 ++++++++
+ 3 files changed, 56 insertions(+), 26 deletions(-)
+
+commit fc85c5769dbcf8dd5549a043c6d371d6d81b0fc8
+Author: richard <richard@levitte.org>
+Date:	Tue Feb 11 15:48:46 2003 +0000
+
+    This constitutes all the changes Claude had done since version 3.6.
+
+ CHANGES	     |	 56 +
+ Imakefile	     |	 37 +-
+ README.gnome	     |	 26 +
+ TODO.gnome	     |	 15 +
+ add_window.c	     |	211 ++-
+ clicktofocus.c      |	  4 +-
+ clicktofocus.h      |	  1 -
+ ctwm.c		     |	172 +-
+ ctwm.man	     |	 60 +-
+ deftwmrc.c	     |	164 +-
+ events.c	     |	284 ++-
+ gnome.c	     |	139 ++
+ gnomewindefs.h      |	 40 +
+ gram.c		     | 4588 ++++++++++++++++++++++++++++-------------------
+ gram.h		     |	184 +-
+ gram.y		     |	 29 +-
+ iconmgr.c	     |	 35 +-
+ icons.c	     |	 19 +-
+ lex.c		     | 2154 +++++++++++++++++-----
+ libctwm.c	     |	  2 +-
+ menus.c	     |	614 +++++--
+ menus.h	     |	  5 +
+ parse.c	     |	 56 +-
+ parse.h	     |	  1 +
+ resize.c	     |	 36 +-
+ screen.h	     |	 36 +-
+ system.ctwmrc.gnome |	191 ++
+ twm.h		     |	 15 +-
+ util.c		     |	257 ++-
+ version.c	     |	  8 +-
+ vscreen.c	     |	120 ++
+ vscreen.h	     |	 40 +
+ windowbox.c	     |	 10 +-
+ workmgr.c	     | 2285 ++++++++++++-----------
+ workmgr.h	     |	176 +-
+ 35 files changed, 7931 insertions(+), 4139 deletions(-)
+
+commit 09a79d97ecb30081c46fac45807955e529ea2c6a
+Author: lecom <lecom@sic.epfl.ch>
+Date:	Sun Feb 2 17:33:48 2003 +0000
+
+    CTWM version 3.6
+
+ CHANGES	|  44 ++++++++++-
+ Imakefile	|   8 +-
+ add_window.c	| 220 ++++++++++++++++++++++++++++++++++++-----------------
+ clicktofocus.c |  31 ++++++++
+ clicktofocus.h |  11 +++
+ ctwm.c		|  25 ++++--
+ ctwm.man	|  52 ++++++++++++-
+ events.c	| 108 ++++++++++++++++++++------
+ gram.y		|  26 ++++++-
+ menus.c	| 143 +++++++++++++++++++++++++---------
+ parse.c	|  29 ++++++-
+ parse.h	|   1 +
+ resize.c	|  43 +++++++----
+ screen.h	|   5 ++
+ twm.h		|  12 +++
+ util.c		|  91 ++++++++++++++++++++--
+ version.c	|   8 +-
+ windowbox.c	| 163 +++++++++++++++++++++++++++++++++++++++
+ windowbox.h	|  46 +++++++++++
+ workmgr.c	|  15 ++--
+ 20 files changed, 911 insertions(+), 170 deletions(-)
+
+commit 0bebb9a3c9a16cb65e7ad746ac04049eee6ab89d
+Author: lecom <lecom@sic.epfl.ch>
+Date:	Sun Feb 2 17:16:31 2003 +0000
+
+    CTWM version 3.5.2c
+
+ events.c	 | 25 ++++++++++----
+ menus.c	 | 10 +++++-
+ twm.h		 |  4 +++
+ xpm/xmail.xpm	 | 97 +++++++++++++++++++++++++++--------------------------
+ xpm/xnomail.xpm | 97 ++++++++++++++++++++++++++---------------------------
+ 5 files changed, 129 insertions(+), 104 deletions(-)
+
+commit ddd0a58d2e8938cfeb3542d2b625fe8d85cea535
+Author: lecom <lecom@sic.epfl.ch>
+Date:	Sun Feb 2 17:15:47 2003 +0000
+
+    CTWM version 3.5.2b
+
+ CHANGES	|  67 +++++++++-
+ add_window.c	|  83 +++++-------
+ ctwm.c		|  29 +++-
+ ctwm.man	|  92 ++++++++++++-
+ events.c	| 110 ++++++++++-----
+ events.h	|   1 +
+ example.ctwmrc |   2 +-
+ gram.y		|  17 ++-
+ icons.c	|   7 +-
+ lex.l		|   1 +
+ menus.c	| 382 ++++++++++++++++++++++++++++++++++++-----------------
+ menus.h	|   1 +
+ parse.c	|  77 +++++++++--
+ parse.h	|   8 ++
+ resize.c	|  41 +++---
+ screen.h	|  11 ++
+ session.c	|  11 +-
+ twm.h		|   1 +
+ util.c		|  44 ++++++
+ util.h		|   3 +
+ version.c	|   8 +-
+ workmgr.c	|  50 ++++---
+ 22 files changed, 783 insertions(+), 263 deletions(-)
+
+commit f77c675c7b51934753daa292e4e99e84f3c9224d
+Author: lecom <lecom@sic.epfl.ch>
+Date:	Sun Feb 2 17:08:48 2003 +0000
+
+    CTWM version 3.5
+
+ CHANGES	 |  137 +++
+ Imakefile	 |    9 +-
+ add_window.c	 |  286 ++++--
+ add_window.h	 |    7 +
+ alloca.c	 |  564 +++++++++++
+ ctwm.c		 |  123 ++-
+ ctwm.com	 |   43 +-
+ ctwm.man	 |  194 +++-
+ ctwm.txt	 | 2768 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ cursor.c	 |   55 +
+ cursor.h	 |   45 +
+ descrip.mms	 |  414 +++++++-
+ descrip.submms  |  166 +++
+ events.c	 |  214 ++--
+ events.h	 |   10 +
+ gc.c		 |    4 +
+ gendeftwmrc.com |   36 +
+ gram.y		 |   65 +-
+ iconmgr.c	 |   39 +-
+ iconmgr.h	 |    2 +
+ icons.c	 |   19 +-
+ icons.h	 |    5 +
+ levitte.ctwmrc  |  348 +++++++
+ lex.l		 |   16 +-
+ link.com	 |    1 +
+ list.c		 |    2 +
+ make.com	 |  435 +++++++-
+ menus.c	 |  580 +++++++++--
+ menus.h	 |   38 +
+ parse.c	 |  124 ++-
+ parse.h	 |    9 +
+ readme.vms	 |  123 +++
+ resize.c	 |   58 +-
+ resize.h	 |    9 +-
+ screen.h	 |   12 +
+ session.c	 |  425 +++++---
+ twm.h		 |   41 +-
+ util.c		 |  278 +++++-
+ util.h		 |    8 +-
+ version.c	 |   10 +-
+ vms.txt	 |   18 +-
+ vms2.txt	 |   75 ++
+ workmgr.c	 |  627 ++++++++++--
+ workmgr.h	 |   24 +
+ 44 files changed, 7920 insertions(+), 546 deletions(-)
+
+commit a767241f3265fe6e00731b75ac4ea3e4adce21cf
+Author: lecom <lecom@sic.epfl.ch>
+Date:	Sun Feb 2 17:07:46 2003 +0000
+
+    CTWM version 3.4pl2
+
+ gram.y    |  2 +-
+ icons.c   | 30 +++++++++++++++++-------------
+ parse.c   |  4 ++++
+ version.c |  2 +-
+ 4 files changed, 23 insertions(+), 15 deletions(-)
+
+commit 22baa47cc529287b24154ac45acaf709bee8536d
+Author: lecom <lecom@sic.epfl.ch>
+Date:	Sun Feb 2 17:07:14 2003 +0000
+
+    CTWM version 3.4pl1
+
+ CHANGES   | 2 +-
+ ctwm.man  | 4 ++--
+ events.c  | 2 +-
+ sound.c   | 1 +
+ util.c    | 1 +
+ version.c | 2 +-
+ 6 files changed, 7 insertions(+), 5 deletions(-)
+
+commit c1e6e2704748295c7d5f83ac3e4c4eda67d7c8ed
+Author: lecom <lecom@sic.epfl.ch>
+Date:	Sun Feb 2 17:06:24 2003 +0000
+
+    CTWM version 3.4
+
+ CHANGES	   | 108 ++++++++++++++-
+ Imakefile	   |   6 +-
+ Imakefile.X11R4   |   4 +-
+ add_window.c	   | 363 +++++++++++++++++++++++++++++++++++++++++++++++---
+ add_window.h	   |   4 +
+ ctwm.c		   |  77 +++++++++--
+ ctwm.man	   | 203 +++++++++++++++++++++++-----
+ events.c	   | 213 ++++++++++++++++++-----------
+ gram.y		   |  35 ++++-
+ iconmgr.c	   |  82 +++++++++++-
+ icons.c	   | 230 ++++++++++++++++++++++++--------
+ icons.h	   |  30 ++++-
+ libctwm.c	   |   3 +-
+ menus.c	   | 107 +++++++++++----
+ parse.c	   |  61 ++++++++-
+ parse.h	   |   2 +
+ resize.c	   |  33 ++++-
+ screen.h	   |   6 +
+ session.c	   |   7 +-
+ system.ctwmrc	   |   2 +-
+ twm.h		   |  46 ++++---
+ util.c		   | 348 +++++++++++++++++++++++++++++++++++------------
+ util.h		   |   1 +
+ version.c	   |   3 +-
+ version.h	   |   1 +
+ workmgr.c	   |  97 ++++++--------
+ workmgr.h	   |   2 +
+ xpm/3dcircle.xpm  |  22 +++
+ xpm/3ddimple.xpm  |  20 +++
+ xpm/3ddot.xpm	   |  20 +++
+ xpm/3dfeet.xpm    |  22 +++
+ xpm/3dleopard.xpm |  23 ++++
+ xpm/3dpie.xpm	   |  22 +++
+ xpm/3dpyramid.xpm |  23 ++++
+ xpm/3dslant.xpm   |  10 ++
+ 35 files changed, 1815 insertions(+), 421 deletions(-)
+
+commit 9decc62526d000541c01437863dc66e35f247b43
+Author: lecom <lecom@sic.epfl.ch>
+Date:	Sun Feb 2 17:05:31 2003 +0000
+
+    CTWM version 3.3.1
+
+ CHANGES	 |   23 ++
+ Imakefile	 |   17 +-
+ Imakefile.X11R4 |    1 +
+ add_window.c	 |  129 ++++++-
+ add_window.h	 |    4 +
+ ctwm.c		 |  159 ++++++--
+ ctwm.man	 |    4 +-
+ events.c	 |   37 +-
+ example.ctwmrc  |    2 +-
+ icons.c	 |    9 +-
+ list.c		 |   12 +-
+ menus.c	 |  246 ++++++++++--
+ menus.h	 |    1 +
+ parse.c	 |   58 +--
+ parse.h	 |    2 +
+ resize.c	 |   22 +-
+ screen.h	 |    3 +
+ session.c	 | 1057 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ twm.h		 |   43 ++-
+ util.c		 |  225 +++++++++--
+ util.h		 |    2 +-
+ version.c	 |    2 +-
+ workmgr.c	 |   28 +-
+ 23 files changed, 1910 insertions(+), 176 deletions(-)
+
+commit 47cb5c7b764de3ad222084a0ee3e98f709a45313
+Author: lecom <lecom@sic.epfl.ch>
+Date:	Sun Feb 2 17:04:49 2003 +0000
+
+    CTWM version 3.3
+
+ CHANGES       | 112 +++++++-
+ PROBLEMS      |   4 +
+ add_window.c  |  41 +--
+ ctwm.c        |  25 +-
+ ctwm.man      | 138 ++++++++-
+ events.c      | 268 +++++++++++++-----
+ gc.c	       |  26 +-
+ gram.y        |  18 +-
+ iconmgr.c     |  38 ++-
+ icons.c       | 106 +++++--
+ menus.c       | 614 ++++++++++++++++++++++++++++++++--------
+ menus.h       |  13 +
+ parse.c       | 156 ++++++++++-
+ parse.h       |  12 +
+ resize.c      |  24 +-
+ screen.h      |  24 +-
+ system.ctwmrc |  12 +-
+ twm.h	       |  14 +-
+ util.c        | 242 ++++++++++------
+ version.c     |   2 +-
+ workmgr.c     | 814 +++++++++++++++++++++++++++++++++++++++++-------------
+ workmgr.h     |   8 +
+ 22 files changed, 2123 insertions(+), 588 deletions(-)
+
+commit 7891fb543e219601599e356b569e677668c7dccd
+Author: lecom <lecom@sic.epfl.ch>
+Date:	Sun Feb 2 17:03:54 2003 +0000
+
+    CTWM version 3.2p1
+
+ CHANGES	    |	60 +
+ Imakefile	    |	17 +-
+ Imakefile.X11R4    |	49 +-
+ PROBLEMS	    |	30 +-
+ README		    |	 9 +-
+ README.VMS	    |	44 +
+ add_window.c	    |	71 +-
+ add_window.h	    |	25 +
+ ctwm.axp_opt	    |	25 +
+ ctwm.c		    |	98 +-
+ ctwm.com	    |	 6 +
+ ctwm.h		    |	26 +
+ ctwm.man	    |	63 +-
+ ctwm.vax_opt	    |	26 +
+ cursor.c	    |	29 +
+ demolib.c	    |	 5 +
+ descrip.mms	    |	19 +
+ events.c	    |  368 +++-
+ events.h	    |	25 +
+ gc.c		    |	25 +
+ gram.c_VMS	    | 4918 ++++++++++++++++++++++++++++++++++++++++++++++++
+ gram.h_VMS	    |  188 ++
+ gram.y		    |	48 +-
+ iconmgr.c	    |	56 +-
+ iconmgr.h	    |	25 +
+ icons.c	    |	25 +
+ icons.h	    |	25 +
+ lex.c_VMS	    | 1383 ++++++++++++++
+ lex.l		    |	29 +-
+ libctwm.c	    |	25 +
+ list.c		    |	36 +
+ list.h		    |	25 +
+ lnm.c		    |  126 ++
+ lnm.h		    |	40 +
+ make.com	    |  120 ++
+ menus.c	    |  280 ++-
+ menus.h	    |	29 +
+ parse.c	    |  134 +-
+ parse.h	    |	28 +-
+ pat.linux	    |  505 +++++
+ peterc.ctwmrc	    |  378 ++++
+ resize.c	    |	25 +
+ resize.h	    |	25 +
+ screen.h	    |	34 +
+ sound.c	    |	25 +
+ system.ctwmrc	    |  162 +-
+ twm.h		    |	54 +-
+ util.c		    |  585 +++++-
+ util.h		    |	25 +
+ version.c	    |	27 +-
+ version.h	    |	25 +
+ vms.txt	    |	70 +
+ vms_cmd_services.c |  541 ++++++
+ vms_cmd_services.h |	21 +
+ workmgr.c	    |	73 +-
+ workmgr.h	    |	25 +
+ 56 files changed, 10833 insertions(+), 327 deletions(-)
+
+commit 2fb827d2192d33f4821da190a9ecba3a72030e3d
+Author: lecom <lecom@sic.epfl.ch>
+Date:	Sun Feb 2 17:03:00 2003 +0000
+
+    CTWM version 3.1p3
+
+ CHANGES	 |  36 ++++-
+ Imakefile	 |  19 +--
+ Imakefile.X11R4 |  17 +-
+ README		 |  28 +++-
+ add_window.c	 | 168 ++++++++++++++------
+ ctwm.c		 |  74 ++++++---
+ ctwm.man	 |  26 ++-
+ events.c	 | 447 +++++++++++++++++++++++++++++++++++++++++-----------
+ gram.y		 |  41 ++---
+ iconmgr.c	 |  79 +++++++---
+ icons.c	 |  18 ++-
+ menus.c	 | 131 ++++++++-------
+ parse.c	 | 115 ++++++++++----
+ parse.h	 |   1 +
+ resize.c	 |  81 ++++++++--
+ screen.h	 |  10 +-
+ twm.h		 |  15 +-
+ util.c		 | 395 +++++++++++++++++++++++++++++++++++-----------
+ util.h		 |   2 +
+ version.c	 |   2 +-
+ workmgr.c	 |  48 ++++--
+ workmgr.h	 |   1 +
+ xpm/welcome.xpm |   2 +-
+ xpm/welcome.xwd | Bin 0 -> 283366 bytes
+ 24 files changed, 1293 insertions(+), 463 deletions(-)
+
+commit eeaa3b77e905adabbf854daca48b63af2c3b503d
+Author: lecom <lecom@sic.epfl.ch>
+Date:	Sun Feb 2 17:02:09 2003 +0000
+
+    CTWM version 3.1
+
+ CHANGES	 |  104 +++-
+ Imakefile	 |   46 +-
+ Imakefile.X11R4 |   41 +-
+ PROBLEMS	 |    9 +-
+ README		 |   15 +-
+ add_window.c	 |  298 +++++-----
+ ctwm.c		 |  163 ++++-
+ ctwm.man	 |  277 +++++----
+ cursor.c	 |    3 +-
+ events.c	 |  387 ++++++++----
+ example.ctwmrc  |  150 +++--
+ gram.y		 |   94 ++-
+ iconmgr.c	 |   32 +-
+ icons.c	 |  433 ++++++--------
+ icons.h	 |    3 +
+ lex.l		 |    7 +
+ libctwm.c	 |    6 +-
+ list.c		 |    2 +-
+ menus.c	 |  407 ++++++++++---
+ menus.h	 |   11 +
+ parse.c	 |  181 +++++-
+ parse.h	 |    9 +
+ resize.c	 |   90 +--
+ screen.h	 |   44 +-
+ sound.c	 |  186 ++++++
+ sound.doc	 |  104 ++++
+ twm.h		 |   27 +-
+ util.c		 | 1649 ++++++++++++++++++++++++++++++++++++++++-----------
+ util.h		 |   46 +-
+ version.c	 |    2 +-
+ workmgr.c	 |  449 +++++++-------
+ workmgr.h	 |   48 +-
+ xpm/ball1.xpm	 |   71 +++
+ xpm/ball10.xpm  |   71 +++
+ xpm/ball11.xpm  |   71 +++
+ xpm/ball12.xpm  |   71 +++
+ xpm/ball2.xpm	 |   71 +++
+ xpm/ball3.xpm	 |   71 +++
+ xpm/ball4.xpm	 |   71 +++
+ xpm/ball5.xpm	 |   71 +++
+ xpm/ball6.xpm	 |   71 +++
+ xpm/ball7.xpm	 |   71 +++
+ xpm/ball8.xpm	 |   71 +++
+ xpm/ball9.xpm	 |   71 +++
+ xpm/nt1.xpm	 |   24 +
+ xpm/nt2.xpm	 |   26 +
+ xpm/skull.xpm	 |   25 +
+ xpm/spider.xpm  |   72 +++
+ xpm/supman1.xbm |   64 ++
+ xpm/supman2.xbm |   64 ++
+ xpm/supman3.xbm |   64 ++
+ xpm/supman4.xbm |   64 ++
+ xpm/supman5.xbm |   64 ++
+ xpm/supman6.xbm |   64 ++
+ xpm/supman7.xbm |   64 ++
+ xpm/supman8.xbm |   64 ++
+ xpm/supman9.xbm |   64 ++
+ xpm/welcome.xpm |  898 ++++++++++++++--------------
+ xpm/xftp.xpm	 |   49 ++
+ 59 files changed, 5820 insertions(+), 2025 deletions(-)
+
+commit f23422155ec4328051a3117c4f6d7ace824335ea
+Author: lecom <lecom@sic.epfl.ch>
+Date:	Sun Feb 2 17:01:36 2003 +0000
+
+    CTWM version 3.0
+
+ CHANGES		|  122 +++-
+ Imakefile		|   35 +-
+ Imakefile.X11R4	|   56 +-
+ add_window.c		|  100 ++-
+ ctwm.c			|  114 +++-
+ ctwm.h			|    7 +
+ ctwm.man		| 1575 ++++++++++++++++++++++++++++++++++++++++----
+ demolib.c		|  122 ++++
+ events.c		|  193 ++++--
+ gc.c			|   22 +
+ gram.y			|   63 +-
+ iconmgr.c		|   62 +-
+ iconmgr.h		|    4 +-
+ icons.c		|   74 ++-
+ libctwm.c		|  220 +++++++
+ list.c			|    3 -
+ menus.c		|  366 ++++++++--
+ menus.h		|   10 +-
+ parse.c		|  461 ++++++++++++-
+ parse.h		|    1 +
+ resize.c		|    1 +
+ screen.h		|   34 +-
+ system.ctwmrc		|    1 +
+ twm.h			|   17 +-
+ util.c			|  670 +++++++++++++++++--
+ version.c		|    2 +-
+ workmgr.c		|  416 ++++++++----
+ workmgr.h		|    3 +-
+ xpm/3D_Expand15.xpm	|   26 +
+ xpm/3D_Iconify15.xpm	|   26 +
+ xpm/3D_Lightning15.xpm |   26 +
+ xpm/3D_Menu15.xpm	|   26 +
+ xpm/3D_Resize15.xpm	|   26 +
+ xpm/3D_Zoom15.xpm	|   26 +
+ xpm/audio_editor.xpm	|   63 ++
+ xpm/background1.xpm	|   41 ++
+ xpm/background2.xpm	|  154 +++++
+ xpm/background3.xpm	|  151 +++++
+ xpm/background4.xpm	|   91 +++
+ xpm/background5.xpm	|  155 +++++
+ xpm/background6.xpm	|  174 +++++
+ xpm/background7.xpm	|  155 +++++
+ xpm/background8.xpm	|  155 +++++
+ xpm/background9.xpm	|  155 +++++
+ xpm/clipboard.xpm	|   57 ++
+ xpm/ghostview.xpm	|   57 ++
+ xpm/unknown1.xpm	|   59 ++
+ xpm/welcome.xpm	|  506 ++++++++++++++
+ xpm/xirc.xpm		|   47 ++
+ xpm/xmosaic.xpm	|   56 ++
+ xpm/xrn-compose.xpm	|   59 ++
+ 51 files changed, 6425 insertions(+), 620 deletions(-)
+
+commit aeca9815b1fd0025cbae3d88fb8320bac6342797
+Author: lecom <lecom@sic.epfl.ch>
+Date:	Sun Feb 2 17:00:48 2003 +0000
+
+    CTWM version 2.2.2
+
+ CHANGES	 |  3 ++-
+ Imakefile	 |  2 ++
+ Imakefile.X11R4 |  6 +++++-
+ add_window.c	 |  1 +
+ ctwm.man	 | 28 ++++++++++++++++++++++++++++
+ events.c	 |  8 ++++----
+ icons.c	 | 20 +++++++++++---------
+ list.c		 |  4 ++++
+ menus.c	 |  8 +++++---
+ twm.h		 |  6 +++---
+ util.c		 |  6 +++---
+ version.c	 |  2 +-
+ workmgr.c	 |  9 +--------
+ 13 files changed, 70 insertions(+), 33 deletions(-)
+
+commit b5e4801e623fc4b3b65ce7a74bfbeb7235a9520e
+Author: lecom <lecom@sic.epfl.ch>
+Date:	Sun Feb 2 17:00:03 2003 +0000
+
+    CTWM version 2.2
+
+ CHANGES	      | 114 +++++++++++++++++++
+ Imakefile	      |  45 +++++++-
+ Imakefile.X11R4      |  48 ++++++--
+ PROBLEMS	      |  44 ++++++++
+ README		      |   4 +-
+ add_window.c	      |  24 +---
+ ctwm.c		      |   7 +-
+ ctwm.man	      |  56 +++++++---
+ events.c	      | 234 +++++++++++++++++++++++++--------------
+ events.h	      |   1 +
+ example.ctwmrc       | 158 +++++++++++++++++++++++++++
+ iconmgr.c	      |   4 +-
+ icons.c	      | 279 ++++++++++++++++++++++++++++++++---------------
+ lex.l		      |   2 +-
+ list.c		      |  33 ++++++
+ list.h		      |   2 +
+ menus.c	      | 132 ++++++++++++++--------
+ parse.c	      |  21 ++++
+ parse.h	      |   2 +
+ screen.h	      |   3 +
+ twm.h		      |  41 ++++---
+ util.c		      | 192 +++++++++++++++++++++++++++++++-
+ util.h		      |   4 +
+ version.c	      |   2 +-
+ workmgr.c	      | 206 ++++++++++++++++++++++++++--------
+ xpm/IslandD.xpm      |  60 ++++++++++
+ xpm/IslandW.xpm      |  59 ++++++++++
+ xpm/LRom.xpm	      |  55 ++++++++++
+ xpm/LRom1.xpm	      |  57 ++++++++++
+ xpm/cdrom1.xpm       |  56 ++++++++++
+ xpm/nothing.xpm      |  55 ++++++++++
+ xpm/pixmap.xpm       |  57 +++++-----
+ xpm/term.xpm	      |  48 ++++++++
+ xpm/unread.xpm       |  55 ++++++++++
+ xpm/xcalc.xpm	      |  56 ++++++++++
+ xpm/xcalc2.xpm       |  50 +++++++++
+ xpm/xgopher.xpm      |  84 +++++++-------
+ xpm/xgrab.xpm	      |  50 +++++++++
+ xpm/xhpcalc.xpm      |  52 +++++++++
+ xpm/xmail.xpm	      |  49 +++++++++
+ xpm/xnomail.xpm      |  52 +++++++++
+ xpm/xrn.goodnews.xpm |  56 ++++++++++
+ xpm/xrn.nonews.xpm   |  55 ++++++++++
+ 43 files changed, 2268 insertions(+), 396 deletions(-)
+
+commit 64a94ab06fc38ffb6680e59485880b89d92641d3
+Author: lecom <lecom@sic.epfl.ch>
+Date:	Sun Feb 2 16:59:37 2003 +0000
+
+    CTWM version 2.1
+
+ CHANGES      |  64 ++++++++
+ README       |  10 +-
+ add_window.c |   7 +-
+ ctwm.c       |   4 +-
+ ctwm.man     |  20 ++-
+ events.c     | 111 +++++++++++---
+ gram.y       |  13 +-
+ gtw.c	      |  96 ++++++++++++
+ iconmgr.c    |   8 +-
+ icons.c      |   2 +-
+ list.c       | 138 ++++++++++++++++-
+ menus.c      | 185 ++++++++++++++++++++---
+ menus.h      |   3 +
+ parse.c      |  10 ++
+ parse.h      |   4 +
+ resize.c     |   2 +-
+ twm.h	      |   4 +-
+ version.c    |   2 +-
+ workmgr.c    | 439 +++++++++++++++++++++++++++++++++++++++++++++----------
+ workmgr.h    |   4 +-
+ 20 files changed, 976 insertions(+), 150 deletions(-)
+
+commit df22d2fb7553de93e744698b92aae6cac860ebdb
+Author: lecom <lecom@sic.epfl.ch>
+Date:	Sun Feb 2 16:58:55 2003 +0000
+
+    CTWM version 2.0
+
+ CHANGES	 |  117 +++-
+ Imakefile	 |    5 +-
+ Imakefile.X11R4 |   57 ++
+ add_window.c	 |   11 +-
+ add_window.h	 |    1 +
+ ctwm.c		 |   18 +-
+ ctwm.man	 |  170 +++--
+ events.c	 |  123 +++-
+ events.h	 |    1 +
+ gram.y		 |   44 +-
+ iconmgr.c	 |   23 +-
+ menus.c	 |   63 +-
+ parse.c	 |   45 ++
+ parse.h	 |    5 +
+ resize.c	 |    7 +-
+ screen.h	 |    5 +-
+ twm.h		 |    8 +-
+ version.c	 |    2 +-
+ workmgr.c	 | 1811 +++++++++++++++++++++++++++++++++++++--------------
+ workmgr.h	 |  130 ++--
+ 20 files changed, 1955 insertions(+), 691 deletions(-)
+
+commit 39d3c8b643aedc66f9aeb941f196dbd7a07d988f
+Author: lecom <lecom@sic.epfl.ch>
+Date:	Sun Feb 2 16:58:05 2003 +0000
+
+    CTWM version 1.3
+
+ CHANGES	  |  39 ++++++++++++++
+ README		  |   2 +-
+ add_window.c	  |  17 +++---
+ ctwm.man	  | 107 +++++++++++++++++++++----------------
+ events.c	  |  36 ++++++++-----
+ gram.y		  | 112 +++++++++++++++++++++++++++++----------
+ iconmgr.c	  |   4 +-
+ icons.c	  |  12 ++++-
+ menus.c	  |   6 +--
+ parse.c	  |   2 +
+ screen.h	  |   5 +-
+ util.c		  |   7 +++
+ version.c	  |   2 +-
+ workmgr.c	  | 145 ++++++++++++++++++++++++++++++++++-----------------
+ workmgr.h	  |  19 ++++---
+ xpm/arthur.xpm   |  48 +++++++++++++++++
+ xpm/claude.xpm   |  53 +++++++++++++++++++
+ xpm/datebook.xpm |  60 +++++++++++++++++++++
+ xpm/emacs.xpm	  |  52 ++++++++++++++++++
+ xpm/hpterm.xpm   |  58 +++++++++++++++++++++
+ xpm/mail0.xpm	  |  52 ++++++++++++++++++
+ xpm/mail1.xpm	  |  50 ++++++++++++++++++
+ xpm/pixmap.xpm   |  57 ++++++++++++++++++++
+ xpm/postit.xpm   |  48 +++++++++++++++++
+ xpm/unknown.xpm  |  53 +++++++++++++++++++
+ xpm/xarchie.xpm  |  53 +++++++++++++++++++
+ xpm/xedit.xpm	  |  60 +++++++++++++++++++++
+ xpm/xgopher.xpm  |  52 ++++++++++++++++++
+ xpm/xman.xpm	  |  55 +++++++++++++++++++
+ xpm/xrn.xpm	  |  57 ++++++++++++++++++++
+ xpm/xterm.xpm	  |  56 ++++++++++++++++++++
+ 31 files changed, 1222 insertions(+), 157 deletions(-)
+
+commit 421c1ef2c0c26a5ae5b8ff603e050f6aba854ef2
+Author: lecom <lecom@sic.epfl.ch>
+Date:	Sun Feb 2 16:57:07 2003 +0000
+
+    CTWM version 1.2
+
+ CHANGES      |  39 ++++++++++++++
+ Imakefile    |  19 ++++---
+ README       |  29 ++++++-----
+ add_window.c |   3 ++
+ ctwm.c       |   2 +-
+ ctwm.man     |  27 +++++++---
+ datebook.xpm |  60 ++++++++++++++++++++++
+ events.c     |  22 ++++++++
+ hpterm.xpm   |  58 +++++++++++++++++++++
+ iconmgr.c    |  10 +++-
+ icons.c      |  70 ++++++++++++++++++++++---
+ menus.c      |  11 ++++
+ parse.c      |   6 +++
+ screen.h     |   1 +
+ twm.h	      |   9 +++-
+ util.c       |  64 +++++++++++++++++++++++
+ util.h       |  11 ++++
+ workmgr.c    | 153 ++++++++++++++++++++++++++++++++++++++++---------------
+ workmgr.h    |   5 ++
+ xedit.xpm    |  60 ++++++++++++++++++++++
+ xman.xpm     |  55 ++++++++++++++++++++
+ xrn.xpm      |  57 +++++++++++++++++++++
+ xterm.xpm    |  56 ++++++++++++++++++++
+ 23 files changed, 752 insertions(+), 75 deletions(-)
+
+commit 2b91eab5a4a0a407f1675b78f65b883766ce4882
+Author: lecom <lecom@sic.epfl.ch>
+Date:	Sun Feb 2 16:55:20 2003 +0000
+
+    CTWM version 1.1
+
+ CHANGES       |   50 +
+ Imakefile     |   54 +
+ README        |   31 +
+ add_window.c  | 1526 +++++++++++++++++++++++++++
+ add_window.h  |   57 +
+ ctwm.c        |  844 +++++++++++++++
+ ctwm.man      |  156 +++
+ cursor.c      |  183 ++++
+ deftwmrc.c    |   98 ++
+ events.c      | 2794 +++++++++++++++++++++++++++++++++++++++++++++++++
+ events.h      |   87 ++
+ gc.c	       |   99 ++
+ gc.h	       |   44 +
+ gram.c        | 2073 +++++++++++++++++++++++++++++++++++++
+ gram.h        |   81 ++
+ gram.y        |  908 ++++++++++++++++
+ iconmgr.c     |  828 +++++++++++++++
+ iconmgr.h     |   92 ++
+ icons.c       |  590 +++++++++++
+ icons.h       |   52 +
+ lex.c	       |  595 +++++++++++
+ lex.l	       |   99 ++
+ list.c        |  233 +++++
+ list.h        |   58 ++
+ menus.c       | 2985 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ menus.h       |  154 +++
+ parse.c       | 1089 +++++++++++++++++++
+ parse.h       |  113 ++
+ resize.c      | 1206 ++++++++++++++++++++++
+ resize.h      |   53 +
+ screen.h      |  266 +++++
+ siconify.bm   |    5 +
+ system.ctwmrc |  112 ++
+ twm.h	       |  372 +++++++
+ util.c        |  899 ++++++++++++++++
+ util.h        |   51 +
+ version.c     |   29 +
+ version.h     |   43 +
+ workmgr.c     |  870 ++++++++++++++++
+ workmgr.h     |   52 +
+ 40 files changed, 19931 insertions(+)
