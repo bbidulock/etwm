@@ -261,6 +261,7 @@ void InitEvents(void)
     EventHandler[LeaveNotify] = HandleLeaveNotify;
     EventHandler[ConfigureRequest] = HandleConfigureRequest;
     EventHandler[ClientMessage] = HandleClientMessage;
+    EventHandler[SelectionClear] = HandleSelectionClear;
     EventHandler[PropertyNotify] = HandlePropertyNotify;
     EventHandler[KeyPress] = HandleKeyPress;
     EventHandler[KeyRelease] = HandleKeyRelease;
@@ -1980,6 +1981,30 @@ void HandleClientMessage(void)
       else
            fprintf(stderr, "!! end of unknown animation !!\n");
    }
+}
+
+
+
+/***********************************************************************
+ *
+ *  Procedure:
+ *	HandleSelectionClear - selection clear handler
+ *
+ ***********************************************************************
+ */
+
+void HandleSelectionClear(void)
+{
+    char *name = NULL;
+
+    name = XGetAtomName(dpy, Event.xselectionclear.selection);
+    if (name != NULL) {
+	if (name[0] == 'W' && name[1] == 'M' && name[2] == '_' && name[3] == 'S') {
+	    /* lost a window manager selection - must exit */
+	    Done(0);
+	}
+	XFree(name);
+    }
 }
 
 

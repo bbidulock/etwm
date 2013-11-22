@@ -95,6 +95,7 @@ extern void HandleEnterNotify(void);
 extern void HandleLeaveNotify(void);
 extern void HandleConfigureRequest(void);
 extern void HandleClientMessage(void);
+extern void HandleSelectionClear(void);
 extern void HandlePropertyNotify(void);
 extern void HandleKeyPress(void);
 extern void HandleKeyRelease(void);

@@ -156,6 +156,8 @@ Bool ShowWelcomeWindow = False;
 #else
 Bool ShowWelcomeWindow = True;
 #endif
+/* for checking when manager selection is released */
+static Bool SelectionReleased(Display *display, XEvent *e, XPointer arg);
 static int RedirectError;	/* TRUE ==> another window manager running */
 /* for settting RedirectError */
 static int CatchRedirectError(Display *display, XErrorEvent *event);
@@ -245,7 +247,7 @@ int main(int argc, char **argv)
 int main(int argc, char **argv, char **environ)
 #endif
 {
-    Window croot, parent, *children;
+    Window croot, parent, *children, selwin;
     unsigned int nchildren;
     int i, j;
     unsigned long valuemask;	/* mask for create windows */
@@ -496,6 +498,60 @@ int main(int argc, char **argv, char **environ)
 	    crootw = DisplayWidth  (dpy, scrnum);
 	    crooth = DisplayHeight (dpy, scrnum);
 	}
+	if (!captive) {
+	    /* ICCCM 2.0 Manager Selection compliance for real roots only. */
+	    Atom _XA_WM_SN;
+	    Window wm_sn_owner;
+	    XTextProperty hname;
+	    XClassHint class_hint;
+	    XClientMessageEvent manager_event;
+	    char name[32], hostname[64] = { 0, };
+
+	    snprintf(name, 32, "WM_S%d", scrnum);
+	    _XA_WM_SN = XInternAtom(dpy, name, False);
+	    selwin = XCreateSimpleWindow(dpy, croot, crootw, crooth, 1, 1, 0, 0L, 0L);
+
+	    XGrabServer(dpy);
+	    wm_sn_owner = XGetSelectionOwner(dpy, _XA_WM_SN);
+	    if (wm_sn_owner != None) {
+		XSelectInput(dpy, wm_sn_owner, StructureNotifyMask);
+		XSync(dpy, False);
+	    }
+	    XUngrabServer(dpy);
+
+	    XSetSelectionOwner(dpy, _XA_WM_SN, selwin, CurrentTime);
+
+	    if (wm_sn_owner != None) {
+		XEvent event_return;
+		XIfEvent(dpy, &event_return, &SelectionReleased,
+			(XPointer) wm_sn_owner);
+		wm_sn_owner = None;
+	    }
+	    gethostname(hostname, 64);
+	    hname.value = (unsigned char *) hostname;
+	    hname.encoding = XA_STRING;
+	    hname.format = 8;
+	    hname.nitems = strnlen(hostname, 64);
+
+	    class_hint.res_name = NULL;
+	    class_hint.res_class = "CTWM";
+
+	    Xutf8SetWMProperties(dpy, selwin, Version, "ctwm",
+		    argv, argc, NULL, NULL, &class_hint);
+	    XSetWMClientMachine(dpy, selwin, &hname);
+
+	    manager_event.type = ClientMessage;
+	    manager_event.window = croot;
+	    manager_event.message_type = _XA_MANAGER;
+	    manager_event.format = 32;
+	    manager_event.data.l[0] = CurrentTime; // FIXME: timestamp
+	    manager_event.data.l[1] = _XA_WM_SN;
+	    manager_event.data.l[2] = selwin;
+	    manager_event.data.l[3] = 2;
+	    manager_event.data.l[4] = 0;
+	    XSendEvent(dpy, croot, False, StructureNotifyMask, (XEvent *)&manager_event);
+	    XSync(dpy, False);
+	}
 
         /* Make sure property priority colors is empty */
         XChangeProperty (dpy, croot, _XA_MIT_PRIORITY_COLORS,
@@ -518,6 +574,7 @@ int main(int argc, char **argv, char **environ)
 		fprintf(stderr, " on screen %d?\n", scrnum);
 	    else
 		fprintf(stderr, "?\n");
+	    XDestroyWindow(dpy, selwin); /* also releases selection */
 	    continue;
 	}
 
@@ -530,6 +587,7 @@ int main(int argc, char **argv, char **environ)
   	    fprintf (stderr,
 		     "%s: unable to allocate memory for ScreenInfo structure for screen %d.\n",
   		     ProgramName, scrnum);
+	    XDestroyWindow(dpy, selwin); /* also releases selection */
   	    continue;
   	}
 
@@ -597,6 +655,7 @@ int main(int argc, char **argv, char **environ)
 	Scr->CaptiveRoot = captiveroot;
 	Scr->Root = croot;
 	Scr->XineramaRoot = croot;
+	Scr->ManagerWindow = selwin;
 	XSaveContext (dpy, Scr->Root, ScreenContext, (XPointer) Scr);
 
 	if (captive) {
@@ -1392,6 +1451,15 @@ static int CatchRedirectError(Display *display, XErrorEvent *event)
     LastErrorEvent = *event;
     ErrorOccurred = True;
     return 0;
+}
+
+static Bool SelectionReleased(Display *display, XEvent *event, XPointer arg) {
+    if (event->type == DestroyNotify) {
+	if (event->xdestroywindow.window == (Window)arg) {
+	    return True;
+	}
+    }
+    return False;
 }
 
 Atom _XA_MIT_PRIORITY_COLORS;

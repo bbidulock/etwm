@@ -568,6 +568,7 @@ extern Atom _XA_WM_WORKSPACESLIST;
 extern Atom _XA_WM_CURRENTWORKSPACE;
 extern Atom _XA_WM_OCCUPATION;
 extern Atom _XA_WM_CTWM_VSCREENMAP;
+extern Atom _XA_MANAGER;
 extern Atom _OL_WIN_ATTR;
 extern Atom _XA_WM_NOREDIRECT;
 
