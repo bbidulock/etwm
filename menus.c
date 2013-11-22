@@ -4525,7 +4525,7 @@ static void Identify (TwmWindow *t)
             (void) sprintf(Info[n++], "IconDepth        = %d", depth);
         }
 
-	if (XGetWindowProperty (dpy, t->w, _XA_WM_CLIENT_MACHINE, 0L, 64, False,
+	if (XGetWindowProperty (dpy, t->w, XA_WM_CLIENT_MACHINE, 0L, 64, False,
 				XA_STRING, &actual_type, &actual_format, &nitems,
 				&bytesafter, &prop) == Success) {
 	    if (nitems && prop) {

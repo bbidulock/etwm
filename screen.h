@@ -127,6 +127,7 @@ struct ScreenInfo
     Window XineramaRoot;	/* the root window, may be CaptiveRoot or otherwise RealRoot */
     Window CaptiveRoot;		/* the captive root window, if any, or 0 */
     Window RealRoot;		/* the actual root window of the display */
+    Window ManagerWindow;	/* the WM_S%d selection owner window */
 
 /*
  *  +--RealRoot-----------------------------------------------------------+

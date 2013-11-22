@@ -43,3 +43,6 @@ vscreen.o
 windowbox.o
 workmgr.o
 ylwrap
+.*.sw[op]
+cscope.files
+cscope.out

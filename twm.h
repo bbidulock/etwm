@@ -561,7 +561,6 @@ extern Atom _XA_WM_TAKE_FOCUS;
 extern Atom _XA_WM_SAVE_YOURSELF;
 extern Atom _XA_WM_DELETE_WINDOW;
 extern Atom _XA_WM_END_OF_ANIMATION;
-extern Atom _XA_WM_CLIENT_MACHINE;
 extern Atom _XA_SM_CLIENT_ID;
 extern Atom _XA_WM_CLIENT_LEADER;
 extern Atom _XA_WM_WINDOW_ROLE;

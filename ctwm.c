@@ -1403,7 +1403,6 @@ Atom _XA_WM_TAKE_FOCUS;
 Atom _XA_WM_SAVE_YOURSELF;
 Atom _XA_WM_DELETE_WINDOW;
 Atom _XA_WM_END_OF_ANIMATION;	/* Used to throttle animation.  */
-Atom _XA_WM_CLIENT_MACHINE;
 Atom _XA_SM_CLIENT_ID;
 Atom _XA_WM_CLIENT_LEADER;
 Atom _XA_WM_WINDOW_ROLE;
@@ -1414,6 +1413,7 @@ Atom _XA_WM_OCCUPATION;
 Atom _XA_WM_CURRENTWORKSPACE;
 Atom _XA_WM_CTWMSLIST;
 Atom _XA_WM_CTWM_VSCREENMAP;
+Atom _XA_MANAGER;
 Atom _OL_WIN_ATTR;
 
 
@@ -1431,7 +1431,6 @@ void InternUsefulAtoms (void)
     _XA_WM_SAVE_YOURSELF = XInternAtom (dpy, "WM_SAVE_YOURSELF", False);
     _XA_WM_DELETE_WINDOW = XInternAtom (dpy, "WM_DELETE_WINDOW", False);
     _XA_WM_END_OF_ANIMATION = XInternAtom (dpy, "WM_END_OF_ANIMATION", False);
-    _XA_WM_CLIENT_MACHINE = XInternAtom (dpy, "WM_CLIENT_MACHINE", False);
     _XA_SM_CLIENT_ID = XInternAtom (dpy, "SM_CLIENT_ID", False);
     _XA_WM_CLIENT_LEADER = XInternAtom (dpy, "WM_CLIENT_LEADER", False);
     _XA_WM_WINDOW_ROLE = XInternAtom (dpy, "WM_WINDOW_ROLE", False);
@@ -1446,6 +1445,7 @@ void InternUsefulAtoms (void)
 #endif /* GNOME */
     _OL_WIN_ATTR            = XInternAtom (dpy, "_OL_WIN_ATTR",      False);
     _XA_WM_NOREDIRECT = XInternAtom (dpy, "WM_NOREDIRECT", False);
+    _XA_MANAGER = XInternAtom(dpy, "MANAGER", False);
 
 }
 
