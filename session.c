@@ -846,7 +846,7 @@ static char *unique_filename (char *path, char *prefix, int *fd)
  * information of the windows
  */
 {
-#ifdef MISSING_MKSTEMP
+#ifndef HAVE_MKSTEMP
     char *name;
     
     while (1) {
