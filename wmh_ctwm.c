@@ -9,6 +9,18 @@
 #include <X11/Xatom.h>
 #include <X11/Xmu/CharSet.h>
 
+/** @brief Get the root window for screen.
+  * @param scr - screen
+  *
+  * CTWM messes around with scr->Root: it sets it to the virtual root when
+  * virtual roots are being used.
+  */
+Window
+TwmWinRoot(ScreenInfo *scr)
+{
+    return scr->XineramaRoot;
+}
+
 extern int CanChangeOccupation(TwmWindow **twm_winp);
 
 static TwmWindow *

@@ -859,7 +859,7 @@ Set_NET_SUPPORTED(Window root)
 void
 Upd_NET_SUPPORTED(ScreenInfo *scr)
 {
-    Set_NET_SUPPORTED(scr->Root);
+    Set_NET_SUPPORTED(TwmNetRoot(scr));
     scr->ewmh.props._NET_SUPPORTED = 1;
 }
 
@@ -872,7 +872,7 @@ Upd_NET_SUPPORTED(ScreenInfo *scr)
 static void
 Del_NET_SUPPORTED(ScreenInfo *scr)
 {
-    XDeleteProperty(dpy, scr->Root, _XA_NET_SUPPORTED);
+    XDeleteProperty(dpy, TwmNetRoot(scr), _XA_NET_SUPPORTED);
     scr->ewmh.props._NET_SUPPORTED = 0;
 }
 
@@ -922,7 +922,7 @@ Upd_NET_CLIENT_LIST(ScreenInfo *scr)
     TwmGetClientList(scr, &clients, &count);
     if (!scr->ewmh.props._NET_CLIENT_LIST
 	|| cmp_window_list(scr->ewmh.clients, clients) != 0) {
-	Set_NET_CLIENT_LIST(scr->Root, clients, count);
+	Set_NET_CLIENT_LIST(TwmNetRoot(scr), clients, count);
 	scr->ewmh.props._NET_CLIENT_LIST = 1;
 	free(scr->ewmh.clients);
 	scr->ewmh.clients = clients;
@@ -936,7 +936,7 @@ Upd_NET_CLIENT_LIST(ScreenInfo *scr)
 static void
 Del_NET_CLIENT_LIST(ScreenInfo *scr)
 {
-    XDeleteProperty(dpy, scr->Root, _XA_NET_CLIENT_LIST);
+    XDeleteProperty(dpy, TwmNetRoot(scr), _XA_NET_CLIENT_LIST);
     scr->ewmh.props._NET_CLIENT_LIST = 0;
 }
 
@@ -1001,7 +1001,7 @@ Upd_NET_CLIENT_LIST_STACKING(ScreenInfo *scr)
     TwmGetClientListStacking(scr, &stacking, &count);
     if (!scr->ewmh.props._NET_CLIENT_LIST_STACKING
 	|| cmp_window_list(scr->ewmh.stacking, stacking) != 0) {
-	Set_NET_CLIENT_LIST_STACKING(scr->Root, stacking, count);
+	Set_NET_CLIENT_LIST_STACKING(TwmNetRoot(scr), stacking, count);
 	scr->ewmh.props._NET_CLIENT_LIST_STACKING = 1;
 	free(scr->ewmh.stacking);
 	scr->ewmh.stacking = stacking;
@@ -1011,7 +1011,7 @@ Upd_NET_CLIENT_LIST_STACKING(ScreenInfo *scr)
 static void
 Del_NET_CLIENT_LIST_STACKING(ScreenInfo *scr)
 {
-    XDeleteProperty(dpy, scr->Root, _XA_NET_CLIENT_LIST_STACKING);
+    XDeleteProperty(dpy, TwmNetRoot(scr), _XA_NET_CLIENT_LIST_STACKING);
 }
 
 /** @} */
@@ -1068,7 +1068,7 @@ Upd_NET_NUMBER_OF_DESKTOPS(ScreenInfo *scr)
 
     TwmGetNumberOfDesktops(scr, &number);
     if (!scr->ewmh.props._NET_NUMBER_OF_DESKTOPS || scr->ewmh.desktops != number) {
-	Set_NET_NUMBER_OF_DESKTOPS(scr->Root, number);
+	Set_NET_NUMBER_OF_DESKTOPS(TwmNetRoot(scr), number);
 	scr->ewmh.props._NET_NUMBER_OF_DESKTOPS = 1;
 	scr->ewmh.desktops = number;
 
@@ -1086,7 +1086,7 @@ Ret_NET_NUMBER_OF_DESKTOPS(ScreenInfo *scr)
 {
     int number;
 
-    if (Get_NET_NUMBER_OF_DESKTOPS(scr->Root, &number)) {
+    if (Get_NET_NUMBER_OF_DESKTOPS(TwmNetRoot(scr), &number)) {
 	scr->ewmh.props._NET_NUMBER_OF_DESKTOPS = 1;
 	TwmSetNumberOfDesktops(scr, number);
     } else
@@ -1174,7 +1174,7 @@ Upd_NET_DESKTOP_GEOMETRY(ScreenInfo *scr)
     TwmGetDesktopGeometry(scr, &geometry);
     if (!scr->ewmh.props._NET_DESKTOP_GEOMETRY
 	|| cmp_size(&scr->ewmh.geometry, &geometry) != 0) {
-	Set_NET_DESKTOP_GEOMETRY(scr->Root, &geometry);
+	Set_NET_DESKTOP_GEOMETRY(TwmNetRoot(scr), &geometry);
 	scr->ewmh.props._NET_DESKTOP_GEOMETRY = 1;
 	scr->ewmh.geometry = geometry;
     }
@@ -1185,7 +1185,7 @@ Ret_NET_DESKTOP_GEOMETRY(ScreenInfo *scr)
 {
     struct NetSize geometry = { scr->rootw, scr->rooth };
 
-    if (Get_NET_DESKTOP_GEOMETRY(scr->Root, &geometry)) {
+    if (Get_NET_DESKTOP_GEOMETRY(TwmNetRoot(scr), &geometry)) {
 	TwmSetDesktopGeometry(scr, &geometry);
 	scr->ewmh.props._NET_DESKTOP_GEOMETRY = 1;
 	scr->ewmh.geometry = geometry;
@@ -1299,7 +1299,7 @@ Upd_NET_DESKTOP_VIEWPORT(ScreenInfo *scr)
     if (!scr->ewmh.props._NET_DESKTOP_VIEWPORT
 	|| cmp_pos_list(scr->ewmh.viewport, scr->ewmh.viewports, viewport,
 			viewports) != 0) {
-	Set_NET_DESKTOP_VIEWPORT(scr->Root, viewport, viewports);
+	Set_NET_DESKTOP_VIEWPORT(TwmNetRoot(scr), viewport, viewports);
 	scr->ewmh.props._NET_DESKTOP_VIEWPORT = 1;
 	free(scr->ewmh.viewport);
 	scr->ewmh.viewport = viewport;
@@ -1313,7 +1313,7 @@ Ret_NET_DESKTOP_VIEWPORT(ScreenInfo *scr)
     struct NetPosition *viewport = NULL;
     int viewports = 0, n;
 
-    if (Get_NET_DESKTOP_VIEWPORT(scr->Root, &viewport, &viewports)) {
+    if (Get_NET_DESKTOP_VIEWPORT(TwmNetRoot(scr), &viewport, &viewports)) {
 	for (n = 0; n < viewports; n++)
 	    TwmSetDesktopViewport(scr, n, &viewport[n]);
 	scr->ewmh.props._NET_DESKTOP_VIEWPORT = 1;
@@ -1405,7 +1405,7 @@ Upd_NET_CURRENT_DESKTOP(ScreenInfo *scr)
 
     TwmGetCurrentDesktop(scr, &current);
     if (!scr->ewmh.props._NET_CURRENT_DESKTOP || scr->ewmh.current != current) {
-	Set_NET_CURRENT_DESKTOP(scr->Root, current);
+	Set_NET_CURRENT_DESKTOP(TwmNetRoot(scr), current);
 	scr->ewmh.props._NET_CURRENT_DESKTOP = 1;
 	scr->ewmh.current = current;
     }
@@ -1422,7 +1422,7 @@ Ret_NET_CURRENT_DESKTOP(ScreenInfo *scr)
 {
     int current = -1;
 
-    if (Get_NET_CURRENT_DESKTOP(scr->Root, &current)) {
+    if (Get_NET_CURRENT_DESKTOP(TwmNetRoot(scr), &current)) {
 	TwmSetCurrentDesktop(scr, current, CurrentTime);
 	scr->ewmh.props._NET_CURRENT_DESKTOP = 1;
 	scr->ewmh.current = current;
@@ -1519,7 +1519,7 @@ Upd_NET_DESKTOP_NAMES(ScreenInfo *scr)
 
     TwmGetDesktopNames(scr, &names, &count);
     if (!scr->ewmh.props._NET_DESKTOP_NAMES || strcmp_list(names, scr->ewmh.names) != 0) {
-	Set_NET_DESKTOP_NAMES(scr->Root, names, count);
+	Set_NET_DESKTOP_NAMES(TwmNetRoot(scr), names, count);
 	scr->ewmh.props._NET_DESKTOP_NAMES = 1;
 	if (scr->ewmh.names != NULL)
 	    XFreeStringList(scr->ewmh.names);
@@ -1534,7 +1534,7 @@ Ret_NET_DESKTOP_NAMES(ScreenInfo *scr)
     char **names = NULL;
     int count = 0;
 
-    if (Get_NET_DESKTOP_NAMES(scr->Root, &names, &count)) {
+    if (Get_NET_DESKTOP_NAMES(TwmNetRoot(scr), &names, &count)) {
 	TwmSetDesktopNames(scr, names, count);
 	scr->ewmh.props._NET_DESKTOP_NAMES = 1;
 	if (strcmp_list(names, scr->ewmh.names) != 0) {
@@ -1608,7 +1608,7 @@ Upd_NET_ACTIVE_WINDOW(ScreenInfo *scr)
 
     TwmGetActiveWindow(scr, &active);
     if (!scr->ewmh.props._NET_ACTIVE_WINDOW || active != scr->ewmh.active) {
-	Set_NET_ACTIVE_WINDOW(scr->Root, active);
+	Set_NET_ACTIVE_WINDOW(TwmNetRoot(scr), active);
 	scr->ewmh.props._NET_ACTIVE_WINDOW = 1;
 	scr->ewmh.active = active;
     }
@@ -1620,7 +1620,7 @@ Ret_NET_ACTIVE_WINDOW(ScreenInfo *scr)
     Window active = None;
     TwmWindow *twin = NULL;
 
-    if (Get_NET_ACTIVE_WINDOW(scr->Root, &active)) {
+    if (Get_NET_ACTIVE_WINDOW(TwmNetRoot(scr), &active)) {
 	if ((twin = TwmFindWindow(scr, active)) != NULL)
 	    TwmSetActiveWindow(twin, None, CurrentTime, _NET_SOURCE_UNSPECIFIED);
 	scr->ewmh.props._NET_ACTIVE_WINDOW = 1;
@@ -1719,7 +1719,7 @@ Upd_NET_WORKAREA(ScreenInfo *scr)
     if (!scr->ewmh.props._NET_WORKAREA
 	|| cmp_geo_list(scr->ewmh.workarea, scr->ewmh.workareas, workarea,
 			workareas) != 0) {
-	Set_NET_WORKAREA(scr->Root, workarea, workareas);
+	Set_NET_WORKAREA(TwmNetRoot(scr), workarea, workareas);
 	scr->ewmh.props._NET_WORKAREA = 1;
 	free(scr->ewmh.workarea);
 	scr->ewmh.workarea = workarea;
@@ -1730,7 +1730,7 @@ Upd_NET_WORKAREA(ScreenInfo *scr)
 static void
 Del_NET_WORKAREA(ScreenInfo *scr)
 {
-    XDeleteProperty(dpy, scr->Root, _XA_NET_WORKAREA);
+    XDeleteProperty(dpy, TwmNetRoot(scr), _XA_NET_WORKAREA);
     scr->ewmh.props._NET_WORKAREA = 0;
 }
 
@@ -1769,7 +1769,7 @@ Upd_NET_SUPPORTING_WM_CHECK(ScreenInfo *scr)
     Window check = scr->ManagerWindow;
 
     if (!scr->ewmh.props._NET_SUPPORTING_WM_CHECK || scr->ewmh.check != check) {
-	Set_NET_SUPPORTING_WM_CHECK(scr->Root, check);
+	Set_NET_SUPPORTING_WM_CHECK(TwmNetRoot(scr), check);
 	scr->ewmh.props._NET_SUPPORTING_WM_CHECK = 1;
 	scr->ewmh.check = check;
     }
@@ -1778,7 +1778,7 @@ Upd_NET_SUPPORTING_WM_CHECK(ScreenInfo *scr)
 static void
 Del_NET_SUPPORTING_WM_CHECK(ScreenInfo *scr)
 {
-    XDeleteProperty(dpy, scr->Root, _XA_NET_SUPPORTING_WM_CHECK);
+    XDeleteProperty(dpy, TwmNetRoot(scr), _XA_NET_SUPPORTING_WM_CHECK);
     scr->ewmh.props._NET_SUPPORTING_WM_CHECK = 0;
     scr->ewmh.check = None;
 }
@@ -1829,7 +1829,7 @@ Upd_NET_VIRTUAL_ROOTS(ScreenInfo *scr)
     TwmGetVirtualRoots(scr, &vroots, &count);
     if (!scr->ewmh.props._NET_VIRTUAL_ROOTS
 	|| cmp_window_list(scr->ewmh.vroots, vroots) != 0) {
-	Set_NET_VIRTUAL_ROOTS(scr->Root, vroots, count);
+	Set_NET_VIRTUAL_ROOTS(TwmNetRoot(scr), vroots, count);
 	scr->ewmh.props._NET_VIRTUAL_ROOTS = 1;
 	free(scr->ewmh.vroots);
 	scr->ewmh.vroots = vroots;
@@ -1839,7 +1839,7 @@ Upd_NET_VIRTUAL_ROOTS(ScreenInfo *scr)
 void
 Del_NET_VIRTUAL_ROOTS(ScreenInfo *scr)
 {
-    XDeleteProperty(dpy, scr->Root, _XA_NET_VIRTUAL_ROOTS);
+    XDeleteProperty(dpy, TwmNetRoot(scr), _XA_NET_VIRTUAL_ROOTS);
     scr->ewmh.props._NET_VIRTUAL_ROOTS = 0;
 }
 
@@ -1911,7 +1911,7 @@ Upd_NET_DESKTOP_LAYOUT(ScreenInfo *scr)
 	TwmGetDesktopLayout(scr, &layout);
 	if (!scr->ewmh.props._NET_DESKTOP_LAYOUT
 	    || cmp_layout(&scr->ewmh.layout, &layout) != 0) {
-	    Set_NET_DESKTOP_LAYOUT(scr->Root, &layout);
+	    Set_NET_DESKTOP_LAYOUT(TwmNetRoot(scr), &layout);
 	    scr->ewmh.props._NET_DESKTOP_LAYOUT = 1;
 	    scr->ewmh.layout = layout;
 	}
@@ -1933,7 +1933,7 @@ Ret_NET_DESKTOP_LAYOUT(ScreenInfo *scr)
     else if (scr->ewmh.layout_sn.owner == None)
 	/* ignore chages by non-selection owners */
 	return;
-    else if (Get_NET_DESKTOP_LAYOUT(scr->Root, &scr->ewmh.layout)) {
+    else if (Get_NET_DESKTOP_LAYOUT(TwmNetRoot(scr), &scr->ewmh.layout)) {
 	scr->ewmh.props._NET_DESKTOP_LAYOUT = 1;
 	TwmSetDesktopLayout(scr, &scr->ewmh.layout);
     }
@@ -2042,7 +2042,7 @@ Upd_NET_SHOWING_DESKTOP(ScreenInfo *scr)
 
     TwmGetShowingDesktop(scr, &showing);
     if (!scr->ewmh.props._NET_SHOWING_DESKTOP || scr->ewmh.showing != showing) {
-	Set_NET_SHOWING_DESKTOP(scr->Root, showing);
+	Set_NET_SHOWING_DESKTOP(TwmNetRoot(scr), showing);
 	scr->ewmh.props._NET_SHOWING_DESKTOP = 1;
 	scr->ewmh.showing = showing;
     }
@@ -2053,7 +2053,7 @@ Ret_NET_SHOWING_DESKTOP(ScreenInfo *scr)
 {
     Bool showing = False;
 
-    if (Get_NET_SHOWING_DESKTOP(scr->Root, &showing)) {
+    if (Get_NET_SHOWING_DESKTOP(TwmNetRoot(scr), &showing)) {
 	TwmSetShowingDesktop(scr, showing);
 	scr->ewmh.props._NET_SHOWING_DESKTOP = 1;
 	scr->ewmh.showing = showing;
@@ -5452,7 +5452,7 @@ Snd_NET_STARTUP_INFO_MSG(ScreenInfo *scr, EwmhSequence *seq, enum _NET_NOTIFY_MS
 	}
 	msg[index] = '\0';
     }
-    Snd_NET_STARTUP_INFO(scr->ManagerWindow, scr->Root, msg);
+    Snd_NET_STARTUP_INFO(scr->ManagerWindow, TwmNetRoot(scr), msg);
 }
 
 /** @brief Update startup notification sequence information from window.
@@ -5665,7 +5665,7 @@ Upd_KDE_NET_SYSTEM_TRAY_WINDOWS(ScreenInfo *scr)
     TwmGetKdeSystemTrayWindows(scr, &systray, &count);
     if (!scr->ewmh.props._KDE_NET_SYSTEM_TRAY_WINDOWS
 	|| cmp_window_list(scr->ewmh.systray, systray) != 0) {
-	Set_KDE_NET_SYSTEM_TRAY_WINDOWS(scr->Root, systray, count);
+	Set_KDE_NET_SYSTEM_TRAY_WINDOWS(TwmNetRoot(scr), systray, count);
 	scr->ewmh.props._KDE_NET_SYSTEM_TRAY_WINDOWS = 1;
 	free(scr->ewmh.systray);
 	scr->ewmh.systray = systray;
@@ -6206,7 +6206,7 @@ InitEwmh(ScreenInfo *scr)
 #endif
     Ret_NET_SHOWING_DESKTOP(scr);
 
-    Set_NET_SUPPORTING_WM_CHECK(scr->Root, scr->ManagerWindow);
+    Set_NET_SUPPORTING_WM_CHECK(TwmNetRoot(scr), scr->ManagerWindow);
 
     /* get the _NET_WM_DESKTOP_LAYOUT_Sn selection */
     snprintf(layout, 32, "_NET_DESKTOP_LAYOUT_S%d", scr->screen);
@@ -6215,7 +6215,7 @@ InitEwmh(ScreenInfo *scr)
     scr->ewmh.layout_sn.owner = XGetSelectionOwner(dpy, scr->ewmh.layout_sn.atom);
     if (scr->ewmh.layout_sn.owner == None) {
 	scr->ewmh.layout_sn.window =
-	    XCreateSimpleWindow(dpy, scr->Root, scr->rootw, scr->rooth, 1, 1, 0, 0L, 0L);
+	    XCreateSimpleWindow(dpy, TwmNetRoot(scr), scr->rootw, scr->rooth, 1, 1, 0, 0L, 0L);
 	XSetSelectionOwner(dpy, scr->ewmh.layout_sn.atom, scr->ewmh.layout_sn.window,
 			   CurrentTime);
     } else {

@@ -650,6 +650,8 @@ Bool HandleNetDestroyNotify(ScreenInfo *scr, TwmWindow *twin, XEvent *xev);
 
 TwmWindow *TwmFindWindow(ScreenInfo *scr, Window window);
 
+Window TwmNetRoot(ScreenInfo *scr);
+
 void TwmGetClientList(ScreenInfo *scr, Window **windows, int *count);
 void TwmGetClientListStacking(ScreenInfo *scr, Window **windows, int *count);
 void TwmGetNumberOfDesktops(ScreenInfo *scr, int *number);

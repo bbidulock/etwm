@@ -6,6 +6,18 @@
 #include <X11/Xatom.h>
 #include <X11/Xmu/CharSet.h>
 
+/** @brief Get the root window for screen.
+  * @param scr - screen
+  *
+  * CTWM messes around with scr->Root: it sets it to the virtual root when
+  * virtual roots are being used.
+  */
+Window
+TwmNetRoot(ScreenInfo *scr)
+{
+    return scr->XineramaRoot;
+}
+
 extern int CanChangeOccupation(TwmWindow **twm_winp);
 
 static TwmWindow *
@@ -475,15 +487,16 @@ TwmGetVirtualRoots(ScreenInfo *scr, Window **vroot, int *vroots)
     int number = 0;
     Window *windows = NULL;
     VirtualScreen *vs;
+    Window root = TwmNetRoot(scr);
 
     for (vs = scr->vScreenList; vs != NULL; vs = vs->next)
-	if (vs->window != None && vs->window != scr->Root)
+	if (vs->window != None && vs->window != root)
 	    number++;
     if ((windows = (Window *) calloc(number + 1, sizeof(Window))) != NULL) {
 	int i = 0;
 
 	for (vs = scr->vScreenList; vs != NULL; vs = vs->next)
-	    if (vs->window != None && vs->window != scr->Root)
+	    if (vs->window != None && vs->window != root)
 		windows[i++] = vs->window;
 	windows[i++] = None;
     }

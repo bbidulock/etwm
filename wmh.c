@@ -342,7 +342,7 @@ Upd_WIN_SUPPORTING_WM_CHECK(ScreenInfo *scr)
     Window check = scr->ManagerWindow;
 
     if (!scr->wmh.props._WIN_SUPPORTING_WM_CHECK || scr->wmh.check != check) {
-	Set_WIN_SUPPORTING_WM_CHECK(scr->Root, check);
+	Set_WIN_SUPPORTING_WM_CHECK(TwmWinRoot(scr), check);
 	scr->wmh.props._WIN_SUPPORTING_WM_CHECK = 1;
 	scr->wmh.check = check;
     }
@@ -353,7 +353,7 @@ Upd_WIN_SUPPORTING_WM_CHECK(ScreenInfo *scr)
 static void
 Del_WIN_SUPPORTING_WM_CHECK(ScreenInfo *scr)
 {
-    XDeleteProperty(dpy, scr->Root, _XA_WIN_SUPPORTING_WM_CHECK);
+    XDeleteProperty(dpy, TwmWinRoot(scr), _XA_WIN_SUPPORTING_WM_CHECK);
     scr->wmh.props._WIN_SUPPORTING_WM_CHECK = 0;
     scr->wmh.check = None;
 }
@@ -449,7 +449,7 @@ Set_WIN_PROTOCOLS(Window root)
 void
 Upd_WIN_PROTOCOLS(ScreenInfo *scr)
 {
-    Set_WIN_PROTOCOLS(scr->Root);
+    Set_WIN_PROTOCOLS(TwmWinRoot(scr));
 }
 
 /** @brief Delete the WinWM/WMH protocols.
@@ -460,7 +460,7 @@ Upd_WIN_PROTOCOLS(ScreenInfo *scr)
 static void
 Del_WIN_PROTOCOLS(ScreenInfo *scr)
 {
-    XDeleteProperty(dpy, scr->Root, _XA_WIN_PROTOCOLS);
+    XDeleteProperty(dpy, TwmWinRoot(scr), _XA_WIN_PROTOCOLS);
     scr->wmh.props._WIN_PROTOCOLS = 0;
 }
 
@@ -511,7 +511,7 @@ Upd_WIN_CLIENT_LIST(ScreenInfo *scr)
     TwmGetWinClientList(scr, &clients, &count);
     if (!scr->wmh.props._WIN_CLIENT_LIST
 	|| cmp_window_list(scr->wmh.clients, clients) != 0) {
-	Set_WIN_CLIENT_LIST(scr->Root, clients, count);
+	Set_WIN_CLIENT_LIST(TwmWinRoot(scr), clients, count);
 	scr->wmh.props._WIN_CLIENT_LIST = 1;
 	free(scr->wmh.clients);
 	scr->wmh.clients = clients;
@@ -526,7 +526,7 @@ Upd_WIN_CLIENT_LIST(ScreenInfo *scr)
 static void
 Del_WIN_CLIENT_LIST(ScreenInfo *scr)
 {
-    XDeleteProperty(dpy, scr->Root, _XA_WIN_CLIENT_LIST);
+    XDeleteProperty(dpy, TwmWinRoot(scr), _XA_WIN_CLIENT_LIST);
     scr->wmh.props._WIN_CLIENT_LIST = 0;
 }
 
@@ -594,7 +594,7 @@ Upd_WIN_WORKSPACE_COUNT(ScreenInfo *scr)
     TwmGetWorkspaceCount(scr, &workspace_count);
     if (!scr->wmh.props._WIN_WORKSPACE_COUNT
 	|| scr->wmh.workspace_count != workspace_count) {
-	Set_WIN_WORKSPACE_COUNT(scr->Root, workspace_count);
+	Set_WIN_WORKSPACE_COUNT(TwmWinRoot(scr), workspace_count);
 	scr->wmh.props._WIN_WORKSPACE_COUNT = 1;
 	scr->wmh.workspace_count = workspace_count;
     }
@@ -610,7 +610,7 @@ Ret_WIN_WORKSPACE_COUNT(ScreenInfo *scr)
 {
     int workspace_count = 1;
 
-    if (Get_WIN_WORKSPACE_COUNT(scr->Root, &workspace_count)) {
+    if (Get_WIN_WORKSPACE_COUNT(TwmWinRoot(scr), &workspace_count)) {
 	TwmSetWorkspaceCount(scr, workspace_count);
 	scr->wmh.props._WIN_WORKSPACE_COUNT = 1;
 	scr->wmh.workspace_count = workspace_count;
@@ -628,7 +628,7 @@ Ret_WIN_WORKSPACE_COUNT(ScreenInfo *scr)
 static void
 Del_WIN_WORKSPACE_COUNT(ScreenInfo *scr)
 {
-    XDeleteProperty(dpy, scr->Root, _XA_WIN_WORKSPACE_COUNT);
+    XDeleteProperty(dpy, TwmWinRoot(scr), _XA_WIN_WORKSPACE_COUNT);
     scr->wmh.props._WIN_WORKSPACE_COUNT = 0;
     scr->wmh.workspace_count = 0;
 }
@@ -690,7 +690,7 @@ Upd_WIN_WORKSPACE_root(ScreenInfo *scr)
 
     TwmGetWorkspace(scr, &workspace);
     if (!scr->wmh.props._WIN_WORKSPACE || scr->wmh.workspace != workspace) {
-	Set_WIN_WORKSPACE(scr->Root, workspace);
+	Set_WIN_WORKSPACE(TwmWinRoot(scr), workspace);
 	scr->wmh.props._WIN_WORKSPACE = 1;
 	scr->wmh.workspace = workspace;
     }
@@ -717,7 +717,7 @@ Ret_WIN_WORKSPACE_root(ScreenInfo *scr)
 {
     int workspace = -2;
 
-    if (Get_WIN_WORKSPACE(scr->Root, &workspace)) {
+    if (Get_WIN_WORKSPACE(TwmWinRoot(scr), &workspace)) {
 	TwmSetWorkspace(scr, workspace);
 	scr->wmh.props._WIN_WORKSPACE = 1;
 	scr->wmh.workspace = workspace;
@@ -754,7 +754,7 @@ Ret_WIN_WORKSPACE(ScreenInfo *scr, TwmWindow *twin)
 static void
 Del_WIN_WORKSPACE_root(ScreenInfo *scr)
 {
-    XDeleteProperty(dpy, scr->Root, _XA_WIN_WORKSPACE);
+    XDeleteProperty(dpy, TwmWinRoot(scr), _XA_WIN_WORKSPACE);
     scr->wmh.props._WIN_WORKSPACE = 0;
     scr->wmh.workspace = -2;
 }
@@ -834,7 +834,7 @@ Upd_WIN_WORKSPACE_NAMES(ScreenInfo *scr)
 
     TwmGetWorkspaceNames(scr, &names, &count);
     if (!scr->wmh.props._WIN_WORKSPACE_NAMES || strcmp_list(scr->wmh.names, names) != 0) {
-	Set_WIN_WORKSPACE_NAMES(scr->Root, names, count);
+	Set_WIN_WORKSPACE_NAMES(TwmWinRoot(scr), names, count);
 	scr->wmh.props._WIN_WORKSPACE_NAMES = 1;
 	if (scr->wmh.names != NULL)
 	    XFreeStringList(scr->wmh.names);
@@ -853,7 +853,7 @@ Ret_WIN_WORKSPACE_NAMES(ScreenInfo *scr)
     char **names = NULL;
     int count = 0;
 
-    if (Get_WIN_WORKSPACE_NAMES(scr->Root, &names, &count)) {
+    if (Get_WIN_WORKSPACE_NAMES(TwmWinRoot(scr), &names, &count)) {
 	TwmSetWorkspaceNames(scr, names, count);
 	scr->wmh.props._WIN_WORKSPACE_NAMES = 1;
 	if (scr->wmh.names != NULL)
@@ -875,7 +875,7 @@ Ret_WIN_WORKSPACE_NAMES(ScreenInfo *scr)
 static void
 Del_WIN_WORKSPACE_NAMES(ScreenInfo *scr)
 {
-    XDeleteProperty(dpy, scr->Root, _XA_WIN_WORKSPACE_NAMES);
+    XDeleteProperty(dpy, TwmWinRoot(scr), _XA_WIN_WORKSPACE_NAMES);
     scr->wmh.props._WIN_WORKSPACE_NAMES = 0;
     if (scr->wmh.names) {
 	XFreeStringList(scr->wmh.names);
@@ -1386,7 +1386,7 @@ Upd_WIN_DESKTOP_BUTTON_PROXY(ScreenInfo *scr)
     Window proxy = scr->ManagerWindow;
 
     if (!scr->wmh.props._WIN_DESKTOP_BUTTON_PROXY || scr->wmh.proxy != proxy) {
-	Set_WIN_DESKTOP_BUTTON_PROXY(scr->Root, proxy);
+	Set_WIN_DESKTOP_BUTTON_PROXY(TwmWinRoot(scr), proxy);
 	scr->wmh.props._WIN_DESKTOP_BUTTON_PROXY = 1;
 	scr->wmh.proxy = proxy;
     }
@@ -1395,7 +1395,7 @@ Upd_WIN_DESKTOP_BUTTON_PROXY(ScreenInfo *scr)
 static void
 Del_WIN_DESKTOP_BUTTON_PROXY(ScreenInfo *scr)
 {
-    XDeleteProperty(dpy, scr->Root, _XA_WIN_DESKTOP_BUTTON_PROXY);
+    XDeleteProperty(dpy, TwmWinRoot(scr), _XA_WIN_DESKTOP_BUTTON_PROXY);
     scr->wmh.props._WIN_DESKTOP_BUTTON_PROXY = 0;
     scr->wmh.proxy = None;
 }
@@ -1467,7 +1467,7 @@ Upd_WIN_AREA_COUNT(ScreenInfo *scr)
 
     TwmGetWinAreaCount(scr, &area_count);
     if (!scr->wmh.props._WIN_AREA_COUNT || cmp_layout(&scr->wmh.area_count, &area_count) != 0) {
-	Set_WIN_AREA_COUNT(scr->Root, &area_count);
+	Set_WIN_AREA_COUNT(TwmWinRoot(scr), &area_count);
 	scr->wmh.props._WIN_AREA_COUNT = 1;
 	scr->wmh.area_count = area_count;
     }
@@ -1478,7 +1478,7 @@ Ret_WIN_AREA_COUNT(ScreenInfo *scr)
 {
     struct WinLayout area_count = { 1, 1 };
 
-    if (Get_WIN_AREA_COUNT(scr->Root, &area_count)) {
+    if (Get_WIN_AREA_COUNT(TwmWinRoot(scr), &area_count)) {
 	TwmSetWinAreaCount(scr, &area_count);
 	scr->wmh.props._WIN_AREA_COUNT = 1;
 	scr->wmh.area_count = area_count;
@@ -1504,7 +1504,7 @@ Rcv_WIN_AREA_COUNT(ScreenInfo *scr, XClientMessageEvent *event)
 static void
 Del_WIN_AREA_COUNT(ScreenInfo *scr)
 {
-    XDeleteProperty(dpy, scr->Root, _XA_WIN_AREA_COUNT);
+    XDeleteProperty(dpy, TwmWinRoot(scr), _XA_WIN_AREA_COUNT);
     scr->wmh.props._WIN_AREA_COUNT = 0;
     scr->wmh.area_count.cols = scr->wmh.area_count.rows = 0;
 }
@@ -1559,7 +1559,7 @@ Upd_WIN_AREA(ScreenInfo *scr)
 
     TwmGetWinArea(scr, &area);
     if (!scr->wmh.props._WIN_AREA || cmp_area(&scr->wmh.area, &area) != 0) {
-	Set_WIN_AREA(scr->Root, &area);
+	Set_WIN_AREA(TwmWinRoot(scr), &area);
 	scr->wmh.props._WIN_AREA = 1;
 	scr->wmh.area = area;
     }
@@ -1574,7 +1574,7 @@ Ret_WIN_AREA(ScreenInfo *scr)
 {
     struct WinArea area = { 0, 0 };
 
-    if (Get_WIN_AREA(scr->Root, &area)) {
+    if (Get_WIN_AREA(TwmWinRoot(scr), &area)) {
 	TwmSetWinArea(scr, &area);
 	scr->wmh.props._WIN_AREA = 1;
 	scr->wmh.area = area;
@@ -1611,7 +1611,7 @@ Rcv_WIN_AREA(ScreenInfo *scr, XClientMessageEvent *event)
 static void
 Del_WIN_AREA(ScreenInfo *scr)
 {
-    XDeleteProperty(dpy, scr->Root, _XA_WIN_AREA);
+    XDeleteProperty(dpy, TwmWinRoot(scr), _XA_WIN_AREA);
     scr->wmh.props._WIN_AREA = 0;
     scr->wmh.area.col = 0;
     scr->wmh.area.row = 0;
@@ -1794,7 +1794,7 @@ Upd_WIN_WORKAREA(ScreenInfo *scr)
 
     TwmGetWinWorkarea(scr, &workarea);
     if (!scr->wmh.props._WIN_WORKAREA || cmp_workarea(&scr->wmh.workarea, &workarea) != 0) {
-	Set_WIN_WORKAREA(scr->Root, &workarea);
+	Set_WIN_WORKAREA(TwmWinRoot(scr), &workarea);
 	scr->wmh.props._WIN_WORKAREA = 1;
 	scr->wmh.workarea = workarea;
     }
@@ -1803,7 +1803,7 @@ Upd_WIN_WORKAREA(ScreenInfo *scr)
 static void
 Del_WIN_WORKAREA(ScreenInfo *scr)
 {
-    XDeleteProperty(dpy, scr->Root, _XA_WIN_WORKAREA);
+    XDeleteProperty(dpy, TwmWinRoot(scr), _XA_WIN_WORKAREA);
     scr->wmh.props._WIN_WORKAREA = 0;
 }
 
