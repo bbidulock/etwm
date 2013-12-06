@@ -632,6 +632,8 @@ void Upd_NET_MAXIMIZED_RESTORE(TwmWindow *twin);
 void Upd_NET_WM_DESKTOP_MASK(ScreenInfo *scr, TwmWindow *twin);
 void Upd_NET_VIRTUAL_POS(TwmWindow *twin);
 
+EwmhSequence *Seq_NET_STARTUP_ID(ScreenInfo *scr, TwmWindow *twin);
+
 void InitEwmh(ScreenInfo *scr);
 void UpdateEwmh(ScreenInfo *scr);
 void TermEwmh(ScreenInfo *scr);

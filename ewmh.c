@@ -5011,9 +5011,8 @@ Upd_NET_STARTUP_ID(ScreenInfo *scr, TwmWindow *twin)
 	char *startup_id = NULL;
 	EwmhSequence *seq;
 
-	if ((seq = twin->ewmh.sequence) == NULL)
-	    seq = Seq_NET_STARTUP_ID(scr, twin);
-	if (seq != NULL && (startup_id = strdup(seq->field.id)) != NULL) {
+	if ((seq = Seq_NET_STARTUP_ID(scr, twin)) != NULL
+	    && (startup_id = strdup(seq->field.id)) != NULL) {
 	    Set_NET_STARTUP_ID(twin->w, startup_id);
 	    twin->ewmh.props._NET_STARTUP_ID = 1;
 	    free(twin->ewmh.startup_id);

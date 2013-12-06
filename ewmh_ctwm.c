@@ -85,35 +85,31 @@ TwmGetClientList(ScreenInfo *scr, Window **clients, int *count)
 void
 TwmGetClientListStacking(ScreenInfo *scr, Window **stacking, int *count)
 {
-    TwmWindow *twin = NULL;
-    VirtualScreen *vs = NULL;
-    Window vroot = None, root, parent, *children = NULL;
-    unsigned nchildren = 0, number = 0, n;
+    VirtualScreen *vs;
+    Window *list = NULL;
+    int number = 0;
 
-    if ((twin = scr->FirstWindow) != NULL) {
-	if (XFindContext(dpy, twin->w, VirtScreenContext, (XPointer *) &vs) == XCSUCCESS)
-	    vroot = vs->window;
-	else if (twin->vs)
-	    vroot = twin->vs->window;
-	else
-	    vroot = scr->Root;
-    } else
-	vroot = scr->Root;
-    if (*stacking != NULL) {
-	free(*stacking);
-	*stacking = NULL;
-	*count = 0;
+    for (vs = scr->vScreenList; vs != NULL; vs = vs->next) {
+	Window root = None, parent = None, *children = NULL, *newlist;
+	int nchildren = 0, n;
+
+	if (XQueryTree(dpy, vs->window, &root, &parent, &children, &nchildren) == 0
+	    || nchildren == 0)
+	    continue;
+	if ((newlist = realloc(list, (number + nchildren + 1) * sizeof(Window))) != NULL) {
+	    TwmWindow *twin;
+
+	    list = newlist;
+	    for (n = 0; n < nchildren; n++)
+		if (XFindContext(dpy, children[n], TwmContext, (XPointer *) &twin) ==
+		    XCSUCCESS && twin->w != None)
+		    list[number++] = twin->w;
+	    list[number] = None;
+	}
+	XFree(children);
     }
-    if (XQueryTree(dpy, vroot, &root, &parent, &children, &nchildren) != Success)
-	return;
-    if ((*stacking = calloc(nchildren + 1, sizeof(Window))) != NULL) {
-	for (n = 0; n < nchildren; n++)
-	    if (XFindContext(dpy, children[n], TwmContext, (XPointer *) &twin) ==
-		XCSUCCESS && twin->w != None)
-		(*stacking)[number++] = twin->w;
-	(*stacking)[number] = None;
-    }
-    *count = (*stacking != NULL) ? number : 0;
+    *stacking = list;
+    *count = number;
 }
 
 /** @brief Get the number of desktops.
