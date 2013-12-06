@@ -2398,12 +2398,10 @@ static void splitWindowRegionEntry (WindowEntry *we, int grav1, int grav2,
 				    int w, int h)
 {
     WindowEntry	*new;
-    int		save;
 
     switch (grav1) {
 	case D_NORTH:
 	case D_SOUTH:
-	    save = we->w;
 	    if (w != we->w) splitWindowRegionEntry (we, grav2, grav1, w, we->h);
 	    if (h != we->h) {
 		new = (WindowEntry *) malloc (sizeof (WindowEntry));
@@ -2424,7 +2422,6 @@ static void splitWindowRegionEntry (WindowEntry *we, int grav1, int grav2,
 	    break;
 	case D_EAST:
 	case D_WEST:
-	    save = we->h;
 	    if (h != we->h) splitWindowRegionEntry (we, grav2, grav1, we->w, h);
 	    if (w != we->w) {
 		new = (WindowEntry *) malloc (sizeof (WindowEntry));
