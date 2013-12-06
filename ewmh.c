@@ -889,21 +889,16 @@ Del_NET_SUPPORTED(ScreenInfo *scr)
 static void
 Set_NET_CLIENT_LIST(Window root, Window *windows, int count)
 {
-    if (count < 0) {
-	XDeleteProperty(dpy, root, _XA_NET_CLIENT_LIST);
-    } else {
-	long data[count];
-	int i;
+    long *data = NULL;
+    int i;
 
-	for (i = 0; i < count; i++)
-	    data[i] = (long) windows[i];
-
-#ifdef DEBUG_EWMH
-	fprintf(stderr, "Setting _NET_CLIENT_LIST on root 0x%08x\n", root);
-#endif
-	XChangeProperty(dpy, root, _XA_NET_CLIENT_LIST, XA_WINDOW, 32, PropModeReplace,
-			(unsigned char *) data, count);
-    }
+    if (count > 0 && (data = calloc(count, sizeof(long))) == NULL)
+	count = 0;
+    for (i = 0; i < count; i++)
+	data[i] = (long) windows[i];
+    XChangeProperty(dpy, root, _XA_NET_CLIENT_LIST, XA_WINDOW, 32, PropModeReplace,
+		    (unsigned char *) data, count);
+    free(data);
 }
 
 /** @brief Update the client list.
@@ -968,21 +963,16 @@ Del_NET_CLIENT_LIST(ScreenInfo *scr)
 static void
 Set_NET_CLIENT_LIST_STACKING(Window root, Window *windows, int count)
 {
-    if (count < 1 || windows == NULL) {
-	XDeleteProperty(dpy, root, _XA_NET_CLIENT_LIST_STACKING);
-    } else {
-	long data[count];
-	int i;
+    long *data = NULL;
+    int i;
 
-	for (i = 0; i < count; i++) {
-	    data[i] = (long) windows[i];
-	}
-#ifdef DEBUG_EWMH
-	fprintf(stderr, "Setting _NET_CLIENT_LIST_STACKING on root 0x%08x\n", root);
-#endif
-	XChangeProperty(dpy, root, _XA_NET_CLIENT_LIST_STACKING, XA_WINDOW, 32,
-			PropModeReplace, (unsigned char *) data, count);
-    }
+    if (count > 0 && (data = calloc(count, sizeof(long))) == NULL)
+	count = 0;
+    for (i = 0; i < count; i++)
+	data[i] = (long) windows[i];
+    XChangeProperty(dpy, root, _XA_NET_CLIENT_LIST_STACKING, XA_WINDOW, 32,
+		    PropModeReplace, (unsigned char *) data, count);
+    free(data);
 }
 
 /** @brief Update the client list in stacking order.
@@ -1798,17 +1788,16 @@ Del_NET_SUPPORTING_WM_CHECK(ScreenInfo *scr)
 static void
 Set_NET_VIRTUAL_ROOTS(Window root, Window *windows, int count)
 {
-    if (count > 0) {
-	long data[count];
-	int i;
+    long *data = NULL;
+    int i;
 
-	for (i = 0; i < count; i++)
-	    data[i] = (long) windows[i];
-	XChangeProperty(dpy, root, _XA_NET_VIRTUAL_ROOTS, XA_WINDOW, 32, PropModeReplace,
-			(unsigned char *) data, count);
-    } else {
-	XDeleteProperty(dpy, root, _XA_NET_VIRTUAL_ROOTS);
-    }
+    if (count > 0 && (data = calloc(count, sizeof(long))) == NULL)
+	count = 0;
+    for (i = 0; i < count; i++)
+	data[i] = (long) windows[i];
+    XChangeProperty(dpy, root, _XA_NET_VIRTUAL_ROOTS, XA_WINDOW, 32, PropModeReplace,
+		    (unsigned char *) data, count);
+    free(data);
 }
 
 /** @brief Update the virtual roots.

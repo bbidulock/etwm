@@ -483,18 +483,16 @@ Del_WIN_PROTOCOLS(ScreenInfo *scr)
 static void
 Set_WIN_CLIENT_LIST(Window root, Window *windows, int count)
 {
-    if (count < 0) {
-	XDeleteProperty(dpy, root, _XA_WIN_CLIENT_LIST);
-    } else {
-	long data[count];
-	int i;
+    long *data = NULL;
+    int i;
 
-	for (i = 0; i < count; i++)
-	    data[i] = windows[i];
-
-	XChangeProperty(dpy, root, _XA_WIN_CLIENT_LIST, XA_CARDINAL, 32, PropModeReplace,
-			(unsigned char *) data, count);
-    }
+    if (count > 0 && (data = calloc(count, sizeof(long))) == NULL)
+	count = 0;
+    for (i = 0; i < count; i++)
+	data[i] = windows[i];
+    XChangeProperty(dpy, root, _XA_WIN_CLIENT_LIST, XA_CARDINAL, 32, PropModeReplace,
+		    (unsigned char *) data, count);
+    free(data);
 }
 
 /** @brief Update the client window list.
