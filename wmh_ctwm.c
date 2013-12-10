@@ -294,46 +294,61 @@ extern int fullOccupation;
 void
 TwmGetWinState(TwmWindow *twin, unsigned *state)
 {
+    unsigned flags = twin->wmh.state;
+
     if (twin->squeezed)
-	*state |= WIN_STATE_SHADED;
+	flags |= WIN_STATE_SHADED;
     else
-	*state &= ~WIN_STATE_SHADED;
+	flags &= ~WIN_STATE_SHADED;
 
+#if 0
+    /* Note that this is not really what sticky means.  Occupy all is a
+       different concept.  Sticky means to stick to the viewport (and therefore
+       move with it). */
     if (twin->occupation == fullOccupation)
-	*state |= WIN_STATE_STICKY;
+	flags |= WIN_STATE_STICKY;
     else
-	*state &= ~WIN_STATE_STICKY;
+	flags &= ~WIN_STATE_STICKY;
+#endif
 
-    *state &= ~(WIN_STATE_MAXIMIZED_VERT | WIN_STATE_MAXIMIZED_HORIZ);
+    flags &= ~(WIN_STATE_MAXIMIZED_VERT | WIN_STATE_MAXIMIZED_HORIZ);
     switch (twin->zoomed) {
     case ZOOM_NONE:
 	break;
     case F_ZOOM:
-	*state |= WIN_STATE_MAXIMIZED_VERT;
+	flags |= WIN_STATE_MAXIMIZED_VERT;
 	break;
     case F_LEFTZOOM:
-	*state |= WIN_STATE_MAXIMIZED_VERT;
+	flags |= WIN_STATE_MAXIMIZED_VERT;
 	break;
     case F_RIGHTZOOM:
-	*state |= WIN_STATE_MAXIMIZED_VERT;
+	flags |= WIN_STATE_MAXIMIZED_VERT;
 	break;
     case F_BOTTOMZOOM:
-	*state |= WIN_STATE_MAXIMIZED_HORIZ;
+	flags |= WIN_STATE_MAXIMIZED_HORIZ;
 	break;
     case F_TOPZOOM:
-	*state |= WIN_STATE_MAXIMIZED_HORIZ;
+	flags |= WIN_STATE_MAXIMIZED_HORIZ;
 	break;
     case F_FULLZOOM:
-	*state |= WIN_STATE_MAXIMIZED_VERT;
-	*state |= WIN_STATE_MAXIMIZED_HORIZ;
+	flags |= WIN_STATE_MAXIMIZED_VERT;
+	flags |= WIN_STATE_MAXIMIZED_HORIZ;
 	break;
     case F_HORIZOOM:
-	*state |= WIN_STATE_MAXIMIZED_HORIZ;
+	flags |= WIN_STATE_MAXIMIZED_HORIZ;
 	break;
     }
 
+    if (twin->isicon)
+	flags |= WIN_STATE_MINIMIZED;
+    else
+	flags &= ~WIN_STATE_MINIMIZED;
+
     /* FIXME: do other bits */
+    *state = flags;
 }
+
+extern void fullzoom(TwmWindow *tmp_win, int flag);
 
 /** @brief Set the window state.
   * @param twin - the TWM window
@@ -343,7 +358,7 @@ TwmGetWinState(TwmWindow *twin, unsigned *state)
 void
 TwmSetWinState(ScreenInfo *scr, TwmWindow *twin, unsigned mask, unsigned state)
 {
-    unsigned m, j;
+    unsigned m, j, result;
     int current = 0;
     TwmWindow *tmp_win;
 
@@ -351,53 +366,116 @@ TwmSetWinState(ScreenInfo *scr, TwmWindow *twin, unsigned mask, unsigned state)
 
     TwmGetWorkspace(scr, &current);
 
+    result = twin->wmh.state;
+    result &= ~mask;
+    result |= state;
+
+    /* something must actually change */
+    if (!(result ^ twin->wmh.state))
+	return;
+
     for (j = 0, m = 1; j < 31; j++, m <<= 1) {
-	if (mask & m) {
+	/* bit must be specified and actually changed the state */
+	if ((mask & m) && ((state ^ twin->wmh.state) & m)) {
 	    switch (j) {
-	    case WIN_STATE_STICKY:
+	    case WIN_STATE_STICKY_BIT:
+#if 0
 		if (tmp_win != NULL) {
-		    if (state & m)
-			OccupyAll(tmp_win);
-		    else
-			ChangeOccupation(tmp_win, 1 << current);
+		    if (state & m) {
+			if (twin->occupation != fullOccupation)
+			    OccupyAll(tmp_win);
+		    } else {
+			if (twin->occupation == fullOccupation)
+			    ChangeOccupation(tmp_win, 1 << current);
+		    }
 		}
+#endif
 		break;
-	    case WIN_STATE_MINIMIZED:
-		/* TODO: minimize or restore */
-		break;
-	    case WIN_STATE_MAXIMIZED_VERT:
-		/* TODO: f.zoom or f.fullzoom */
-		break;
-	    case WIN_STATE_MAXIMIZED_HORIZ:
-		/* TODO: f.zoomhorz or f.fullzoom */
-		break;
-	    case WIN_STATE_HIDDEN:
-		/* TODO: f.vanish */
-		break;
-	    case WIN_STATE_SHADED:
+	    case WIN_STATE_MINIMIZED_BIT:
 		if (state & m) {
-		    if (!twin->squeezed)
-			Squeeze(twin);
+		    if (!twin->isicon)
+			Iconify(twin, 0, 0);
 		} else {
-		    if (twin->squeezed)
-			Squeeze(twin);
+		    if (twin->isicon)
+			DeIconify(twin);
 		}
 		break;
-	    case WIN_STATE_HID_WORKSPACE:
-		/* can't be set by application */
+	    case WIN_STATE_MAXIMIZED_VERT_BIT:
+	    case WIN_STATE_MAXIMIZED_HORIZ_BIT:
+		switch (result & (WIN_STATE_MAXIMIZED_VERT | WIN_STATE_MAXIMIZED_HORIZ)) {
+		case 0:
+		    switch (twin->zoomed) {
+		    case ZOOM_NONE:
+			break;
+		    default:
+			fullzoom(twin, twin->zoomed);
+			break;
+		    }
+		    break;
+		case WIN_STATE_MAXIMIZED_VERT:
+		    switch (twin->zoomed) {
+		    case F_ZOOM:
+		    case F_LEFTZOOM:
+		    case F_RIGHTZOOM:
+			break;
+		    default:
+			fullzoom(twin, F_ZOOM);
+			break;
+		    }
+		    break;
+		case WIN_STATE_MAXIMIZED_HORIZ:
+		    switch (twin->zoomed) {
+		    case F_BOTTOMZOOM:
+		    case F_TOPZOOM:
+		    case F_HORIZOOM:
+			break;
+		    default:
+			fullzoom(twin, F_HORIZOOM);
+			break;
+		    }
+		    break;
+		case WIN_STATE_MAXIMIZED_VERT | WIN_STATE_MAXIMIZED_HORIZ:
+		    switch (twin->zoomed) {
+		    case F_LEFTZOOM:
+		    case F_RIGHTZOOM:
+		    case F_BOTTOMZOOM:
+		    case F_TOPZOOM:
+		    case F_FULLZOOM:
+			break;
+		    default:
+			fullzoom(twin, F_FULLZOOM);
+			break;
+		    }
+		    break;
+		}
 		break;
-	    case WIN_STATE_HID_TRANSIENT:
-		/* can't be set by application */
+	    case WIN_STATE_HIDDEN_BIT:
+		/* Hidden means not on taskbar but window visible.  What we
+		   really want to do here is remove this item from the icon
+		   manager. */
+		/* TODO: set or reset this as far as CTWM is concerned. */
 		break;
-	    case WIN_STATE_FIXED_POSITION:
-		/* TODO: set or reset this */
+	    case WIN_STATE_SHADED_BIT:
+		if (((state & m) && !twin->squeezed) || (!(state & m) && twin->squeezed))
+		    Squeeze(twin);
 		break;
-	    case WIN_STATE_ARRANGE_IGNORE:
-		/* TODO: set or reset this */
+	    case WIN_STATE_HID_WORKSPACE_BIT:
+		/* Can't be set by application: not on current desktop. */
+		break;
+	    case WIN_STATE_HID_TRANSIENT_BIT:
+		/* Can't be set by application: owner of transient is hidden. */
+		break;
+	    case WIN_STATE_FIXED_POSITION_BIT:
+		/* TODO: set or reset this as far as CTWM is concerned. */
+		break;
+	    case WIN_STATE_ARRANGE_IGNORE_BIT:
+		/* TODO: set or reset this as far as CTWM is concerned. */
 		break;
 	    default:
 		break;
 	    }
+	    /* always alter tracking bits to catch states that do not have a
+	       coprresponding internal state */
 	    if (state & m)
 		twin->wmh.state |= m;
 	    else

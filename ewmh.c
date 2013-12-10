@@ -3083,10 +3083,10 @@ Rcv_NET_WM_STATE(ScreenInfo *scr, TwmWindow *twin, XClientMessageEvent *event)
 /** @name _NET_WM_ALLOWED_ACTIONS, ATOM[]
   *
   * A list of atoms indicating user operations that the Window Manager supports
-  * for this window. Atoms present in the list indicate allowed actions, atoms
+  * for this window.  Atoms present in the list indicate allowed actions, atoms
   * not present in the list indicate actions that are not supported for this
   * window.  The Window Manager MUST keep this property updated to reflect the
-  * actions which are currently "active" or "sensitive" for a window. Taskbars,
+  * actions which are currently "active" or "sensitive" for a window.  Taskbars,
   * Pagers, and other tools use _NET_WM_ALLOWED_ACTIONS to decide which actions
   * should be made available to the user.
   *
@@ -3141,14 +3141,14 @@ static const Atom *NetAllowedActions[] = {
  *
  * Note that the actions listed here are those that the Window Manager will
  * honor for this window. The operations must still be requested through the
- * normal mechanisms outlined in this specification. For example,
+ * normal mechanisms outlined in this specification.  For example,
  * _NET_WM_ACTION_CLOSE does not mean that clients can send a WM_DELETE_WINDOW
  * message to this window; it means that clients can use a _NET_CLOSE_WINDOW
  * message to ask the Window Manager to do so.
  *
  * Window Managers SHOULD ignore the value of _NET_WM_ALLOWED_ACTIONS when they
- * initially manage a window. This value may be left over from a previous Window
- * Manager with different policies.
+ * initially manage a window.  This value may be left over from a previous
+ * Window Manager with different policies.
  */
 
 static void

@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include "ewmh.h"
+#ifdef MWMH
+#include "mwmh.h"
+#endif				/* MWMH */
 #include "screen.h"
 #include "parse.h"
 #include <X11/Xos.h>
@@ -548,34 +551,28 @@ TwmSetDesktopLayout(ScreenInfo *scr, struct NetLayout *layout)
     (void) layout;
 }
 
+extern int showingBackground;
+
 /** @brief Get the desktop showing mode.
   * @param scr - screen
   * @param showing - where to store the mode
-  *
-  * CTWM does not really have a desktop showing mode, so, until we make it have
-  * one, the mode is always false.  Providing a desktop showing mode is a TODO
-  * item.  It should not be too difficult, windows not occupying the current
-  * desktop are hidden, we just need to hide the ones on the current desktop
-  * too.
   */
 void
 TwmGetShowingDesktop(ScreenInfo *scr, Bool *showing)
 {
-    *showing = False;
+    *showing = scr->showingDesktop;
 }
 
 /** @brief Set the desktop showing mode.
   * @param scr - screen
   * @param showing - mode to set
-  *
-  * CTWM has no showing desktop mode.  We should probably remove it from
-  * _NET_SUPPORTED.  See above for description of how to go about it.  This is a
-  * TODO item.
   */
 void
 TwmSetShowingDesktop(ScreenInfo *scr, Bool showing)
 {
-    (void) showing;
+    if (scr->showingDesktop == showing)
+	return;
+    ShowBackground(scr->currentvs);
 }
 
 /** @brief Close a TWM Window
@@ -716,6 +713,11 @@ TwmMoveResizeWindow(TwmWindow *twin, unsigned gravity, unsigned mask,
     SetupFrame(twin, g.x, g.y, g.width, g.height, -1, False);
 }
 
+extern int Cancel;
+extern int ResizeOrigX;
+extern int ResizeOrigY;
+extern XEvent Event;
+
 /** @brief Initiate move or resize on TWM window
   * @param twin - TWM window to initiate move or resize
   * @param x_root - root window x position of mouse
@@ -748,10 +750,66 @@ TwmStartMoveResize(TwmWindow *twin, int x_root, int y_root,
     case _NET_WM_MOVERESIZE_SIZE_BOTTOM:
     case _NET_WM_MOVERESIZE_SIZE_BOTTOMLEFT:
     case _NET_WM_MOVERESIZE_SIZE_LEFT:
-    case _NET_WM_MOVERESIZE_MOVE:
+    {
+	XEvent xev;
+
+	xev.type = ButtonPress;
+	xev.xbutton.x_root = x_root;
+	xev.xbutton.y_root = y_root;
+
+	ResizeOrigX = x_root;
+	ResizeOrigY = y_root;
+
+	StartResize(&xev, twin, False, True);
+
+	do {
+	    XMaskEvent(dpy,
+		       ButtonPressMask | ButtonReleaseMask | EnterWindowMask |
+		       LeaveWindowMask | ButtonMotionMask | VisibilityChangeMask |
+		       ExposureMask, &Event);
+	    if (Event.type == MotionNotify)
+		/* discard any extra motion events before a release */
+		while (XCheckMaskEvent(dpy, ButtonMotionMask | ButtonReleaseMask, &Event))
+		    if (Event.type == ButtonRelease)
+			break;
+	    if (!DispatchEvent2())
+		continue;
+	} while (!(Event.type == ButtonRelease || Cancel));
+	break;
+    }
     case _NET_WM_MOVERESIZE_SIZE_KEYBOARD:
+    {
+	XEvent xev;
+
+	xev.type = KeyPress;
+	xev.xkey.x_root = x_root;
+	xev.xkey.y_root = y_root;
+
+	ResizeOrigX = x_root;
+	ResizeOrigY = y_root;
+
+	StartResize(&xev, twin, False, True);
+
+	do {
+	    XMaskEvent(dpy,
+		       ButtonPressMask | ButtonReleaseMask | EnterWindowMask |
+		       LeaveWindowMask | ButtonMotionMask | VisibilityChangeMask |
+		       ExposureMask, &Event);
+	    if (Event.type == MotionNotify)
+		/* discard any extra motion events before a release */
+		while (XCheckMaskEvent(dpy, ButtonMotionMask | ButtonReleaseMask, &Event))
+		    if (Event.type == ButtonRelease)
+			break;
+	    if (!DispatchEvent2())
+		continue;
+	} while (!(Event.type == ButtonRelease || Cancel));
+	break;
+    }
+    case _NET_WM_MOVERESIZE_MOVE:
     case _NET_WM_MOVERESIZE_MOVE_KEYBOARD:
+	break;
     case _NET_WM_MOVERESIZE_CANCEL:
+	Cancel = True;
 	break;
     default:
 #ifdef DEBUG_EWMH
@@ -936,70 +994,283 @@ TwmSetWMDesktop(ScreenInfo *scr, TwmWindow *twin, int desktop, enum _NET_SOURCE 
 	ChangeOccupation(twin, 1 << desktop);
 }
 
+/** @brief Set the window type.
+  * @param twin - TWM window
+  * @param type - window type bitmask
+  */
 void
 TwmSetWMWindowType(TwmWindow *twin, unsigned type)
 {
+    unsigned m, j, result;
+
+    if (!(type ^ twin->ewmh.type))
+	return;			/* no change */
+
+    for (j = 0, m = 1; j < 31; j++, m <<= 1) {
+	if ((type ^ twin->ewmh.type) & m) {
+	    switch (j) {
+	    case _NET_WM_WINDOW_TYPE_DESKTOP_BIT:
+		break;
+	    case _NET_WM_WINDOW_TYPE_DOCK_BIT:
+		break;
+	    case _NET_WM_WINDOW_TYPE_TOOLBAR_BIT:
+		break;
+	    case _NET_WM_WINDOW_TYPE_MENU_BIT:
+		break;
+	    case _NET_WM_WINDOW_TYPE_UTILITY_BIT:
+		break;
+	    case _NET_WM_WINDOW_TYPE_SPLASH_BIT:
+		break;
+	    case _NET_WM_WINDOW_TYPE_DIALOG_BIT:
+		break;
+	    case _NET_WM_WINDOW_TYPE_DROPDOWN_MENU_BIT:
+		break;
+	    case _NET_WM_WINDOW_TYPE_POPUP_MENU_BIT:
+		break;
+	    case _NET_WM_WINDOW_TYPE_TOOLTIP_BIT:
+		break;
+	    case _NET_WM_WINDOW_TYPE_NOTIFICATION_BIT:
+		break;
+	    case _NET_WM_WINDOW_TYPE_COMBO_BIT:
+		break;
+	    case _NET_WM_WINDOW_TYPE_DND_BIT:
+		break;
+	    case _NET_WM_WINDOW_TYPE_NORMAL_BIT:
+		break;
+	    }
+	}
+    }
+
 }
 
 #define _NET_WM_STATE_ALLZOOM_MASK ( \
 	_NET_WM_STATE_MAXIMIZED_HORZ | \
 	_NET_WM_STATE_MAXIMIZED_VERT | \
+	_NET_WM_STATE_FULLSCREEN | \
 	_NET_WM_STATE_MAXIMUS_BOTTOM | \
 	_NET_WM_STATE_MAXIMUS_LEFT | \
 	_NET_WM_STATE_MAXIMUS_RIGHT | \
 	_NET_WM_STATE_MAXIMUS_TOP )
 
+/** @brief Get the current state of a window.
+  * @param twin - TWM window
+  * @param flags - where to store the state flags
+  *
+  * Note that not all state is maintained by CTWM.  There are some state bits in
+  * which CTWM is just not interested at all.  These bits are maintained in the
+  * twin->ewmh.state bitmask itself.
+  */
 void
 TwmGetWMState(TwmWindow *twin, unsigned *flags)
 {
+    unsigned state = twin->ewmh.state;
+
     if (twin->squeezed)
-	*flags |= _NET_WM_STATE_SHADED;
+	state |= _NET_WM_STATE_SHADED;
     else
-	*flags &= ~_NET_WM_STATE_SHADED;
+	state &= ~_NET_WM_STATE_SHADED;
 
+#if 0
+    /* Note that this is not really what sticky means.  Occupy all is a
+       different concept.  Sticky means to stick to the viewport (and therefore
+       move with it). */
     if (twin->occupation == fullOccupation)
-	*flags |= _NET_WM_STATE_STICKY;
+	state |= _NET_WM_STATE_STICKY;
     else
-	*flags &= ~_NET_WM_STATE_STICKY;
+	state &= ~_NET_WM_STATE_STICKY;
+#endif
 
-    *flags &= ~_NET_WM_STATE_ALLZOOM_MASK;
+    state &= ~_NET_WM_STATE_ALLZOOM_MASK;
     switch (twin->zoomed) {
     case ZOOM_NONE:
 	break;
     case F_ZOOM:
-	*flags |= _NET_WM_STATE_MAXIMIZED_VERT;
+	state |= _NET_WM_STATE_MAXIMIZED_VERT;
 	break;
     case F_LEFTZOOM:
-	*flags |= _NET_WM_STATE_MAXIMUS_LEFT;
-	*flags |= _NET_WM_STATE_MAXIMIZED_VERT;
+	state |= _NET_WM_STATE_MAXIMUS_LEFT;
+	state |= _NET_WM_STATE_MAXIMIZED_VERT;
 	break;
     case F_RIGHTZOOM:
-	*flags |= _NET_WM_STATE_MAXIMUS_RIGHT;
-	*flags |= _NET_WM_STATE_MAXIMIZED_VERT;
+	state |= _NET_WM_STATE_MAXIMUS_RIGHT;
+	state |= _NET_WM_STATE_MAXIMIZED_VERT;
 	break;
     case F_BOTTOMZOOM:
-	*flags |= _NET_WM_STATE_MAXIMUS_BOTTOM;
-	*flags |= _NET_WM_STATE_MAXIMIZED_HORZ;
+	state |= _NET_WM_STATE_MAXIMUS_BOTTOM;
+	state |= _NET_WM_STATE_MAXIMIZED_HORZ;
 	break;
     case F_TOPZOOM:
-	*flags |= _NET_WM_STATE_MAXIMUS_TOP;
-	*flags |= _NET_WM_STATE_MAXIMIZED_HORZ;
+	state |= _NET_WM_STATE_MAXIMUS_TOP;
+	state |= _NET_WM_STATE_MAXIMIZED_HORZ;
 	break;
     case F_FULLZOOM:
-	*flags |= _NET_WM_STATE_MAXIMIZED_VERT;
-	*flags |= _NET_WM_STATE_MAXIMIZED_HORZ;
+	state |= _NET_WM_STATE_MAXIMIZED_VERT;
+	state |= _NET_WM_STATE_MAXIMIZED_HORZ;
 	break;
     case F_HORIZOOM:
-	*flags |= _NET_WM_STATE_MAXIMIZED_HORZ;
+	state |= _NET_WM_STATE_MAXIMIZED_HORZ;
 	break;
     }
 
+    if (twin->isicon)
+	state |= _NET_WM_STATE_HIDDEN;
+    else
+	state &= ~_NET_WM_STATE_HIDDEN;
+
     /* FIXME: do other bits */
+
+    *flags = state;
 }
 
+#define _NET_WM_STATE_MAXIMIZED_FULL \
+    (_NET_WM_STATE_MAXIMIZED_HORZ|_NET_WM_STATE_MAXIMIZED_VERT)
+
+#define _NET_WM_STATE_MAXIMUS \
+    (_NET_WM_STATE_MAXIMUS_BOTTOM | \
+     _NET_WM_STATE_MAXIMUS_TOP | \
+     _NET_WM_STATE_MAXIMUS_LEFT | \
+     _NET_WM_STATE_MAXIMUS_RIGHT)
+
+/** @brief Set the window state.
+  * @param twin - TWM window
+  * @parma state - state to set
+  *
+  * This is normally called when a window is intially mapped.  We need to
+  * restore any conditions that are indicated in the state parameter.
+  */
 void
 TwmSetWMState(TwmWindow *twin, unsigned state)
 {
+    unsigned m, j, result;
+
+    /* handle aliases */
+    if (state & _NET_WM_STATE_STAYS_AT_BOTTOM) {
+	state &= ~_NET_WM_STATE_STAYS_AT_BOTTOM;
+	state |= _NET_WM_STATE_BELOW;
+    }
+    if (state & _NET_WM_STATE_STAYS_ON_TOP) {
+	state &= ~_NET_WM_STATE_STAYS_ON_TOP;
+	state |= _NET_WM_STATE_ABOVE;
+    }
+
+    if (!(state ^ twin->ewmh.state))
+	return;
+
+    for (j = 0, m = 1; j < 31; j++, m <<= 1) {
+	if ((state ^ twin->ewmh.state) & m) {
+	    switch (j) {
+	    case _NET_WM_STATE_MODAL_BIT:
+		break;
+	    case _NET_WM_STATE_STICKY_BIT:
+		/* just set or clear the bit */
+		break;
+	    case _NET_WM_STATE_MAXIMIZED_HORZ_BIT:
+	    case _NET_WM_STATE_MAXIMIZED_VERT_BIT:
+		if (!(state & (_NET_WM_STATE_MAXIMUS | _NET_WM_STATE_FULLSCREEN))) {
+		    switch (state & _NET_WM_STATE_MAXIMIZED_FULL) {
+		    case 0:
+			if (twin->zoomed != ZOOM_NONE)
+			    fullzoom(twin, twin->zoomed);
+			break;
+		    case _NET_WM_STATE_MAXIMIZED_HORZ:
+			if (twin->zoomed != F_HORIZOOM)
+			    fullzoom(twin, F_HORIZOOM);
+			break;
+		    case _NET_WM_STATE_MAXIMIZED_VERT:
+			if (twin->zoomed != F_ZOOM)
+			    fullzoom(twin, F_ZOOM);
+			break;
+		    case _NET_WM_STATE_MAXIMIZED_FULL:
+			if (twin->zoomed != F_FULLZOOM)
+			    fullzoom(twin, F_FULLZOOM);
+			break;
+		    }
+		}
+		break;
+	    case _NET_WM_STATE_SHADED_BIT:
+		if (((state & m) && !twin->squeezed) || (!(state & m) && twin->squeezed))
+		    Squeeze(twin);
+		break;
+	    case _NET_WM_STATE_SKIP_TASKBAR_BIT:
+		/* just set or clear the bit */
+		break;
+	    case _NET_WM_STATE_SKIP_PAGER_BIT:
+		/* just set or clear the bit */
+		break;
+	    case _NET_WM_STATE_HIDDEN_BIT:
+		/* actually minimized */
+		if (state & m) {
+		    if (!twin->isicon)
+			Iconify(twin, 0, 0);
+		} else {
+		    if (twin->isicon)
+			DeIconify(twin);
+		}
+		break;
+	    case _NET_WM_STATE_FULLSCREEN_BIT:
+		if (twin->zoomed != F_FULLZOOM)
+		    fullzoom(twin, F_FULLZOOM);
+		break;
+	    case _NET_WM_STATE_ABOVE_BIT:
+		break;
+	    case _NET_WM_STATE_BELOW_BIT:
+		break;
+	    case _NET_WM_STATE_DEMANDS_ATTENTION_BIT:
+		break;
+	    case _NET_WM_STATE_FOCUSED_BIT:
+		break;
+	    case _NET_WM_STATE_DECOR_BORDER_BIT:
+		/* just set or clear the bit */
+		break;
+	    case _NET_WM_STATE_DECOR_HANDLE_BIT:
+		/* just set or clear the bit */
+		break;
+	    case _NET_WM_STATE_DECOR_TITLE_BIT:
+		/* just set or clear the bit */
+		break;
+	    case _NET_WM_STATE_DECOR_BIT:
+		/* just set or clear the bit */
+		break;
+	    case _NET_WM_STATE_PARENTRELATIVE_BACKGROUND_BIT:
+		break;
+	    case _NET_WM_STATE_STAYS_AT_BOTTOM_BIT:
+		break;
+	    case _NET_WM_STATE_STAYS_ON_TOP_BIT:
+		break;
+	    case _NET_WM_STATE_MAXIMUS_BOTTOM_BIT:
+		if (state & m)
+		    if (twin->zoomed != F_BOTTOMZOOM)
+			fullzoom(twin, F_BOTTOMZOOM);
+		break;
+	    case _NET_WM_STATE_MAXIMUS_LEFT_BIT:
+		if (state & m)
+		    if (twin->zoomed != F_LEFTZOOM)
+			fullzoom(twin, F_LEFTZOOM);
+		break;
+	    case _NET_WM_STATE_MAXIMUS_RIGHT_BIT:
+		if (state & m)
+		    if (twin->zoomed != F_RIGHTZOOM)
+			fullzoom(twin, F_RIGHTZOOM);
+		break;
+	    case _NET_WM_STATE_MAXIMUS_TOP_BIT:
+		if (state & m)
+		    if (twin->zoomed != F_TOPZOOM)
+			fullzoom(twin, F_TOPZOOM);
+		break;
+	    case _NET_WM_STATE_AUTORAISE_BIT:
+		break;
+	    case _NET_WM_STATE_AUTOLOWER_BIT:
+		break;
+	    default:
+		break;
+	    }
+	    if (state & m)
+		twin->ewmh.state |= m;
+	    else
+		twin->ewmh.state &= ~m;
+	}
+    }
+
 }
 
 void
@@ -1047,16 +1318,20 @@ TwmChgWMState(ScreenInfo *scr, TwmWindow *twin, int action1, int action2, unsign
 	    switch (action) {
 	    case _NET_WM_STATE_REMOVE:
 		if (tmp_win != NULL)
-		    ChangeOccupation(tmp_win, 1 << current);
+		    if (twin->ewmh.state & _NET_WM_STATE_STICKY)
+			ChangeOccupation(tmp_win, 1 << current);
 		break;
 	    case _NET_WM_STATE_ADD:
-		OccupyAll(twin);
+		if (tmp_win != NULL)
+		    if (!(twin->ewmh.state & _NET_WM_STATE_STICKY))
+			if (twin->ewmh.allowed & _NET_WM_ACTION_STICK)
+			    OccupyAll(twin);
 		break;
 	    case _NET_WM_STATE_TOGGLE:
 		if (tmp_win != NULL) {
 		    if (twin->ewmh.state & _NET_WM_STATE_STICKY)
 			ChangeOccupation(tmp_win, 1 << current);
-		    else
+		    else if (twin->ewmh.allowed & _NET_WM_ACTION_STICK)
 			OccupyAll(twin);
 		}
 		break;
@@ -1065,8 +1340,12 @@ TwmChgWMState(ScreenInfo *scr, TwmWindow *twin, int action1, int action2, unsign
 	    }
 	    break;
 	case _NET_WM_STATE_MAXIMIZED_HORZ:
+	    if (twin->ewmh.allowed & _NET_WM_ACTION_MAXIMIZE_HORZ)
+		break;
 	    break;
 	case _NET_WM_STATE_MAXIMIZED_VERT:
+	    if (twin->ewmh.allowed & _NET_WM_ACTION_MAXIMIZE_VERT)
+		break;
 	    break;
 	case _NET_WM_STATE_SHADED:
 	    switch (action) {
@@ -1076,31 +1355,55 @@ TwmChgWMState(ScreenInfo *scr, TwmWindow *twin, int action1, int action2, unsign
 		break;
 	    case _NET_WM_STATE_ADD:
 		if (!(twin->ewmh.state & _NET_WM_STATE_SHADED))
-		    Squeeze(twin);
+		    if (twin->ewmh.allowed & _NET_WM_ACTION_SHADE)
+			Squeeze(twin);
 		break;
 	    case _NET_WM_STATE_TOGGLE:
-		Squeeze(twin);
+		if (twin->ewmh.state & _NET_WM_STATE_SHADED)
+		    Squeeze(twin);
+		else if (twin->ewmh.allowed & _NET_WM_ACTION_SHADE)
+		    Squeeze(twin);
 		break;
 	    default:
 		break;
 	    }
 	    break;
 	case _NET_WM_STATE_SKIP_TASKBAR:
-	    break;
 	case _NET_WM_STATE_SKIP_PAGER:
-	    break;
 	case _NET_WM_STATE_HIDDEN:
+	case _NET_WM_STATE_DEMANDS_ATTENTION:
+	    switch (action) {
+	    case _NET_WM_STATE_REMOVE:
+		twin->ewmh.state &= ~action1;
+		break;
+	    case _NET_WM_STATE_ADD:
+		twin->ewmh.state |= action1;
+		break;
+	    case _NET_WM_STATE_TOGGLE:
+		twin->ewmh.state ^= action1;
+		break;
+	    default:
+		break;
+	    }
 	    break;
 	case _NET_WM_STATE_FULLSCREEN:
+	    if (twin->ewmh.allowed & _NET_WM_ACTION_FULLSCREEN)
+		break;
 	    break;
 	case _NET_WM_STATE_ABOVE:
+	case _NET_WM_STATE_STAYS_ON_TOP:
+	    if (twin->ewmh.allowed & _NET_WM_ACTION_ABOVE)
+		break;
 	    break;
 	case _NET_WM_STATE_BELOW:
-	    break;
-	case _NET_WM_STATE_DEMANDS_ATTENTION:
+	case _NET_WM_STATE_STAYS_AT_BOTTOM:
+	    if (twin->ewmh.allowed & _NET_WM_ACTION_BELOW)
+		break;
 	    break;
 	case _NET_WM_STATE_FOCUSED:
+	    /* read only */
 	    break;
+/* NON-STANDARD starts here: */
 	case _NET_WM_STATE_DECOR_BORDER:
 	    break;
 	case _NET_WM_STATE_DECOR_HANDLE:
@@ -1111,17 +1414,21 @@ TwmChgWMState(ScreenInfo *scr, TwmWindow *twin, int action1, int action2, unsign
 	    break;
 	case _NET_WM_STATE_PARENTRELATIVE_BACKGROUND:
 	    break;
-	case _NET_WM_STATE_STAYS_AT_BOTTOM:
-	    break;
-	case _NET_WM_STATE_STAYS_ON_TOP:
-	    break;
 	case _NET_WM_STATE_MAXIMUS_BOTTOM:
+	    if (twin->ewmh.allowed & _NET_WM_ACTION_MAXIMIZE_HORZ)
+		break;
 	    break;
 	case _NET_WM_STATE_MAXIMUS_LEFT:
+	    if (twin->ewmh.allowed & _NET_WM_ACTION_MAXIMIZE_VERT)
+		break;
 	    break;
 	case _NET_WM_STATE_MAXIMUS_RIGHT:
+	    if (twin->ewmh.allowed & _NET_WM_ACTION_MAXIMIZE_VERT)
+		break;
 	    break;
 	case _NET_WM_STATE_MAXIMUS_TOP:
+	    if (twin->ewmh.allowed & _NET_WM_ACTION_MAXIMIZE_HORZ)
+		break;
 	    break;
 	case _NET_WM_STATE_AUTORAISE:
 	    break;
@@ -1191,21 +1498,35 @@ TwmChgWMState(ScreenInfo *scr, TwmWindow *twin, int action1, int action2, unsign
 	    }
 	    break;
 	case _NET_WM_STATE_SKIP_TASKBAR:
-	    break;
 	case _NET_WM_STATE_SKIP_PAGER:
-	    break;
 	case _NET_WM_STATE_HIDDEN:
+	case _NET_WM_STATE_DEMANDS_ATTENTION:
+	    switch (action) {
+	    case _NET_WM_STATE_REMOVE:
+		twin->ewmh.state &= ~action2;
+		break;
+	    case _NET_WM_STATE_ADD:
+		twin->ewmh.state |= action2;
+		break;
+	    case _NET_WM_STATE_TOGGLE:
+		twin->ewmh.state ^= action2;
+		break;
+	    default:
+		break;
+	    }
 	    break;
 	case _NET_WM_STATE_FULLSCREEN:
 	    break;
 	case _NET_WM_STATE_ABOVE:
+	case _NET_WM_STATE_STAYS_ON_TOP:
 	    break;
 	case _NET_WM_STATE_BELOW:
-	    break;
-	case _NET_WM_STATE_DEMANDS_ATTENTION:
+	case _NET_WM_STATE_STAYS_AT_BOTTOM:
 	    break;
 	case _NET_WM_STATE_FOCUSED:
+	    /* read-only */
 	    break;
+/* NON-STANDARD starts here: */
 	case _NET_WM_STATE_DECOR_BORDER:
 	    break;
 	case _NET_WM_STATE_DECOR_HANDLE:
@@ -1215,10 +1536,6 @@ TwmChgWMState(ScreenInfo *scr, TwmWindow *twin, int action1, int action2, unsign
 	case _NET_WM_STATE_DECOR:
 	    break;
 	case _NET_WM_STATE_PARENTRELATIVE_BACKGROUND:
-	    break;
-	case _NET_WM_STATE_STAYS_AT_BOTTOM:
-	    break;
-	case _NET_WM_STATE_STAYS_ON_TOP:
 	    break;
 	case _NET_WM_STATE_MAXIMUS_BOTTOM:
 	    break;
@@ -1254,6 +1571,160 @@ TwmChgWMState(ScreenInfo *scr, TwmWindow *twin, int action1, int action2, unsign
 void
 TwmGetWMAllowedActions(TwmWindow *twin, unsigned *flags)
 {
+    unsigned allowed;
+
+    allowed =
+	_NET_WM_ACTION_MOVE | _NET_WM_ACTION_RESIZE | _NET_WM_ACTION_MINIMIZE |
+	_NET_WM_ACTION_SHADE | _NET_WM_ACTION_STICK | _NET_WM_ACTION_MAXIMIZE_HORZ |
+	_NET_WM_ACTION_MAXIMIZE_VERT | _NET_WM_ACTION_FULLSCREEN |
+	_NET_WM_ACTION_CHANGE_DESKTOP | _NET_WM_ACTION_CLOSE | _NET_WM_ACTION_ABOVE |
+	_NET_WM_ACTION_BELOW;
+    if (twin->ewmh.props._NET_WM_WINDOW_TYPE) {
+	unsigned m, j, type = twin->ewmh.type;
+
+	for (j = 0, m = 1; j < 31; j++, m <<= 1) {
+	    if (type & m) {
+		switch (j) {
+		case _NET_WM_WINDOW_TYPE_DESKTOP_BIT:
+		case _NET_WM_WINDOW_TYPE_SPLASH_BIT:
+		    allowed &= ~_NET_WM_ACTION_MOVE;
+		    allowed &= ~_NET_WM_ACTION_RESIZE;
+		    allowed &= ~_NET_WM_ACTION_MINIMIZE;
+		    allowed &= ~_NET_WM_ACTION_SHADE;
+		    // allowed &= ~_NET_WM_ACTION_STICK;
+		    allowed &= ~_NET_WM_ACTION_MAXIMIZE_HORZ;
+		    allowed &= ~_NET_WM_ACTION_MAXIMIZE_VERT;
+		    // allowed &= ~_NET_WM_ACTION_FULLSCREEN;
+		    allowed &= ~_NET_WM_ACTION_CHANGE_DESKTOP;
+		    allowed &= ~_NET_WM_ACTION_CLOSE;
+		    // allowed &= ~_NET_WM_ACTION_ABOVE;
+		    // allowed &= ~_NET_WM_ACTION_BELOW;
+		    break;
+		case _NET_WM_WINDOW_TYPE_DOCK_BIT:
+		    allowed &= ~_NET_WM_ACTION_MOVE;
+		    allowed &= ~_NET_WM_ACTION_RESIZE;
+		    allowed &= ~_NET_WM_ACTION_MINIMIZE;
+		    allowed &= ~_NET_WM_ACTION_SHADE;
+		    // allowed &= ~_NET_WM_ACTION_STICK;
+		    // allowed &= ~_NET_WM_ACTION_MAXIMIZE_HORZ;
+		    // allowed &= ~_NET_WM_ACTION_MAXIMIZE_VERT;
+		    allowed &= ~_NET_WM_ACTION_FULLSCREEN;
+		    allowed &= ~_NET_WM_ACTION_CHANGE_DESKTOP;
+		    allowed &= ~_NET_WM_ACTION_CLOSE;
+		    // allowed &= ~_NET_WM_ACTION_ABOVE;
+		    // allowed &= ~_NET_WM_ACTION_BELOW;
+		    break;
+		case _NET_WM_WINDOW_TYPE_TOOLBAR_BIT:
+		case _NET_WM_WINDOW_TYPE_MENU_BIT:
+		case _NET_WM_WINDOW_TYPE_UTILITY_BIT:
+		    // allowed &= ~_NET_WM_ACTION_MOVE;
+		    // allowed &= ~_NET_WM_ACTION_RESIZE;
+		    // allowed &= ~_NET_WM_ACTION_MINIMIZE;
+		    // allowed &= ~_NET_WM_ACTION_SHADE;
+		    // allowed &= ~_NET_WM_ACTION_STICK;
+		    // allowed &= ~_NET_WM_ACTION_MAXIMIZE_HORZ;
+		    // allowed &= ~_NET_WM_ACTION_MAXIMIZE_VERT;
+		    allowed &= ~_NET_WM_ACTION_FULLSCREEN;
+		    allowed &= ~_NET_WM_ACTION_CHANGE_DESKTOP;
+		    // allowed &= ~_NET_WM_ACTION_CLOSE;
+		    // allowed &= ~_NET_WM_ACTION_ABOVE;
+		    // allowed &= ~_NET_WM_ACTION_BELOW;
+		    break;
+		case _NET_WM_WINDOW_TYPE_DIALOG_BIT:
+		    // allowed &= ~_NET_WM_ACTION_MOVE;
+		    allowed &= ~_NET_WM_ACTION_RESIZE;
+		    allowed &= ~_NET_WM_ACTION_MINIMIZE;
+		    allowed &= ~_NET_WM_ACTION_SHADE;
+		    allowed &= ~_NET_WM_ACTION_STICK;
+		    allowed &= ~_NET_WM_ACTION_MAXIMIZE_HORZ;
+		    allowed &= ~_NET_WM_ACTION_MAXIMIZE_VERT;
+		    allowed &= ~_NET_WM_ACTION_FULLSCREEN;
+		    allowed &= ~_NET_WM_ACTION_CHANGE_DESKTOP;
+		    // allowed &= ~_NET_WM_ACTION_CLOSE;
+		    // allowed &= ~_NET_WM_ACTION_ABOVE;
+		    // allowed &= ~_NET_WM_ACTION_BELOW;
+		    break;
+		case _NET_WM_WINDOW_TYPE_DROPDOWN_MENU_BIT:
+		case _NET_WM_WINDOW_TYPE_POPUP_MENU_BIT:
+		case _NET_WM_WINDOW_TYPE_TOOLTIP_BIT:
+		case _NET_WM_WINDOW_TYPE_NOTIFICATION_BIT:
+		case _NET_WM_WINDOW_TYPE_COMBO_BIT:
+		    allowed &= ~_NET_WM_ACTION_MOVE;
+		    allowed &= ~_NET_WM_ACTION_RESIZE;
+		    allowed &= ~_NET_WM_ACTION_MINIMIZE;
+		    allowed &= ~_NET_WM_ACTION_SHADE;
+		    allowed &= ~_NET_WM_ACTION_STICK;
+		    allowed &= ~_NET_WM_ACTION_MAXIMIZE_HORZ;
+		    allowed &= ~_NET_WM_ACTION_MAXIMIZE_VERT;
+		    allowed &= ~_NET_WM_ACTION_FULLSCREEN;
+		    allowed &= ~_NET_WM_ACTION_CHANGE_DESKTOP;
+		    allowed &= ~_NET_WM_ACTION_CLOSE;
+		    // allowed &= ~_NET_WM_ACTION_ABOVE;
+		    // allowed &= ~_NET_WM_ACTION_BELOW;
+		    break;
+		case _NET_WM_WINDOW_TYPE_DND_BIT:
+		    // allowed &= ~_NET_WM_ACTION_MOVE;
+		    allowed &= ~_NET_WM_ACTION_RESIZE;
+		    allowed &= ~_NET_WM_ACTION_MINIMIZE;
+		    allowed &= ~_NET_WM_ACTION_SHADE;
+		    allowed &= ~_NET_WM_ACTION_STICK;
+		    allowed &= ~_NET_WM_ACTION_MAXIMIZE_HORZ;
+		    allowed &= ~_NET_WM_ACTION_MAXIMIZE_VERT;
+		    allowed &= ~_NET_WM_ACTION_FULLSCREEN;
+		    // allowed &= ~_NET_WM_ACTION_CHANGE_DESKTOP;
+		    allowed &= ~_NET_WM_ACTION_CLOSE;
+		    // allowed &= ~_NET_WM_ACTION_ABOVE;
+		    allowed &= ~_NET_WM_ACTION_BELOW;
+		    break;
+		case _NET_WM_WINDOW_TYPE_NORMAL_BIT:
+		    // allowed &= ~_NET_WM_ACTION_MOVE;
+		    // allowed &= ~_NET_WM_ACTION_RESIZE;
+		    // allowed &= ~_NET_WM_ACTION_MINIMIZE;
+		    // allowed &= ~_NET_WM_ACTION_SHADE;
+		    // allowed &= ~_NET_WM_ACTION_STICK;
+		    // allowed &= ~_NET_WM_ACTION_MAXIMIZE_HORZ;
+		    // allowed &= ~_NET_WM_ACTION_MAXIMIZE_VERT;
+		    // allowed &= ~_NET_WM_ACTION_FULLSCREEN;
+		    // allowed &= ~_NET_WM_ACTION_CHANGE_DESKTOP;
+		    // allowed &= ~_NET_WM_ACTION_CLOSE;
+		    // allowed &= ~_NET_WM_ACTION_ABOVE;
+		    // allowed &= ~_NET_WM_ACTION_BELOW;
+		    break;
+		default:
+		    break;
+		}
+	    }
+	}
+    }
+#ifdef MWMH
+    if (twin->mwmh.props._MOTIF_WM_HINTS) {
+	MwmHints *hints = &twin->mwmh.hints;
+
+	if (twin->mwmh.hints.flags & MWM_HINTS_FUNCTIONS) {
+	    if (!(hints->functions & (MWM_FUNC_ALL | MWM_FUNC_RESIZE)))
+		allowed &= ~(_NET_WM_ACTION_RESIZE | _NET_WM_ACTION_SHADE);
+	    if (!(hints->functions & (MWM_FUNC_ALL | MWM_FUNC_MOVE)))
+		allowed &= ~_NET_WM_ACTION_MOVE;
+	    if (!(hints->functions & (MWM_FUNC_ALL | MWM_FUNC_MINIMIZE)))
+		allowed &= ~_NET_WM_ACTION_MINIMIZE;
+	    if (!(hints->functions & (MWM_FUNC_ALL | MWM_FUNC_MAXIMIZE)))
+		allowed &=
+		    ~(_NET_WM_ACTION_MAXIMIZE_HORZ | _NET_WM_ACTION_MAXIMIZE_VERT |
+		      _NET_WM_ACTION_FULLSCREEN);
+	    if (!(hints->functions & (MWM_FUNC_ALL | MWM_FUNC_CLOSE)))
+		allowed &= ~_NET_WM_ACTION_CLOSE;
+	}
+    }
+    if (twin->mwmh.props._DT_WM_HINTS) {
+	DtWmHints *hints = &twin->mwmh.dthints;
+
+	if (hints->flags & DTWM_HINTS_FUNCTIONS) {
+	    if (!(hints->functions & (DTWM_FUNCTION_ALL | DTWM_FUNCTION_OCCUPY_WS)))
+		allowed &= ~(_NET_WM_ACTION_CHANGE_DESKTOP | _NET_WM_ACTION_STICK);
+	}
+    }
+#endif				/* MWMH */
+    *flags = allowed;
 }
 
 /** @brief Set the pid for a window.

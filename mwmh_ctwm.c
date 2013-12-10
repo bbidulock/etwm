@@ -100,6 +100,22 @@ TwmSetMwmHints(ScreenInfo *scr, TwmWindow *twin, MwmHints *hints)
 	    (MWM_DECOR_BORDER | MWM_DECOR_RESIZEH | MWM_DECOR_TITLE | MWM_DECOR_MENU |
 	     MWM_DECOR_MINIMIZE | MWM_DECOR_MAXIMIZE);
     }
+#ifdef EWMH
+    if (hints->flags & MWM_HINTS_FUNCTIONS) {
+	if (!(hints->functions & (MWM_FUNC_ALL | MWM_FUNC_RESIZE)))
+	    twin->ewmh.allowed &= ~(_NET_WM_ACTION_RESIZE | _NET_WM_ACTION_SHADE);
+	if (!(hints->functions & (MWM_FUNC_ALL | MWM_FUNC_MOVE)))
+	    twin->ewmh.allowed &= ~_NET_WM_ACTION_MOVE;
+	if (!(hints->functions & (MWM_FUNC_ALL | MWM_FUNC_MINIMIZE)))
+	    twin->ewmh.allowed &= ~_NET_WM_ACTION_MINIMIZE;
+	if (!(hints->functions & (MWM_FUNC_ALL | MWM_FUNC_MAXIMIZE)))
+	    twin->ewmh.allowed &=
+		~(_NET_WM_ACTION_FULLSCREEN | _NET_WM_ACTION_MAXIMIZE_HORZ |
+		  _NET_WM_ACTION_MAXIMIZE_VERT);
+	if (!(hints->functions & (MWM_FUNC_ALL | MWM_FUNC_CLOSE)))
+	    twin->ewmh.allowed &= ~_NET_WM_ACTION_CLOSE;
+    }
+#endif				/* EWMH */
 }
 
 /** @brief Set the desktop hints for a window.
@@ -122,14 +138,20 @@ TwmSetDtWmHints(TwmWindow *twin, struct DtWmHints *hints)
     /* munge this a bit */
     if (!(hints->flags & DTWM_HINTS_FUNCTIONS)) {
 	hints->flags |= DTWM_HINTS_FUNCTIONS;
-	hints->functions = (DTWM_FUNCTION_ALL|DTWM_FUNCTION_OCCUPY_WS);
+	hints->functions = (DTWM_FUNCTION_ALL | DTWM_FUNCTION_OCCUPY_WS);
     }
-    if(!(hints->flags & DTWM_HINTS_BEHAVIORS)) {
+    if (!(hints->flags & DTWM_HINTS_BEHAVIORS)) {
 	hints->flags |= DTWM_HINTS_BEHAVIORS;
 	hints->behaviors = 0;
     }
     if (!(hints->flags & DTWM_HINTS_ATTACH_WINDOW))
 	hints->attachWindow = None;
+#ifdef EWMH
+    if (hints->flags & DTWM_HINTS_FUNCTIONS) {
+	if (!(hints->functions & (DTWM_FUNCTION_ALL | DTWM_FUNCTION_OCCUPY_WS)))
+	    twin->ewmh.allowed &= ~(_NET_WM_ACTION_CHANGE_DESKTOP | _NET_WM_ACTION_STICK);
+    }
+#endif				/* EWMH */
 }
 
 void
