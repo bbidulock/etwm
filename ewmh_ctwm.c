@@ -30,12 +30,12 @@ static TwmWindow *
 TwmCanChangeDesktop(TwmWindow *twin)
 {
     if (twin->ewmh.props._NET_WM_ALLOWED_ACTIONS
-	&& !(twin->ewmh.allowed & _NET_WM_ACTION_CHANGE_DESKTOP_BIT))
+	&& !(twin->ewmh.allowed & _NET_WM_ACTION_CHANGE_DESKTOP))
 	return (NULL);
     if (!CanChangeOccupation(&twin))
 	return (NULL);
     if (twin->ewmh.props._NET_WM_ALLOWED_ACTIONS
-	&& !(twin->ewmh.allowed & _NET_WM_ACTION_CHANGE_DESKTOP_BIT))
+	&& !(twin->ewmh.allowed & _NET_WM_ACTION_CHANGE_DESKTOP))
 	return (NULL);
     return (twin);
 }
@@ -942,55 +942,55 @@ TwmSetWMWindowType(TwmWindow *twin, unsigned type)
 }
 
 #define _NET_WM_STATE_ALLZOOM_MASK ( \
-	_NET_WM_STATE_MAXIMIZED_HORZ_BIT | \
-	_NET_WM_STATE_MAXIMIZED_VERT_BIT | \
-	_NET_WM_STATE_MAXIMUS_BOTTOM_BIT | \
-	_NET_WM_STATE_MAXIMUS_LEFT_BIT | \
-	_NET_WM_STATE_MAXIMUS_RIGHT_BIT | \
-	_NET_WM_STATE_MAXIMUS_TOP_BIT )
+	_NET_WM_STATE_MAXIMIZED_HORZ | \
+	_NET_WM_STATE_MAXIMIZED_VERT | \
+	_NET_WM_STATE_MAXIMUS_BOTTOM | \
+	_NET_WM_STATE_MAXIMUS_LEFT | \
+	_NET_WM_STATE_MAXIMUS_RIGHT | \
+	_NET_WM_STATE_MAXIMUS_TOP )
 
 void
 TwmGetWMState(TwmWindow *twin, unsigned *flags)
 {
     if (twin->squeezed)
-	*flags |= _NET_WM_STATE_SHADED_BIT;
+	*flags |= _NET_WM_STATE_SHADED;
     else
-	*flags &= ~_NET_WM_STATE_SHADED_BIT;
+	*flags &= ~_NET_WM_STATE_SHADED;
 
     if (twin->occupation == fullOccupation)
-	*flags |= _NET_WM_STATE_STICKY_BIT;
+	*flags |= _NET_WM_STATE_STICKY;
     else
-	*flags &= ~_NET_WM_STATE_STICKY_BIT;
+	*flags &= ~_NET_WM_STATE_STICKY;
 
     *flags &= ~_NET_WM_STATE_ALLZOOM_MASK;
     switch (twin->zoomed) {
     case ZOOM_NONE:
 	break;
     case F_ZOOM:
-	*flags |= _NET_WM_STATE_MAXIMIZED_VERT_BIT;
+	*flags |= _NET_WM_STATE_MAXIMIZED_VERT;
 	break;
     case F_LEFTZOOM:
-	*flags |= _NET_WM_STATE_MAXIMUS_LEFT_BIT;
-	*flags |= _NET_WM_STATE_MAXIMIZED_VERT_BIT;
+	*flags |= _NET_WM_STATE_MAXIMUS_LEFT;
+	*flags |= _NET_WM_STATE_MAXIMIZED_VERT;
 	break;
     case F_RIGHTZOOM:
-	*flags |= _NET_WM_STATE_MAXIMUS_RIGHT_BIT;
-	*flags |= _NET_WM_STATE_MAXIMIZED_VERT_BIT;
+	*flags |= _NET_WM_STATE_MAXIMUS_RIGHT;
+	*flags |= _NET_WM_STATE_MAXIMIZED_VERT;
 	break;
     case F_BOTTOMZOOM:
-	*flags |= _NET_WM_STATE_MAXIMUS_BOTTOM_BIT;
-	*flags |= _NET_WM_STATE_MAXIMIZED_HORZ_BIT;
+	*flags |= _NET_WM_STATE_MAXIMUS_BOTTOM;
+	*flags |= _NET_WM_STATE_MAXIMIZED_HORZ;
 	break;
     case F_TOPZOOM:
-	*flags |= _NET_WM_STATE_MAXIMUS_TOP_BIT;
-	*flags |= _NET_WM_STATE_MAXIMIZED_HORZ_BIT;
+	*flags |= _NET_WM_STATE_MAXIMUS_TOP;
+	*flags |= _NET_WM_STATE_MAXIMIZED_HORZ;
 	break;
     case F_FULLZOOM:
-	*flags |= _NET_WM_STATE_MAXIMIZED_VERT_BIT;
-	*flags |= _NET_WM_STATE_MAXIMIZED_HORZ_BIT;
+	*flags |= _NET_WM_STATE_MAXIMIZED_VERT;
+	*flags |= _NET_WM_STATE_MAXIMIZED_HORZ;
 	break;
     case F_HORIZOOM:
-	*flags |= _NET_WM_STATE_MAXIMIZED_HORZ_BIT;
+	*flags |= _NET_WM_STATE_MAXIMIZED_HORZ;
 	break;
     }
 
@@ -1054,7 +1054,7 @@ TwmChgWMState(ScreenInfo *scr, TwmWindow *twin, int action1, int action2, unsign
 		break;
 	    case _NET_WM_STATE_TOGGLE:
 		if (tmp_win != NULL) {
-		    if (twin->ewmh.state & _NET_WM_STATE_STICKY_BIT)
+		    if (twin->ewmh.state & _NET_WM_STATE_STICKY)
 			ChangeOccupation(tmp_win, 1 << current);
 		    else
 			OccupyAll(twin);
@@ -1071,11 +1071,11 @@ TwmChgWMState(ScreenInfo *scr, TwmWindow *twin, int action1, int action2, unsign
 	case _NET_WM_STATE_SHADED:
 	    switch (action) {
 	    case _NET_WM_STATE_REMOVE:
-		if (twin->ewmh.state & _NET_WM_STATE_SHADED_BIT)
+		if (twin->ewmh.state & _NET_WM_STATE_SHADED)
 		    Squeeze(twin);
 		break;
 	    case _NET_WM_STATE_ADD:
-		if (!(twin->ewmh.state & _NET_WM_STATE_SHADED_BIT))
+		if (!(twin->ewmh.state & _NET_WM_STATE_SHADED))
 		    Squeeze(twin);
 		break;
 	    case _NET_WM_STATE_TOGGLE:
@@ -1159,7 +1159,7 @@ TwmChgWMState(ScreenInfo *scr, TwmWindow *twin, int action1, int action2, unsign
 		break;
 	    case _NET_WM_STATE_TOGGLE:
 		if (tmp_win != NULL) {
-		    if (twin->ewmh.state & _NET_WM_STATE_STICKY_BIT)
+		    if (twin->ewmh.state & _NET_WM_STATE_STICKY)
 			ChangeOccupation(tmp_win, 1 << current);
 		    else
 			OccupyAll(tmp_win);
@@ -1176,11 +1176,11 @@ TwmChgWMState(ScreenInfo *scr, TwmWindow *twin, int action1, int action2, unsign
 	case _NET_WM_STATE_SHADED:
 	    switch (action) {
 	    case _NET_WM_STATE_REMOVE:
-		if (twin->ewmh.state & _NET_WM_STATE_SHADED_BIT)
+		if (twin->ewmh.state & _NET_WM_STATE_SHADED)
 		    Squeeze(twin);
 		break;
 	    case _NET_WM_STATE_ADD:
-		if (!(twin->ewmh.state & _NET_WM_STATE_SHADED_BIT))
+		if (!(twin->ewmh.state & _NET_WM_STATE_SHADED))
 		    Squeeze(twin);
 		break;
 	    case _NET_WM_STATE_TOGGLE:

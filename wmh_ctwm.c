@@ -295,40 +295,40 @@ void
 TwmGetWinState(TwmWindow *twin, unsigned *state)
 {
     if (twin->squeezed)
-	*state |= WIN_STATE_SHADED_BIT;
+	*state |= WIN_STATE_SHADED;
     else
-	*state &= ~WIN_STATE_SHADED_BIT;
+	*state &= ~WIN_STATE_SHADED;
 
     if (twin->occupation == fullOccupation)
-	*state |= WIN_STATE_STICKY_BIT;
+	*state |= WIN_STATE_STICKY;
     else
-	*state &= ~WIN_STATE_STICKY_BIT;
+	*state &= ~WIN_STATE_STICKY;
 
-    *state &= ~(WIN_STATE_MAXIMIZED_VERT_BIT | WIN_STATE_MAXIMIZED_HORIZ_BIT);
+    *state &= ~(WIN_STATE_MAXIMIZED_VERT | WIN_STATE_MAXIMIZED_HORIZ);
     switch (twin->zoomed) {
     case ZOOM_NONE:
 	break;
     case F_ZOOM:
-	*state |= WIN_STATE_MAXIMIZED_VERT_BIT;
+	*state |= WIN_STATE_MAXIMIZED_VERT;
 	break;
     case F_LEFTZOOM:
-	*state |= WIN_STATE_MAXIMIZED_VERT_BIT;
+	*state |= WIN_STATE_MAXIMIZED_VERT;
 	break;
     case F_RIGHTZOOM:
-	*state |= WIN_STATE_MAXIMIZED_VERT_BIT;
+	*state |= WIN_STATE_MAXIMIZED_VERT;
 	break;
     case F_BOTTOMZOOM:
-	*state |= WIN_STATE_MAXIMIZED_HORIZ_BIT;
+	*state |= WIN_STATE_MAXIMIZED_HORIZ;
 	break;
     case F_TOPZOOM:
-	*state |= WIN_STATE_MAXIMIZED_HORIZ_BIT;
+	*state |= WIN_STATE_MAXIMIZED_HORIZ;
 	break;
     case F_FULLZOOM:
-	*state |= WIN_STATE_MAXIMIZED_VERT_BIT;
-	*state |= WIN_STATE_MAXIMIZED_HORIZ_BIT;
+	*state |= WIN_STATE_MAXIMIZED_VERT;
+	*state |= WIN_STATE_MAXIMIZED_HORIZ;
 	break;
     case F_HORIZOOM:
-	*state |= WIN_STATE_MAXIMIZED_HORIZ_BIT;
+	*state |= WIN_STATE_MAXIMIZED_HORIZ;
 	break;
     }
 
