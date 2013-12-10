@@ -332,22 +332,6 @@ enum _NET_WM_ACTION {
 #define _NET_WM_ACTION_ABOVE_BIT		(1<<_NET_WM_ACTION_ABOVE)
 #define _NET_WM_ACTION_BELOW_BIT		(1<<_NET_WM_ACTION_BELOW)
 
-/* bit definitions for WM_PROTOCOLS */
-enum WM_PROTOCOLS {
-    _WM_TAKE_FOCUS,
-    _WM_SAVE_YOURSELF,
-    _WM_DELETE_WINDOW,
-    _NET_WM_PING,
-    _NET_WM_SYNC_REQUEST,
-    WM_PROTOCOLS_last
-};
-
-#define _WM_TAKE_FOCUS_BIT			(1<<_WM_TAKE_FOCUS)
-#define _WM_DELETE_WINDOW_BIT			(1<<_WM_DELETE_WINDOW)
-#define _WM_SAVE_YOURSELF_BIT			(1<<_WM_SAVE_YOURSELF)
-#define _NET_WM_PING_BIT			(1<<_NET_WM_PING)
-#define _NET_WM_SYNC_REQUEST_BIT		(1<<_NET_WM_SYNC_REQUEST)
-
 typedef struct NetCounter {
     unsigned long low, high;
 } NetCounter;
@@ -653,6 +637,7 @@ Bool HandleNetDestroyNotify(ScreenInfo *scr, TwmWindow *twin, XEvent *xev);
 TwmWindow *TwmFindWindow(ScreenInfo *scr, Window window);
 
 Window TwmNetRoot(ScreenInfo *scr);
+Window TwmNetManager(ScreenInfo *scr);
 
 void TwmGetClientList(ScreenInfo *scr, Window **windows, int *count);
 void TwmGetClientListStacking(ScreenInfo *scr, Window **windows, int *count);

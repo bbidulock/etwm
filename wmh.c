@@ -106,9 +106,8 @@ InternWinAtoms(void)
 {
     const struct WinAtom *p;
 
-    for (p = WinAtoms; p->atom_p != NULL; p++) {
+    for (p = WinAtoms; p->atom_p != NULL; p++)
 	*(p->atom_p) = XInternAtom(dpy, p->name, False);
-    }
 }
 
 #if 0
@@ -339,7 +338,7 @@ Set_WIN_SUPPORTING_WM_CHECK(Window root, Window window)
 void
 Upd_WIN_SUPPORTING_WM_CHECK(ScreenInfo *scr)
 {
-    Window check = scr->ManagerWindow;
+    Window check = TwmWinManager(scr);
 
     if (!scr->wmh.props._WIN_SUPPORTING_WM_CHECK || scr->wmh.check != check) {
 	Set_WIN_SUPPORTING_WM_CHECK(TwmWinRoot(scr), check);
@@ -1381,7 +1380,7 @@ Set_WIN_DESKTOP_BUTTON_PROXY(Window root, Window window)
 void
 Upd_WIN_DESKTOP_BUTTON_PROXY(ScreenInfo *scr)
 {
-    Window proxy = scr->ManagerWindow;
+    Window proxy = TwmWinManager(scr);
 
     if (!scr->wmh.props._WIN_DESKTOP_BUTTON_PROXY || scr->wmh.proxy != proxy) {
 	Set_WIN_DESKTOP_BUTTON_PROXY(TwmWinRoot(scr), proxy);
@@ -2235,8 +2234,7 @@ UpdateWmh(ScreenInfo *scr)
     Upd__SWM_VROOT(scr);
 }
 
-/** @func void RestartWmh(void)
-  * @brief Prepare the window manager for restart in the WinWM/WMH sense.
+/** @brief Prepare the window manager for restart in the WinWM/WMH sense.
   *
   * This function is called when TWM prepares to restart, but is not called when
   * TWM shuts down gracefully.  In that case, TermWmh() is called instead.
@@ -2258,8 +2256,7 @@ RestartWmh(ScreenInfo *scr)
        re-entered. */
 }
 
-/** @func void TermWmh(void)
-  * @brief Terminate the window manager in the WinWM/WMH sense.
+/** @brief Terminate the window manager in the WinWM/WMH sense.
   *
   * This function is called when TWM prepares to shut down gracefully, either to
   * start another window manager or exit altogether.

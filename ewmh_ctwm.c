@@ -18,6 +18,12 @@ TwmNetRoot(ScreenInfo *scr)
     return scr->XineramaRoot;
 }
 
+Window
+TwmNetManager(ScreenInfo *scr)
+{
+    return scr->ManagerWindow;
+}
+
 extern int CanChangeOccupation(TwmWindow **twm_winp);
 
 static TwmWindow *

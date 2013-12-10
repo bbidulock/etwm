@@ -265,6 +265,7 @@ Bool HandleWinClientMessage(ScreenInfo *scr, TwmWindow *twin, XEvent *event);
 Bool HandleWinPropertyNotify(ScreenInfo *scr, TwmWindow *twin, XEvent *event);
 
 Window TwmWinRoot(ScreenInfo *scr);
+Window TwmWinManager(ScreenInfo *scr);
 
 /* _WIN_CLIENT_LIST */
 void TwmGetWinClientList(ScreenInfo *scr, Window **windows, int *count);

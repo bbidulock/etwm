@@ -21,6 +21,15 @@ TwmWinRoot(ScreenInfo *scr)
     return scr->XineramaRoot;
 }
 
+/** @brief Get the manager window for screen.
+  * @param scr - screen
+  */
+Window
+TwmWinManager(ScreenInfo *scr)
+{
+    return scr->ManagerWindow;
+}
+
 extern int CanChangeOccupation(TwmWindow **twm_winp);
 
 static TwmWindow *

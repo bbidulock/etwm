@@ -1756,7 +1756,7 @@ Set_NET_SUPPORTING_WM_CHECK(Window root, Window window)
 void
 Upd_NET_SUPPORTING_WM_CHECK(ScreenInfo *scr)
 {
-    Window check = scr->ManagerWindow;
+    Window check = TwmNetManager(scr);
 
     if (!scr->ewmh.props._NET_SUPPORTING_WM_CHECK || scr->ewmh.check != check) {
 	Set_NET_SUPPORTING_WM_CHECK(TwmNetRoot(scr), check);
@@ -2142,35 +2142,41 @@ Ret_WM_CLASS(TwmWindow *twin)
   *
   * The ICCCM 2.0 WM_PROTOCOLS property that is set by a client on an application
   * window contains the atoms of supported protocols.  Currently, these are
-  * WM_DELETE, WM_SAVEYOURSELF, _NET_WM_PING and _NET_WM_SYNC.
+  * WM_DELETE, WM_SAVE_YOURSELF, _NET_WM_PING and _NET_WM_SYNC.
   *
   * @{ */
-static const Atom *WmProtocols[] = {
+static const Atom *NetWmProtocols[] = {
     NET_ATOM_ENTRY(_WM_TAKE_FOCUS),
     NET_ATOM_ENTRY(_WM_SAVE_YOURSELF),
     NET_ATOM_ENTRY(_WM_DELETE_WINDOW),
     NET_ATOM_ENTRY(_NET_WM_PING),
     NET_ATOM_ENTRY(_NET_WM_SYNC_REQUEST),
+#ifdef MWMH
+    MWM_ATOM_ENTRY(_MOTIF_WM_MESSAGES),
+    MWM_ATOM_ENTRY(_MOTIF_WM_OFFSET),
+#endif				/* MWMH */
     [WM_PROTOCOLS_last] = NULL
 };
 
 static Bool
-Get_WM_PROTOCOLS(Window window, unsigned *protocols)
+Get_NET_WM_PROTOCOLS(Window window, unsigned *protocols)
 {
-    return Get_NET_WM_atoms(window, _XA_WM_PROTOCOLS, WmProtocols, protocols);
+    return Get_NET_WM_atoms(window, _XA_WM_PROTOCOLS, NetWmProtocols, protocols);
 }
 
 static void
-Ret_WM_PROTOCOLS(TwmWindow *twin)
+Ret_NET_WM_PROTOCOLS(TwmWindow *twin)
 {
     unsigned protocols = 0;
 
-    if (Get_WM_PROTOCOLS(twin->w, &protocols)) {
+    if (Get_NET_WM_PROTOCOLS(twin->w, &protocols)) {
 	twin->ewmh.props.WM_PROTOCOLS = 1;
 	TwmSetWMProtocols(twin, protocols);
 	twin->ewmh.protocols = protocols;
-    } else
+    } else {
 	twin->ewmh.props.WM_PROTOCOLS = 0;
+	twin->ewmh.protocols = protocols;
+    }
 }
 
 /** @} */
@@ -5440,7 +5446,7 @@ Snd_NET_STARTUP_INFO_MSG(ScreenInfo *scr, EwmhSequence *seq, enum _NET_NOTIFY_MS
 	}
 	msg[index] = '\0';
     }
-    Snd_NET_STARTUP_INFO(scr->ManagerWindow, TwmNetRoot(scr), msg);
+    Snd_NET_STARTUP_INFO(TwmNetManager(scr), TwmNetRoot(scr), msg);
 }
 
 /** @brief Update startup notification sequence information from window.
@@ -6144,12 +6150,12 @@ InitEwmh(ScreenInfo *scr)
     fprintf(stderr, "Setting _NET_WM_NAME on check window\n");
     fflush(stderr);
 #endif
-    Set_NET_WM_NAME(scr->ManagerWindow, name);
+    Set_NET_WM_NAME(TwmNetManager(scr), name);
 #ifdef DEBUG_EWMH
     fprintf(stderr, "Setting _NET_WM_PID on check window\n");
     fflush(stderr);
 #endif
-    Set_NET_WM_PID(scr->ManagerWindow, getpid());
+    Set_NET_WM_PID(TwmNetManager(scr), getpid());
 
 #ifdef DEBUG_EWMH
     fprintf(stderr, "Retrieve or set _NET_NUMBER_OF_DESKTOPS on root\n");
@@ -6194,7 +6200,7 @@ InitEwmh(ScreenInfo *scr)
 #endif
     Ret_NET_SHOWING_DESKTOP(scr);
 
-    Set_NET_SUPPORTING_WM_CHECK(TwmNetRoot(scr), scr->ManagerWindow);
+    Set_NET_SUPPORTING_WM_CHECK(TwmNetRoot(scr), TwmNetManager(scr));
 
     /* get the _NET_WM_DESKTOP_LAYOUT_Sn selection */
     snprintf(layout, 32, "_NET_DESKTOP_LAYOUT_S%d", scr->screen);
@@ -6330,7 +6336,7 @@ void
 AddWindowEwmh(ScreenInfo *scr, TwmWindow *twin)
 {
     Ret_WM_CLASS(twin);
-    Ret_WM_PROTOCOLS(twin);
+    Ret_NET_WM_PROTOCOLS(twin);
     Ret_WM_CLIENT_MACHINE(twin);
     Ret_WM_COMMAND(twin);
     Ret_NET_WM_PID(scr, twin);
