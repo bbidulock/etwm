@@ -24,6 +24,10 @@
 -ss
 -nhnl
 -nbc
+-TMwmInfo
+-TMwmHints
+-TMwmWindow
+-TMwmScreen
 -TWmhWindow
 -TWmhScreen
 -TVirtualScreen
