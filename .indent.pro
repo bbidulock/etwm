@@ -24,6 +24,7 @@
 -ss
 -nhnl
 -nbc
+-TWorkSpace
 -TMwmInfo
 -TMwmHints
 -TMwmWindow
