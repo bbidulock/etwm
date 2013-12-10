@@ -94,7 +94,7 @@ static const struct MwmAtom MwmAtoms[] = {
     {NULL, NULL}
 };
 
-void
+static void
 InternMwmAtoms(void)
 {
     const struct MwmAtom *p;
@@ -157,6 +157,28 @@ Get_MWM_WM_atoms(Window window, Atom property, const Atom **defs, unsigned *flag
     return True;
 }
 
+static inline int
+cmp_atom_list(Atom *al1, Atom *al2)
+{
+    if (al1 == NULL && al2 == NULL)
+	return (0);
+    if (al1 == NULL)
+	return (-1);
+    if (al2 == NULL)
+	return (1);
+    for (; *al1 != None || *al2 != None; al1++, al2++) {
+	if (*al1 == None)
+	    return (-1);
+	if (*al2 == None)
+	    return (1);
+	if (*al1 < *al2)
+	    return (-1);
+	if (*al1 > *al2)
+	    return (1);
+    }
+    return (0);
+}
+
 static int
 cmp_info(MwmInfo *i1, MwmInfo *i2)
 {
@@ -195,50 +217,6 @@ cmp_hints(MwmHints *h1, MwmHints *h2)
     if (h1->status > h2->status)
 	return (1);
     return (0);
-}
-
-/** @name WM_PROTOCOLS, ATOM[]/32
-  *
-  * The ICCCM 2.0 WM_PROTOCOLS property that is set by a client on an
-  * application window contians the atoms of supported protocols.  Currently
-  * these are WM_DELETE and WM_SAVE_YOURSELF.  NetWM/EWMH defines _NET_WM_PING
-  * and _NET_WM_SYNC_REQUEST as well.  Motif/MWMH defines _MOTIF_WM_MESSAGES and
-  * _MOTIF_WM_OFFSET.
-  *
-  */
-
-static const Atom *MwmWmProtocols[] = {
-    MWM_ATOM_ENTRY(_WM_TAKE_FOCUS),
-    MWM_ATOM_ENTRY(_WM_SAVE_YOURSELF),
-    MWM_ATOM_ENTRY(_WM_DELETE_WINDOW),
-#ifdef EWMH
-    NET_ATOM_ENTRY(_NET_WM_PING),
-    NET_ATOM_ENTRY(_NET_WM_SYNC_REQUEST),
-#endif				/* EWMH */
-    MWM_ATOM_ENTRY(_MOTIF_WM_MESSAGES),
-    MWM_ATOM_ENTRY(_MOTIF_WM_OFFSET),
-    [WM_PROTOCOLS_last] = NULL
-};
-
-static Bool
-Get_MWM_WM_PROTOCOLS(Window window, unsigned *protocols)
-{
-    return Get_MWM_WM_atoms(window, _XA_WM_PROTOCOLS, MwmWmProtocols, protocols);
-}
-
-static void
-Ret_MWM_WM_PROTOCOLS(TwmWindow *twin)
-{
-    unsigned protocols = 0;
-
-    if (Get_MWM_WM_PROTOCOLS(twin->w, &protocols)) {
-	twin->mwmh.props.WM_PROTOCOLS = 1;
-	TwmSetWMProtocols(twin, protocols);
-	twin->mwmh.protocols = protocols;
-    } else {
-	twin->mwmh.props.WM_PROTOCOLS = 0;
-	twin->mwmh.protocols = protocols;
-    }
 }
 
 /** @name Root window properties.
@@ -318,6 +296,44 @@ Del_MOTIF_WM_INFO(ScreenInfo *scr)
   *
   * @{ */
 
+/** @brief Set the workspace atom list.
+  * @param info - MWM info window
+  * @param list - atom list
+  * @param count - number of atoms in the list
+  */
+static void
+Set_DT_WORKSPACE_LIST(Window info, Atom *list, int count)
+{
+    XChangeProperty(dpy, info, _XA_DT_WORKSPACE_LIST, XA_ATOM, 32, PropModeReplace,
+		    (unsigned char *) list, count);
+}
+
+/** @brief Update the workspace atom list.
+  * @param scr - screen
+  *
+  * This function only changes the property on the MWM info window when the
+  * window atom list actually changes.
+  *
+  * This function should be called by the window manager at initial startup
+  * (after establishing the MWM info window), and whenever a workspace label
+  * changes or the number of workspaces in the list, or order of the list,
+  * changes.
+  */
+void
+Upd_DT_WORKSPACE_LIST(ScreenInfo *scr)
+{
+    Atom *list = NULL;
+    int count = 0;
+
+    TwmGetWorkspaceList(scr, &list, &count);
+    if (!scr->mwmh.props._DT_WORKSPACE_LIST || cmp_atom_list(scr->mwmh.list, list) != 0) {
+	Set_DT_WORKSPACE_LIST(TwmMwmManager(scr), list, count);
+	scr->mwmh.props._DT_WORKSPACE_LIST = 1;
+	free(scr->mwmh.list);
+	scr->mwmh.list = list;
+    }
+}
+
 /** @} */
 
 /** @name _DT_WORKSPACE_CURRENT
@@ -329,6 +345,46 @@ Del_MOTIF_WM_INFO(ScreenInfo *scr)
   * The window manager sets this property.
   *
   * @{ */
+
+/** @brief Set the current workspace atom.
+  * @param info - MWM info window
+  * @param workspace - workspace atom to set
+  */
+static void
+Set_DT_WORKSPACE_CURRENT(Window info, Atom workspace)
+{
+#ifdef DEBUG_MWMH
+    fprintf(stderr, "Setting _DT_WORKSPACE_CURRENT to 0x%08lx on root 0x%08lx\n", workspace, info);
+#endif
+    XChangeProperty(dpy, info, _XA_DT_WORKSPACE_CURRENT, XA_ATOM, 32,
+		    PropModeReplace, (unsigned char *) &workspace, 1);
+}
+
+/** @brief update the current workspace atom.
+  * @param scr - screen
+  *
+  * This function only actually changes the property on the MWM info window when
+  * the workspace atom has actually changed (either because the lable for
+  * the current workspace has changed, or the current workspace has changed).
+  * 
+  * This function should be called by the window manager when it first starts up
+  * (after establishing the MWM info window), and whenever the label of the
+  * current workspace changes, or the current workspace changes.
+  */
+void
+Upd_DT_WORKSPACE_CURRENT(ScreenInfo *scr)
+{
+    Atom current = None;
+
+    TwmGetWorkspaceCurrent(scr, &current);
+    if (!scr->mwmh.props._DT_WORKSPACE_CURRENT || scr->mwmh.current != current) { 
+	Set_DT_WORKSPACE_CURRENT(TwmMwmManager(scr), current);
+	scr->mwmh.props._DT_WORKSPACE_CURRENT = 1;
+	scr->mwmh.current = current;
+    }
+}
+
+
 
 /** @} */
 
@@ -387,6 +443,50 @@ Del_MOTIF_WM_INFO(ScreenInfo *scr)
 
 /** @name Mwm client window properties.
   * @{ */
+
+/** @name WM_PROTOCOLS, ATOM[]/32
+  *
+  * The ICCCM 2.0 WM_PROTOCOLS property that is set by a client on an
+  * application window contians the atoms of supported protocols.  Currently
+  * these are WM_DELETE and WM_SAVE_YOURSELF.  NetWM/EWMH defines _NET_WM_PING
+  * and _NET_WM_SYNC_REQUEST as well.  Motif/MWMH defines _MOTIF_WM_MESSAGES and
+  * _MOTIF_WM_OFFSET.
+  *
+  * @{ */
+
+static const Atom *MwmWmProtocols[] = {
+    TWM_ATOM_ENTRY(_WM_TAKE_FOCUS),
+    TWM_ATOM_ENTRY(_WM_SAVE_YOURSELF),
+    TWM_ATOM_ENTRY(_WM_DELETE_WINDOW),
+#ifdef EWMH
+    TWM_ATOM_ENTRY(_NET_WM_PING),
+    TWM_ATOM_ENTRY(_NET_WM_SYNC_REQUEST),
+#endif				/* EWMH */
+    TWM_ATOM_ENTRY(_MOTIF_WM_MESSAGES),
+    TWM_ATOM_ENTRY(_MOTIF_WM_OFFSET),
+    [WM_PROTOCOLS_last] = NULL
+};
+
+static Bool
+Get_MWM_WM_PROTOCOLS(Window window, unsigned *protocols)
+{
+    return Get_MWM_WM_atoms(window, _XA_WM_PROTOCOLS, MwmWmProtocols, protocols);
+}
+
+static void
+Ret_MWM_WM_PROTOCOLS(TwmWindow *twin)
+{
+    unsigned protocols = 0;
+
+    if (Get_MWM_WM_PROTOCOLS(twin->w, &protocols)) {
+	twin->mwmh.props.WM_PROTOCOLS = 1;
+	TwmSetWMProtocols(twin, protocols);
+	twin->mwmh.protocols = protocols;
+    } else {
+	twin->mwmh.props.WM_PROTOCOLS = 0;
+	twin->mwmh.protocols = protocols;
+    }
+}
 
 /** @} */
 
@@ -523,6 +623,9 @@ Upd_MOTIF_WM_HINTS(ScreenInfo *scr, TwmWindow *twin)
 /** @brief Retrieve or set the hints for a window.
   * @param scr- screen
   * @param twin - TWM window
+  *
+  * This function should be called when the client window is initially managed,
+  * and whenever this property changes after that.
   */
 static void
 Ret_MOTIF_WM_HINTS(ScreenInfo *scr, TwmWindow *twin)
@@ -735,6 +838,44 @@ Ret_DT_WORKSPACE_HINTS(ScreenInfo *scr, TwmWindow *twin)
   *
   * @{ */
 
+/** @brief Set the workspace presence for a window.
+  * @param window - window for which to set
+  * @param presence - list of workspace atoms to set
+  * @param count - number of workspace atoms in the list
+  */
+static void
+Set_DT_WORKSPACE_PRESENCE(Window window, Atom *presence, int count)
+{
+    XChangeProperty(dpy, window, _XA_DT_WORKSPACE_PRESENCE, _XA_DT_WORKSPACE_PRESENCE, 32,
+		    PropModeReplace, (unsigned char *) presence, count);
+}
+
+/** @brief Update the workspace presence of a window.
+  * @param scr - screen
+  * @param twin - TWM window
+  *
+  * Updates the _DT_WORKSPACE_PRESENCE property on a client window.  This
+  * function should be called by the window manager when the client window is
+  * first managed and whenever the presence of the window on a desktop changes,
+  * or a desktop label changes.
+  */
+void
+Upd_DT_WORKSPACE_PRESENCE(ScreenInfo *scr, TwmWindow *twin)
+{
+    Atom *presence = NULL;
+    int count = 0;
+
+    TwmGetWorkspacePresence(scr, twin, &presence, &count);
+    if (!twin->mwmh.props._DT_WORKSPACE_PRESENCE
+	|| cmp_atom_list(twin->mwmh.presence, presence) != 0) {
+	Set_DT_WORKSPACE_PRESENCE(twin->w, presence, count);
+	twin->mwmh.props._DT_WORKSPACE_PRESENCE = 1;
+	free(twin->mwmh.presence);
+	twin->mwmh.presence = presence;
+    } else
+	free(presence);
+}
+
 /** @} */
 
 /** @name _DT_WM_HINTS
@@ -742,12 +883,16 @@ Ret_DT_WORKSPACE_HINTS(ScreenInfo *scr, TwmWindow *twin)
   * This property requests specific window/workspace management behaviour.  The
   * functions member of the operty allows a client to enable or disable
   * workspace management functions.  The behaviour member is used to indicate
-  * fron panels and slide-ups.
+  * front panels and slide-ups.
   *
   * The client sets this property.
   *
   * @{ */
 
+/** @brief Get the desktop hints for a window.
+  * @param window - window to get from
+  * @param hints - where to store the desktop hints
+  */
 static Bool
 Get_DT_WM_HINTS(Window window, struct DtWmHints *hints)
 {
@@ -770,6 +915,12 @@ Get_DT_WM_HINTS(Window window, struct DtWmHints *hints)
     return True;
 }
 
+/** @brief Retrieve the desktop hints for a window.
+  * @param twin - TWM window
+  *
+  * This function should be called when a client window is initially managed and
+  * whenever the _DT_WM_HINTS property changes on the window after that.
+  */
 static void
 Ret_DT_WM_HINTS(TwmWindow *twin)
 {
@@ -785,6 +936,8 @@ Ret_DT_WM_HINTS(TwmWindow *twin)
 	twin->mwmh.dthints = hints;
     }
 }
+
+/** @} */
 
 /** @} */
 
@@ -849,7 +1002,12 @@ InitMwmh(ScreenInfo *scr)
 {
     InternMwmAtoms();
 
+    /* Update the info window */
     Upd_MOTIF_WM_INFO(scr);
+
+    /* Info window properties */
+    Upd_DT_WORKSPACE_LIST(scr);
+    Upd_DT_WORKSPACE_CURRENT(scr);
 }
 
 /** @brief Update the window manager in the Motif/MWMH sense.
@@ -861,6 +1019,12 @@ InitMwmh(ScreenInfo *scr)
 void
 UpdateMwmh(ScreenInfo *scr)
 {
+    /* Update the info window */
+    Upd_MOTIF_WM_INFO(scr);
+
+    /* Info window properties */
+    Upd_DT_WORKSPACE_LIST(scr);
+    Upd_DT_WORKSPACE_CURRENT(scr);
 }
 
 /** @brief Prepare the window manager for restart in the Motif/MWMH sense.
@@ -871,6 +1035,12 @@ UpdateMwmh(ScreenInfo *scr)
 void
 RestartMwmh(ScreenInfo *scr)
 {
+    /* Update the info window */
+    Upd_MOTIF_WM_INFO(scr);
+
+    /* Info window properties */
+    Upd_DT_WORKSPACE_LIST(scr);
+    Upd_DT_WORKSPACE_CURRENT(scr);
 }
 
 /** @brief Terminate the window manager in the Motif/MWMH sense.
@@ -881,8 +1051,8 @@ RestartMwmh(ScreenInfo *scr)
 void
 TermMwmh(ScreenInfo *scr)
 {
+    /* Delete reference to info windowfrom root */
     Del_MOTIF_WM_INFO(scr);
-
 }
 
 /** @} */
@@ -901,6 +1071,9 @@ TermMwmh(ScreenInfo *scr)
 void
 AddWindowMwmh(ScreenInfo *scr, TwmWindow *twin)
 {
+    /* retrieve WM_PROTOCOLS */
+    Ret_MWM_WM_PROTOCOLS(twin);
+
     /* Get or set application window properties */
     Ret_DT_WM_HINTS(twin);
 }
@@ -977,6 +1150,10 @@ HandleMwmPropertyNotify(ScreenInfo *scr, TwmWindow *twin, XEvent *xev)
 	return False;
     if (twin != NULL) {
 	if (0) {
+	} else if (atom == _XA_MOTIF_WM_HINTS) {
+	    Ret_MOTIF_WM_HINTS(scr, twin);
+	} else if (atom == _XA_DT_WM_HINTS) {
+	    Ret_DT_WM_HINTS(twin);
 	} else
 	    return False;
     } else {

@@ -80,11 +80,11 @@ enum MWM_HINTS {
 /* functions field for _MOTIF_WM_HINTS */
 enum MWM_FUNC {
     MWM_FUNC_ALL_BIT = 0,
-    MWM_FUNC_RESIZE_BIT,
-    MWM_FUNC_MOVE_BIT,
-    MWM_FUNC_MINIMIZE_BIT,
-    MWM_FUNC_MAXIMIZE_BIT,
-    MWM_FUNC_CLOSE_BIT
+    MWM_FUNC_RESIZE_BIT,	/* like _NET_WM_ACTION_RESIZE */
+    MWM_FUNC_MOVE_BIT,		/* like _NET_WM_ACTION_MOVE */
+    MWM_FUNC_MINIMIZE_BIT,	/* like _NET_WM_ACTION_MINIMIZE */
+    MWM_FUNC_MAXIMIZE_BIT,	/* like _NET_WM_ACTION_(FULLSCREEN|MAXIMIZE_(HORZ|VERT)) */
+    MWM_FUNC_CLOSE_BIT		/* like _NET_WM_ACTION_CLOSE */
 };
 
 #define MWM_FUNC_ALL		(1L << MWM_FUNC_ALL_BIT)
@@ -159,7 +159,7 @@ typedef struct DtWmHints {
 enum DTWM_HINTS {
     DTWM_HINTS_FUNCTIONS_BIT = 0,
     DTWM_HINTS_BEHAVIORS_BIT,
-    DTWM_HINTS_ATTACH_WINDOW
+    DTWM_HINTS_ATTACH_WINDOW_BIT
 };
 
 #define DTWM_HINTS_FUNCTIONS		(1L << DTWM_HINTS_FUNCTIONS_BIT)
@@ -169,7 +169,7 @@ enum DTWM_HINTS {
 /* functions bits for _DT_WM_HINTS */
 enum DTWM_FUNCTION {
     DTWM_FUNCTION_ALL_BIT = 0,
-    DTWM_FUNCTION_OCCUPY_WS_BIT = 16
+    DTWM_FUNCTION_OCCUPY_WS_BIT = 16	/* like _NET_WM_ACTION_CHANGE_DEKSTOP */
 };
 
 #define DTWM_FUNCTION_ALL		(1L << DTWM_FUNCTION_ALL_BIT)
@@ -206,7 +206,7 @@ enum DT_WORKSPACE_FLAGS {
 
 #define DT_WORKSPACE_FLAGS_OCCUPY_ALL	(1L << DT_WORKSPACE_FLAGS_OCCUPY_ALL_BIT)
 
-#define MWM_ATOM_ENTRY(atom) [atom] = &_XA ## atom
+#define MWM_ATOM_ENTRY(atom) TWM_ATOM_ENTRY(atom)
 
 typedef struct MwmWindowBits {
     unsigned WM_PROTOCOLS:1;
@@ -241,6 +241,7 @@ typedef struct MwmWindow {
     Bool offset;			/* _MOTIF_WM_OFFSET */
     char *menu;				/* _MOTIF_WM_MENU */
     struct DtWmWorkspaceHints wshints;	/* _DT_WORKSPACE_HINTS */
+    Atom *presence;			/* _DT_WORKSPACE_PRESENCE */
     struct DtWmHints dthints;		/* _DT_WM_HINTS */
 } MwmWindow;
 
@@ -263,6 +264,13 @@ typedef struct MwmScreen {
 } MwmScreen;
 
 void Upd_MOTIF_WM_INFO(ScreenInfo *scr);
+void Upd_DT_WORKSPACE_LIST(ScreenInfo *scr);
+void Upd_DT_WORKSPACE_CURRENT(ScreenInfo *scr);
+void Upd_MOTIF_WM_HINTS(ScreenInfo *scr, TwmWindow *twin);
+void Upd_DT_WORKSPACE_HINTS(ScreenInfo *scr, TwmWindow *twin);
+void Upd_DT_WORKSPACE_PRESENCE(ScreenInfo *scr, TwmWindow *twin);
+
+void Snd_MOTIF_WM_OFFSET(ScreenInfo *scr, TwmWindow *twin);
 
 void InitMwmh(ScreenInfo *scr);
 void UpdateMwmh(ScreenInfo *scr);
@@ -278,6 +286,17 @@ Bool HandleMwmPropertyNotify(ScreenInfo *scr, TwmWindow *twin, XEvent *xev);
 
 Window TwmMwmRoot(ScreenInfo *scr);
 Window TwmMwmManager(ScreenInfo *scr);
+
+void TwmGetMwmInfo(ScreenInfo *scr, MwmInfo *info);
+void TwmGetMwmHints(ScreenInfo *scr, TwmWindow *twin, MwmHints *hints);
+void TwmSetMwmHints(ScreenInfo *scr, TwmWindow *twin, MwmHints *hints);
+void TwmSetDtWmHints(TwmWindow *twin, struct DtWmHints *hints);
+void TwmGetMwmOffset(ScreenInfo *scr, TwmWindow *twin, long *gravity, long *bw, long *x_off, long *y_off);
+void TwmGetWorkspacePresence(ScreenInfo *scr, TwmWindow *twin, Atom **presence, int *count);
+void TwmGetWorkspaceCurrent(ScreenInfo *scr, Atom *current);
+void TwmGetWorkspaceList(ScreenInfo *scr, Atom **list, int *count);
+
+
 
 #endif				/* _MWMH_H_ */
 

@@ -2146,14 +2146,14 @@ Ret_WM_CLASS(TwmWindow *twin)
   *
   * @{ */
 static const Atom *NetWmProtocols[] = {
-    NET_ATOM_ENTRY(_WM_TAKE_FOCUS),
-    NET_ATOM_ENTRY(_WM_SAVE_YOURSELF),
-    NET_ATOM_ENTRY(_WM_DELETE_WINDOW),
-    NET_ATOM_ENTRY(_NET_WM_PING),
-    NET_ATOM_ENTRY(_NET_WM_SYNC_REQUEST),
+    TWM_ATOM_ENTRY(_WM_TAKE_FOCUS),
+    TWM_ATOM_ENTRY(_WM_SAVE_YOURSELF),
+    TWM_ATOM_ENTRY(_WM_DELETE_WINDOW),
+    TWM_ATOM_ENTRY(_NET_WM_PING),
+    TWM_ATOM_ENTRY(_NET_WM_SYNC_REQUEST),
 #ifdef MWMH
-    MWM_ATOM_ENTRY(_MOTIF_WM_MESSAGES),
-    MWM_ATOM_ENTRY(_MOTIF_WM_OFFSET),
+    TWM_ATOM_ENTRY(_MOTIF_WM_MESSAGES),
+    TWM_ATOM_ENTRY(_MOTIF_WM_OFFSET),
 #endif				/* MWMH */
     [WM_PROTOCOLS_last] = NULL
 };
@@ -2736,17 +2736,17 @@ Rcv_NET_WM_DESKTOP(ScreenInfo *scr, TwmWindow *twin, XClientMessageEvent *event)
   *
   * @{ */
 static const Atom *NetWindowTypes[] = {
-    NET_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_DESKTOP),
+    TWM_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_DESKTOP),
     /* _NET_WM_WINDOW_TYPE_DESKTOP indicates a desktop feature. This can
        include a single window containing desktop icons with the same
        dimensions as the screen, allowing the desktop environment to have full
        control of the desktop, without the need for proxying root window
        clicks. */
-    NET_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_DOCK),
+    TWM_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_DOCK),
     /* _NET_WM_WINDOW_TYPE_DOCK indicates a dock or panel feature. Typically a
        Window Manager would keep such windows on top of all other windows. */
-    NET_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_TOOLBAR),
-    NET_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_MENU),
+    TWM_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_TOOLBAR),
+    TWM_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_MENU),
     /* _NET_WM_WINDOW_TYPE_TOOLBAR and _NET_WM_WINDOW_TYPE_MENU indicate
        toolbar and pinnable menu windows, respectively (i.e. toolbars and menus 
        "torn off" from the main application). Windows of this type may set the
@@ -2755,57 +2755,57 @@ static const Atom *NetWindowTypes[] = {
        where _NET_WM_WINDOW_TYPE_DROPDOWN_MENU and
        _NET_WM_WINDOW_TYPE_POPUP_MENU are typically used on override-redirect
        windows. */
-    NET_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_UTILITY),
+    TWM_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_UTILITY),
     /* _NET_WM_WINDOW_TYPE_UTILITY indicates a small persistent utility window,
        such as a palette or toolbox. It is distinct from type TOOLBAR because it
        does not correspond to a toolbar torn off from the main application. It's
        distinct from type DIALOG because it isn't a transient dialog, the user
        will probably keep it open while they're working. Windows of this type may 
        set the WM_TRANSIENT_FOR hint indicating the main application window. */
-    NET_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_SPLASH),
+    TWM_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_SPLASH),
     /* _NET_WM_WINDOW_TYPE_SPLASH indicates that the window is a splash screen
        displayed as an application is starting up. */
-    NET_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_DIALOG),
+    TWM_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_DIALOG),
     /* _NET_WM_WINDOW_TYPE_DIALOG indicates that this is a dialog window. If
        _NET_WM_WINDOW_TYPE is not set, then managed windows with
        WM_TRANSIENT_FOR set MUST be taken as this type. Override-redirect
        windows with WM_TRANSIENT_FOR, but without _NET_WM_WINDOW_TYPE must be
        taken as _NET_WM_WINDOW_TYPE_NORMAL. */
-    NET_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_MENU),
+    TWM_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_MENU),
     /* _NET_WM_WINDOW_TYPE_DROPDOWN_MENU indicates that the window in question
        is a dropdown menu, ie., the kind of menu that typically appears when
        the user clicks on a menubar, as opposed to a popup menu which typically
        appears when the user right-clicks on an object. This property is
        typically used on override-redirect windows. */
-    NET_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_POPUP_MENU),
+    TWM_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_POPUP_MENU),
     /* _NET_WM_WINDOW_TYPE_POPUP_MENU indicates that the window in question is
        a popup menu, ie., the kind of menu that typically appears when the user
        right clicks on an object, as opposed to a dropdown menu which typically
        appears when the user clicks on a menubar. This property is typically
        used on override-redirect windows. */
-    NET_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_TOOLTIP),
+    TWM_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_TOOLTIP),
     /* _NET_WM_WINDOW_TYPE_TOOLTIP indicates that the window in question is a
        tooltip, ie., a short piece of explanatory text that typically appear
        after the mouse cursor hovers over an object for a while. This property
        is typically used on override-redirect windows. */
-    NET_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_NOTIFICATION),
+    TWM_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_NOTIFICATION),
     /* _NET_WM_WINDOW_TYPE_NOTIFICATION indicates a notification. An example of
        a notification would be a bubble appearing with informative text such as
        "Your laptop is running out of power" etc. This property is typically
        used on override-redirect windows. */
-    NET_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_COMBO),
+    TWM_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_COMBO),
     /* _NET_WM_WINDOW_TYPE_COMBO should be used on the windows that are popped
        up by combo boxes. An example is a window that appears below a text
        field with a list of suggested completions. This property is typically
        used on override-redirect windows. */
-    NET_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_DND),
+    TWM_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_DND),
     /* _NET_WM_WINDOW_TYPE_DND indicates that the window is being dragged.
        Clients should set this hint when the window in question contains a
        representation of an object being dragged from one place to another. An
        example would be a window containing an icon that is being dragged from
        one file manager window to another. This property is typically used on
        override-redirect windows. */
-    NET_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_NORMAL),
+    TWM_ATOM_ENTRY(_NET_WM_WINDOW_TYPE_NORMAL),
     /* _NET_WM_WINDOW_TYPE_NORMAL indicates that this is a normal, top-level
        window, either managed or override-redirect. Managed windows with
        neither _NET_WM_WINDOW_TYPE nor WM_TRANSIENT_FOR set MUST be taken as
@@ -2864,34 +2864,34 @@ Ret_NET_WM_WINDOW_TYPE(TwmWindow *twin)
   *
   * @{ */
 static const Atom *NetStates[] = {
-    NET_ATOM_ENTRY(_NET_WM_STATE_MODAL),
+    TWM_ATOM_ENTRY(_NET_WM_STATE_MODAL),
     /* _NET_WM_STATE_MODAL indicates that this is a modal dialog box. If the
        WM_TRANSIENT_FOR hint is set to another toplevel window, the dialog is
        modal for that window; if WM_TRANSIENT_FOR is not set or set to the root
        window the dialog is modal for its window group. */
-    NET_ATOM_ENTRY(_NET_WM_STATE_STICKY),
+    TWM_ATOM_ENTRY(_NET_WM_STATE_STICKY),
     /* _NET_WM_STATE_STICKY indicates that the Window Manager SHOULD keep the
        window's position fixed on the screen, even when the virtual desktop
        scrolls. */
-    NET_ATOM_ENTRY(_NET_WM_STATE_MAXIMIZED_HORZ),
-    NET_ATOM_ENTRY(_NET_WM_STATE_MAXIMIZED_VERT),
+    TWM_ATOM_ENTRY(_NET_WM_STATE_MAXIMIZED_HORZ),
+    TWM_ATOM_ENTRY(_NET_WM_STATE_MAXIMIZED_VERT),
     /* _NET_WM_STATE_MAXIMIZED_{VERT,HORZ} indicates that the window is
        {vertically,horizontally} maximized. */
-    NET_ATOM_ENTRY(_NET_WM_STATE_SHADED),
+    TWM_ATOM_ENTRY(_NET_WM_STATE_SHADED),
     /* _NET_WM_STATE_SHADED indicates that the window is shaded. */
-    NET_ATOM_ENTRY(_NET_WM_STATE_SKIP_TASKBAR),
+    TWM_ATOM_ENTRY(_NET_WM_STATE_SKIP_TASKBAR),
     /* _NET_WM_STATE_SKIP_TASKBAR indicates that the window should not be
        included on a taskbar. This hint should be requested by the application,
        i.e. it indicates that the window by nature is never in the taskbar.
        Applications should not set this hint if _NET_WM_WINDOW_TYPE already
        conveys the exact nature of the window. */
-    NET_ATOM_ENTRY(_NET_WM_STATE_SKIP_PAGER),
+    TWM_ATOM_ENTRY(_NET_WM_STATE_SKIP_PAGER),
     /* _NET_WM_STATE_SKIP_PAGER indicates that the window should not be
        included on a Pager. This hint should be requested by the application,
        i.e. it indicates that the window by nature is never in the Pager.
        Applications should not set this hint if _NET_WM_WINDOW_TYPE already
        conveys the exact nature of the window. */
-    NET_ATOM_ENTRY(_NET_WM_STATE_HIDDEN),
+    TWM_ATOM_ENTRY(_NET_WM_STATE_HIDDEN),
     /* _NET_WM_STATE_HIDDEN should be set by the Window Manager to indicate
        that a window would not be visible on the screen if its desktop/viewport 
        were active and its coordinates were within the screen bounds. The
@@ -2899,23 +2899,23 @@ static const Atom *NetStates[] = {
        _NET_WM_STATE_HIDDEN state. Pagers and similar applications should use
        _NET_WM_STATE_HIDDEN instead of WM_STATE to decide whether to display a
        window in miniature representations of the windows on a desktop. */
-    NET_ATOM_ENTRY(_NET_WM_STATE_FULLSCREEN),
+    TWM_ATOM_ENTRY(_NET_WM_STATE_FULLSCREEN),
     /* _NET_WM_STATE_FULLSCREEN indicates that the window should fill the
        entire screen and have no window decorations. Additionally the Window
        Manager is responsible for restoring the original geometry after a
        switch from fullscreen back to normal window. For example, a
        presentation program would use this hint. */
-    NET_ATOM_ENTRY(_NET_WM_STATE_ABOVE),
+    TWM_ATOM_ENTRY(_NET_WM_STATE_ABOVE),
     /* _NET_WM_STATE_ABOVE indicates that the window should be on top of most
        windows (see the section called "Stacking order" for details). */
-    NET_ATOM_ENTRY(_NET_WM_STATE_BELOW),
+    TWM_ATOM_ENTRY(_NET_WM_STATE_BELOW),
     /* _NET_WM_STATE_BELOW indicates that the window should be below most
        windows (see the section called "Stacking order" for details). */
     /* _NET_WM_STATE_ABOVE and _NET_WM_STATE_BELOW are mainly meant for user
        preferences and should not be used by applications e.g. for drawing
        attention to their dialogs (the Urgency hint should be used in that
        case, see the section called "Urgency").' */
-    NET_ATOM_ENTRY(_NET_WM_STATE_DEMANDS_ATTENTION),
+    TWM_ATOM_ENTRY(_NET_WM_STATE_DEMANDS_ATTENTION),
     /* _NET_WM_STATE_DEMANDS_ATTENTION indicates that some action in or with
        the window happened. For example, it may be set by the Window Manager if 
        the window requested activation but the Window Manager refused it, or
@@ -2923,7 +2923,7 @@ static const Atom *NetStates[] = {
        set by both the Client and the Window Manager. It should be unset by the 
        Window Manager when it decides the window got the required attention
        (usually, that it got activated). */
-    NET_ATOM_ENTRY(_NET_WM_STATE_FOCUSED),
+    TWM_ATOM_ENTRY(_NET_WM_STATE_FOCUSED),
     /* _NET_WM_STATE_FOCUSED indicates whether the window's decorations are
        drawn in an active state. Clients MUST regard it as a read-only hint. It 
        cannot be set at map time or changed via a _NET_WM_STATE client message. 
@@ -2937,44 +2937,44 @@ static const Atom *NetStates[] = {
        window decorations and accurately reflect the intentions of the Window
        Manager. */
 
-    NET_ATOM_ENTRY(_NET_WM_STATE_DECOR_BORDER),
+    TWM_ATOM_ENTRY(_NET_WM_STATE_DECOR_BORDER),
     /* 
      */
-    NET_ATOM_ENTRY(_NET_WM_STATE_DECOR_HANDLE),
+    TWM_ATOM_ENTRY(_NET_WM_STATE_DECOR_HANDLE),
     /* 
      */
-    NET_ATOM_ENTRY(_NET_WM_STATE_DECOR_TITLE),
+    TWM_ATOM_ENTRY(_NET_WM_STATE_DECOR_TITLE),
     /* 
      */
-    NET_ATOM_ENTRY(_NET_WM_STATE_DECOR),
+    TWM_ATOM_ENTRY(_NET_WM_STATE_DECOR),
     /* 
      */
-    NET_ATOM_ENTRY(_NET_WM_STATE_PARENTRELATIVE_BACKGROUND),
+    TWM_ATOM_ENTRY(_NET_WM_STATE_PARENTRELATIVE_BACKGROUND),
     /* 
      */
-    NET_ATOM_ENTRY(_NET_WM_STATE_STAYS_AT_BOTTOM),
+    TWM_ATOM_ENTRY(_NET_WM_STATE_STAYS_AT_BOTTOM),
     /* 
      */
-    NET_ATOM_ENTRY(_NET_WM_STATE_STAYS_ON_TOP),
+    TWM_ATOM_ENTRY(_NET_WM_STATE_STAYS_ON_TOP),
     /* 
      */
 
-    NET_ATOM_ENTRY(_NET_WM_STATE_MAXIMUS_BOTTOM),
+    TWM_ATOM_ENTRY(_NET_WM_STATE_MAXIMUS_BOTTOM),
     /* 
      */
-    NET_ATOM_ENTRY(_NET_WM_STATE_MAXIMUS_LEFT),
+    TWM_ATOM_ENTRY(_NET_WM_STATE_MAXIMUS_LEFT),
     /* 
      */
-    NET_ATOM_ENTRY(_NET_WM_STATE_MAXIMUS_RIGHT),
+    TWM_ATOM_ENTRY(_NET_WM_STATE_MAXIMUS_RIGHT),
     /* 
      */
-    NET_ATOM_ENTRY(_NET_WM_STATE_MAXIMUS_TOP),
+    TWM_ATOM_ENTRY(_NET_WM_STATE_MAXIMUS_TOP),
     /* 
      */
-    NET_ATOM_ENTRY(_NET_WM_STATE_AUTORAISE),
+    TWM_ATOM_ENTRY(_NET_WM_STATE_AUTORAISE),
     /* 
      */
-    NET_ATOM_ENTRY(_NET_WM_STATE_AUTOLOWER),
+    TWM_ATOM_ENTRY(_NET_WM_STATE_AUTOLOWER),
     /* 
      */
     [_NET_WM_STATE_last] = NULL
@@ -3092,42 +3092,42 @@ Rcv_NET_WM_STATE(ScreenInfo *scr, TwmWindow *twin, XClientMessageEvent *event)
   *
   * @{ */
 static const Atom *NetAllowedActions[] = {
-    NET_ATOM_ENTRY(_NET_WM_ACTION_MOVE),
+    TWM_ATOM_ENTRY(_NET_WM_ACTION_MOVE),
     /* _NET_WM_ACTION_MOVE indicates that the window may be moved around the
        screen. */
-    NET_ATOM_ENTRY(_NET_WM_ACTION_RESIZE),
+    TWM_ATOM_ENTRY(_NET_WM_ACTION_RESIZE),
     /* _NET_WM_ACTION_RESIZE indicates that the window may be resized.
        (Implementation note: Window Managers can identify a non-resizable
        window because its minimum and maximum size in WM_NORMAL_HINTS will be
        the same.) */
-    NET_ATOM_ENTRY(_NET_WM_ACTION_MINIMIZE),
+    TWM_ATOM_ENTRY(_NET_WM_ACTION_MINIMIZE),
     /* _NET_WM_ACTION_MINIMIZE indicates that the window may be iconified. */
-    NET_ATOM_ENTRY(_NET_WM_ACTION_SHADE),
+    TWM_ATOM_ENTRY(_NET_WM_ACTION_SHADE),
     /* _NET_WM_ACTION_SHADE indicates that the window may be shaded. */
-    NET_ATOM_ENTRY(_NET_WM_ACTION_STICK),
+    TWM_ATOM_ENTRY(_NET_WM_ACTION_STICK),
     /* _NET_WM_ACTION_STICK indicates that the window may have its sticky state
        toggled (as for _NET_WM_STATE_STICKY). Note that this state has to do
        with viewports, not desktops. */
-    NET_ATOM_ENTRY(_NET_WM_ACTION_MAXIMIZE_HORZ),
+    TWM_ATOM_ENTRY(_NET_WM_ACTION_MAXIMIZE_HORZ),
     /* _NET_WM_ACTION_MAXIMIZE_HORZ indicates that the window may be maximized
        horizontally. */
-    NET_ATOM_ENTRY(_NET_WM_ACTION_MAXIMIZE_VERT),
+    TWM_ATOM_ENTRY(_NET_WM_ACTION_MAXIMIZE_VERT),
     /* _NET_WM_ACTION_MAXIMIZE_VERT indicates that the window may be maximized
        vertically. */
-    NET_ATOM_ENTRY(_NET_WM_ACTION_FULLSCREEN),
+    TWM_ATOM_ENTRY(_NET_WM_ACTION_FULLSCREEN),
     /* _NET_WM_ACTION_FULLSCREEN indicates that the window may be brought to
        fullscreen state. */
-    NET_ATOM_ENTRY(_NET_WM_ACTION_CHANGE_DESKTOP),
+    TWM_ATOM_ENTRY(_NET_WM_ACTION_CHANGE_DESKTOP),
     /* _NET_WM_ACTION_CHANGE_DESKTOP indicates that the window may be moved
        between desktops. */
-    NET_ATOM_ENTRY(_NET_WM_ACTION_CLOSE),
+    TWM_ATOM_ENTRY(_NET_WM_ACTION_CLOSE),
     /* _NET_WM_ACTION_CLOSE indicates that the window may be closed (i.e. a
        _NET_CLOSE_WINDOW message may be sent). */
-    NET_ATOM_ENTRY(_NET_WM_ACTION_ABOVE),
+    TWM_ATOM_ENTRY(_NET_WM_ACTION_ABOVE),
     /* _NET_WM_ACTION_ABOVE indicates that the window may placed in the "above"
        layer of windows (i.e. will respond to _NET_WM_STATE_ABOVE changes; see
        also the section called "Stacking order" for details). */
-    NET_ATOM_ENTRY(_NET_WM_ACTION_BELOW),
+    TWM_ATOM_ENTRY(_NET_WM_ACTION_BELOW),
     /* _NET_WM_ACTION_BELOW indicates that the window may placed in the "below"
        layer of windows (i.e. will respond to _NET_WM_STATE_BELOW changes; see
        also the section called "Stacking order" for details)). */

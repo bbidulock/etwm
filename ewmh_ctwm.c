@@ -253,6 +253,7 @@ void
 TwmGetCurrentDesktop(ScreenInfo *scr, int *current)
 {
     VirtualScreen *vs;
+    WorkSpace *ws;
 
     if (!scr->workSpaceManagerActive) {
 	*current = 0;
@@ -273,13 +274,13 @@ TwmGetCurrentDesktop(ScreenInfo *scr, int *current)
 	*current = 0;
 	return;
     }
-    if (vs->wsw->currentwspc == NULL) {
+    if ((ws = vs->wsw->currentwspc) == NULL) {
 	fprintf(stderr, "ERROR: Current workspace is NULL!\n");
 	*current = 0;
 	return;
     }
 
-    *current = vs->wsw->currentwspc->number;
+    *current = ws->number;
 }
 
 /** @brief Set the current desktop.

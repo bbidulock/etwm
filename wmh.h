@@ -225,7 +225,7 @@ typedef struct WmhScreen {
     Window *clients;			/* _WIN_CLIENT_LIST */
     int workspace_count;		/* _WIN_WORKSPACE_COUNT */
     int workspace;			/* _WIN_WORKSPACE */
-    char **names;		/* _WIN_WORKSPACE_NAMES */
+    char **names;			/* _WIN_WORKSPACE_NAMES */
     Window proxy;			/* _WIN_DESKTOP_BUTTON_PROXY */
     struct WinLayout area_count;	/* _WIN_AREA_COUNT */
     struct WinArea area;		/* _WIN_AREA */
@@ -327,8 +327,10 @@ void TwmChgWMWorkspaces(ScreenInfo *scr, TwmWindow *twin, unsigned index, unsign
 void TwmSetMoving(TwmWindow *twin, Bool moving);
 
 /* _WIN_MAXIMIZED_GEOMETRY */
-void TwmGetMaximizedGeometry(ScreenInfo *scr, TwmWindow *twin, struct WinGeometry *maximized);
-void TwmSetMaximizedGeometry(ScreenInfo *scr, TwmWindow *twin, struct WinGeometry *maximized);
+void TwmGetMaximizedGeometry(ScreenInfo *scr, TwmWindow *twin,
+			     struct WinGeometry *maximized);
+void TwmSetMaximizedGeometry(ScreenInfo *scr, TwmWindow *twin,
+			     struct WinGeometry *maximized);
 
 /* __SWM_VROOT */
 void TwmGetSwmVroots(ScreenInfo *scr, Window **vroots, int *count);
