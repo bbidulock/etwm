@@ -73,49 +73,58 @@ TwmGetMwmHints(ScreenInfo *scr, TwmWindow *twin, MwmHints *hints)
 void
 TwmSetMwmHints(ScreenInfo *scr, TwmWindow *twin, MwmHints *hints)
 {
-    /* munge this a bit */
-    if (!(hints->flags & MWM_HINTS_FUNCTIONS)) {
-	hints->flags |= MWM_HINTS_FUNCTIONS;
-	hints->functions = MWM_FUNC_ALL;
-    }
-    if (!(hints->flags & MWM_HINTS_DECORATIONS)) {
-	hints->flags |= MWM_HINTS_DECORATIONS;
-	hints->decorations = MWM_DECOR_ALL;
-    }
-    if (!(hints->flags & MWM_HINTS_INPUT_MODE)) {
-	hints->flags |= MWM_HINTS_INPUT_MODE;
-	hints->input_mode = MWM_INPUT_MODELESS;
-    }
-    if (!(hints->flags & MWM_HINTS_STATUS)) {
-	hints->flags |= MWM_HINTS_STATUS;
-	hints->status = 0;
-    }
-    if ((hints->flags & MWM_HINTS_FUNCTIONS) && (hints->functions & MWM_FUNC_ALL)) {
-	hints->functions |=
-	    (MWM_FUNC_RESIZE | MWM_FUNC_MOVE | MWM_FUNC_MINIMIZE | MWM_FUNC_MAXIMIZE |
-	     MWM_FUNC_CLOSE);
-    }
-    if ((hints->flags & MWM_HINTS_DECORATIONS) && (hints->decorations & MWM_DECOR_ALL)) {
-	hints->decorations |=
-	    (MWM_DECOR_BORDER | MWM_DECOR_RESIZEH | MWM_DECOR_TITLE | MWM_DECOR_MENU |
-	     MWM_DECOR_MINIMIZE | MWM_DECOR_MAXIMIZE);
-    }
-#ifdef EWMH
     if (hints->flags & MWM_HINTS_FUNCTIONS) {
-	if (!(hints->functions & (MWM_FUNC_ALL | MWM_FUNC_RESIZE)))
-	    twin->ewmh.allowed &= ~(_NET_WM_ACTION_RESIZE | _NET_WM_ACTION_SHADE);
-	if (!(hints->functions & (MWM_FUNC_ALL | MWM_FUNC_MOVE)))
-	    twin->ewmh.allowed &= ~_NET_WM_ACTION_MOVE;
-	if (!(hints->functions & (MWM_FUNC_ALL | MWM_FUNC_MINIMIZE)))
-	    twin->ewmh.allowed &= ~_NET_WM_ACTION_MINIMIZE;
-	if (!(hints->functions & (MWM_FUNC_ALL | MWM_FUNC_MAXIMIZE)))
-	    twin->ewmh.allowed &=
-		~(_NET_WM_ACTION_FULLSCREEN | _NET_WM_ACTION_MAXIMIZE_HORZ |
-		  _NET_WM_ACTION_MAXIMIZE_VERT);
-	if (!(hints->functions & (MWM_FUNC_ALL | MWM_FUNC_CLOSE)))
-	    twin->ewmh.allowed &= ~_NET_WM_ACTION_CLOSE;
+	twin->func.function.resize =
+	    (hints->functions & (MWM_FUNC_ALL | MWM_FUNC_RESIZE)) ? 1 : 0;
+	twin->func.function.move =
+	    (hints->functions & (MWM_FUNC_ALL | MWM_FUNC_MOVE)) ? 1 : 0;
+	twin->func.function.minimize =
+	    (hints->functions & (MWM_FUNC_ALL | MWM_FUNC_MINIMIZE)) ? 1 : 0;
+	twin->func.function.maximize_vert = twin->func.function.maximize_horz =
+	    twin->func.function.maximize =
+	    (hints->functions & (MWM_FUNC_ALL | MWM_FUNC_MAXIMIZE)) ? 1 : 0;
+	twin->func.function.close =
+	    (hints->functions & (MWM_FUNC_ALL | MWM_FUNC_CLOSE)) ? 1 : 0;
+	twin->func.function.shade =
+	    (hints->functions & (MWM_FUNC_ALL | MWM_FUNC_SHADE)) ? 1 : 0;
+	twin->func.function.stick =
+	    (hints->functions & (MWM_FUNC_ALL | MWM_FUNC_STICK)) ? 1 : 0;
+	twin->func.function.fullscreen =
+	    (hints->functions & (MWM_FUNC_ALL | MWM_FUNC_FULLSCREEN)) ? 1 : 0;
+	twin->func.function.above =
+	    (hints->functions & (MWM_FUNC_ALL | MWM_FUNC_ABOVE)) ? 1 : 0;
+	twin->func.function.below =
+	    (hints->functions & (MWM_FUNC_ALL | MWM_FUNC_BELOW)) ? 1 : 0;
+	twin->func.function.maximus_left = twin->func.function.maximus_right =
+	    twin->func.function.maximus_top = twin->func.function.maximus_bottom =
+	    twin->func.function.maximus =
+	    (hints->functions & (MWM_FUNC_ALL | MWM_FUNC_MAXIMUS)) ? 1 : 0;
     }
-#endif				/* EWMH */
+    if (hints->flags & MWM_HINTS_DECORATIONS) {
+	twin->decor.decoration.border =
+	    (hints->decorations & (MWM_DECOR_ALL | MWM_DECOR_BORDER)) ? 1 : 0;
+	twin->decor.decoration.resizeh =
+	    (hints->decorations & (MWM_DECOR_ALL | MWM_DECOR_RESIZEH)) ? 1 : 0;
+	twin->decor.decoration.title =
+	    (hints->decorations & (MWM_DECOR_ALL | MWM_DECOR_TITLE)) ? 1 : 0;
+	twin->decor.decoration.menu =
+	    (hints->decorations & (MWM_DECOR_ALL | MWM_DECOR_MENU)) ? 1 : 0;
+	twin->decor.decoration.minimize =
+	    (hints->decorations & (MWM_DECOR_ALL | MWM_DECOR_MINIMIZE)) ? 1 : 0;
+	twin->decor.decoration.maximize =
+	    (hints->decorations & (MWM_DECOR_ALL | MWM_DECOR_MAXIMIZE)) ? 1 : 0;
+	twin->decor.decoration.close =
+	    (hints->decorations & (MWM_DECOR_ALL | MWM_DECOR_CLOSE)) ? 1 : 0;
+	twin->decor.decoration.resize =
+	    (hints->decorations & (MWM_DECOR_ALL | MWM_DECOR_RESIZE)) ? 1 : 0;
+	twin->decor.decoration.shade =
+	    (hints->decorations & (MWM_DECOR_ALL | MWM_DECOR_SHADE)) ? 1 : 0;
+	twin->decor.decoration.stick =
+	    (hints->decorations & (MWM_DECOR_ALL | MWM_DECOR_STICK)) ? 1 : 0;
+	twin->decor.decoration.maximus =
+	    (hints->decorations & (MWM_DECOR_ALL | MWM_DECOR_MAXIMUS)) ? 1 : 0;
+
+    }
 }
 
 /** @brief Set the desktop hints for a window.
@@ -135,23 +144,11 @@ TwmSetMwmHints(ScreenInfo *scr, TwmWindow *twin, MwmHints *hints)
 void
 TwmSetDtWmHints(TwmWindow *twin, struct DtWmHints *hints)
 {
-    /* munge this a bit */
-    if (!(hints->flags & DTWM_HINTS_FUNCTIONS)) {
-	hints->flags |= DTWM_HINTS_FUNCTIONS;
-	hints->functions = (DTWM_FUNCTION_ALL | DTWM_FUNCTION_OCCUPY_WS);
-    }
-    if (!(hints->flags & DTWM_HINTS_BEHAVIORS)) {
-	hints->flags |= DTWM_HINTS_BEHAVIORS;
-	hints->behaviors = 0;
-    }
-    if (!(hints->flags & DTWM_HINTS_ATTACH_WINDOW))
-	hints->attachWindow = None;
-#ifdef EWMH
     if (hints->flags & DTWM_HINTS_FUNCTIONS) {
-	if (!(hints->functions & (DTWM_FUNCTION_ALL | DTWM_FUNCTION_OCCUPY_WS)))
-	    twin->ewmh.allowed &= ~(_NET_WM_ACTION_CHANGE_DESKTOP | _NET_WM_ACTION_STICK);
+	twin->func.function.change_desktop =
+	    (hints->functions & (DTWM_FUNCTION_ALL | DTWM_FUNCTION_OCCUPY_WS)) ? 1 : 0;
     }
-#endif				/* EWMH */
+    /* TODO: handle behavior bits */
 }
 
 void

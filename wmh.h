@@ -241,7 +241,7 @@ void Upd_WIN_WORKSPACE_root(ScreenInfo *scr);
 void Upd_WIN_WORKSPACE(ScreenInfo *scr, TwmWindow *twin);
 void Upd_WIN_WORKSPACE_NAMES(ScreenInfo *scr);
 void Upd_WIN_LAYER(TwmWindow *twin);
-void Upd_WIN_STATE(TwmWindow *twin);
+void Upd_WIN_STATE(ScreenInfo *scr, TwmWindow *twin);
 void Upd_WIN_DESKTOP_BUTTON_PROXY(ScreenInfo *scr);
 void Upd_WIN_AREA_COUNT(ScreenInfo *scr);
 void Upd_WIN_AREA(ScreenInfo *scr);
@@ -289,7 +289,7 @@ void TwmGetWinLayer(TwmWindow *twin, unsigned *layer);
 void TwmSetWinLayer(TwmWindow *twin, unsigned layer);
 
 /* _WIN_STATE */
-void TwmGetWinState(TwmWindow *twin, unsigned *state);
+void TwmGetWinState(ScreenInfo *scr, TwmWindow *twin, unsigned *state);
 void TwmSetWinState(ScreenInfo *scr, TwmWindow *twin, unsigned mask, unsigned state);
 
 /* _WIN_EXPANDED_SIZE */

@@ -243,13 +243,14 @@ TwmSetWorkspaceNames(ScreenInfo *scr, char **names, int count)
   * @param layer - where to return the layer
   *
   * CTWM does not really have layers; however, it does have an ontop priority
-  * that has the same effect as layers.  It normally only uses two levels:
+  * that has the same effect as layers.  It originally only used two levels:
   * ONTOP_DEFAULT (8) for normal windows and ONTOP_MAX (16) for windows that are
   * specified as being ontop.
   */
 void
 TwmGetWinLayer(TwmWindow *twin, unsigned *layer)
 {
+    short ontop = twin->ontoppriority;
     *layer = twin->ontoppriority / 2;
 }
 
@@ -288,29 +289,32 @@ TwmSetWinLayer(TwmWindow *twin, unsigned layer)
 extern int fullOccupation;
 
 /** @brief Get the window state.
+  * @param scr - screen
   * @param twin - the TWM window.
   * @param state - where to return the state.
   */
 void
-TwmGetWinState(TwmWindow *twin, unsigned *state)
+TwmGetWinState(ScreenInfo *scr, TwmWindow *twin, unsigned *state)
 {
     unsigned flags = twin->wmh.state;
 
-    if (twin->squeezed)
-	flags |= WIN_STATE_SHADED;
-    else
-	flags &= ~WIN_STATE_SHADED;
-
-#if 0
     /* Note that this is not really what sticky means.  Occupy all is a
        different concept.  Sticky means to stick to the viewport (and therefore
        move with it). */
+
+    /* WIN_STATE_STICKY */
     if (twin->occupation == fullOccupation)
 	flags |= WIN_STATE_STICKY;
     else
 	flags &= ~WIN_STATE_STICKY;
-#endif
 
+    /* WIN_STATE_MINIMIZED */
+    if (twin->isicon)
+	flags |= WIN_STATE_MINIMIZED;
+    else
+	flags &= ~WIN_STATE_MINIMIZED;
+
+    /* WIN_STATE_MAXIMIZED_VERT, WIN_STATE_MAXIMIZED_HORIZ */
     flags &= ~(WIN_STATE_MAXIMIZED_VERT | WIN_STATE_MAXIMIZED_HORIZ);
     switch (twin->zoomed) {
     case ZOOM_NONE:
@@ -338,13 +342,43 @@ TwmGetWinState(TwmWindow *twin, unsigned *state)
 	flags |= WIN_STATE_MAXIMIZED_HORIZ;
 	break;
     }
-
-    if (twin->isicon)
-	flags |= WIN_STATE_MINIMIZED;
+    /* WIN_STATE_HIDDEN */
+    if (twin->list.list.task)
+	flags &= ~WIN_STATE_HIDDEN;
     else
-	flags &= ~WIN_STATE_MINIMIZED;
+	flags |= WIN_STATE_HIDDEN;
 
-    /* FIXME: do other bits */
+    /* WIN_STATE_SHADED */
+    if (twin->squeezed)
+	flags |= WIN_STATE_SHADED;
+    else
+	flags &= ~WIN_STATE_SHADED;
+
+    /* WIN_STATE_HID_WORKSPACE */
+    if ((twin->vs && twin->vs == scr->currentvs)
+	|| (twin->savevs && twin->savevs == scr->currentvs))
+	flags &= ~WIN_STATE_HID_WORKSPACE;
+    else
+	flags |= ~WIN_STATE_HID_WORKSPACE;
+
+    /* WIN_STATE_HID_TRANSIENT */
+    if (!twin->transient && !twin->mapped)
+	flags &= ~WIN_STATE_HID_TRANSIENT;
+    else
+	flags |= WIN_STATE_HID_TRANSIENT;
+
+    /* WIN_STATE_FIXED_POSITION */
+    if (twin->func.function.move)
+	flags &= ~WIN_STATE_FIXED_POSITION;
+    else
+	flags |= WIN_STATE_FIXED_POSITION;
+
+    /* WIN_STATE_ARRANGE_IGNORE */
+    if (twin->list.list.window)
+	flags &= ~WIN_STATE_ARRANGE_IGNORE;
+    else
+	flags |= WIN_STATE_ARRANGE_IGNORE;
+
     *state = flags;
 }
 
@@ -454,6 +488,7 @@ TwmSetWinState(ScreenInfo *scr, TwmWindow *twin, unsigned mask, unsigned state)
 		   really want to do here is remove this item from the icon
 		   manager. */
 		/* TODO: set or reset this as far as CTWM is concerned. */
+		twin->list.list.task = (state & m) ? 0 : 1;
 		break;
 	    case WIN_STATE_SHADED_BIT:
 		if (((state & m) && !twin->squeezed) || (!(state & m) && twin->squeezed))
@@ -467,9 +502,11 @@ TwmSetWinState(ScreenInfo *scr, TwmWindow *twin, unsigned mask, unsigned state)
 		break;
 	    case WIN_STATE_FIXED_POSITION_BIT:
 		/* TODO: set or reset this as far as CTWM is concerned. */
+		twin->func.function.move = (state & m) ? 0 : 1;
 		break;
 	    case WIN_STATE_ARRANGE_IGNORE_BIT:
 		/* TODO: set or reset this as far as CTWM is concerned. */
+		twin->list.list.window = (state & m) ? 0 : 1;
 		break;
 	    default:
 		break;

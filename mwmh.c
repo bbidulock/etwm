@@ -480,7 +480,6 @@ Ret_MWM_WM_PROTOCOLS(TwmWindow *twin)
 
     if (Get_MWM_WM_PROTOCOLS(twin->w, &protocols)) {
 	twin->mwmh.props.WM_PROTOCOLS = 1;
-	TwmSetWMProtocols(twin, protocols);
 	twin->mwmh.protocols = protocols;
     } else {
 	twin->mwmh.props.WM_PROTOCOLS = 0;

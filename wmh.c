@@ -1062,11 +1062,11 @@ Get_WIN_STATE(Window window, unsigned *state)
  * Called to update the state of the window.
  */
 void
-Upd_WIN_STATE(TwmWindow *twin)
+Upd_WIN_STATE(ScreenInfo *scr, TwmWindow *twin)
 {
     unsigned state = 0;
 
-    TwmGetWinState(twin, &twin->wmh.state);
+    TwmGetWinState(scr, twin, &twin->wmh.state);
     if (!twin->wmh.props._WIN_STATE || twin->wmh.state != state) {
 	Set_WIN_STATE(twin->w, state);
 	twin->wmh.props._WIN_STATE = 1;
@@ -1091,7 +1091,7 @@ Ret_WIN_STATE(ScreenInfo *scr, TwmWindow *twin)
 	twin->wmh.props._WIN_STATE = 0;
 	twin->wmh.state = 0;
     }
-    Upd_WIN_STATE(twin);
+    Upd_WIN_STATE(scr, twin);
 }
 
 static void
@@ -1119,7 +1119,7 @@ Rcv_WIN_STATE(ScreenInfo *scr, TwmWindow *twin, XClientMessageEvent *event)
     unsigned change = event->data.l[1];
 
     TwmSetWinState(scr, twin, mask, change);
-    Upd_WIN_STATE(twin);
+    Upd_WIN_STATE(scr, twin);
 }
 
 /** @} */
@@ -1957,7 +1957,7 @@ Rcv_WIN_WORKSPACES(ScreenInfo *scr, TwmWindow *twin, XClientMessageEvent *event)
     TwmChgWMWorkspaces(scr, twin, index, mask);
     Upd_WIN_WORKSPACES(scr, twin);
     Upd_WIN_WORKSPACE(scr, twin);
-    Upd_WIN_STATE(twin);	/* for sticky state */
+    Upd_WIN_STATE(scr, twin);	/* for sticky state */
 }
 
 /** @} */
@@ -2317,7 +2317,7 @@ UpdWindowWmh(ScreenInfo *scr, TwmWindow *twin)
 {
     Upd_WIN_WORKSPACE(scr, twin);
     Upd_WIN_LAYER(twin);
-    Upd_WIN_STATE(twin);
+    Upd_WIN_STATE(scr, twin);
     // Upd_WIN_EXPANDED_SIZE(twin);
     // Upd_WIN_HINTS(twin);
     // Upd_WIN_APP_STATE(twin);

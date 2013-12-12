@@ -498,6 +498,8 @@ typedef struct NetWindowBits {
     unsigned _NET_PROPERTIES:1;
     unsigned _NET_WM_DESKTOP_MASK:1;
     unsigned _NET_VIRTUAL_POS:1;
+    unsigned _KDE_NET_WM_SYSTEM_TRAY_WINDOW_FOR:1;
+    unsigned _KDE_NET_WM_WINDOW_TYPE_OVERRIDE:1;
 } NetWindowBits;
 
 typedef struct EwmhWindow {
@@ -580,10 +582,13 @@ typedef struct EwmhScreen {
     Window *systray;			/* _KDE_NET_SYSTEM_TRAY_WINDOWS */
     EwmhNotify *notify;			/* startup notification message list */
     EwmhSequence *sequence;		/* startup notification sequence list */
+    short IconifyByUnmapping;		/* save original setting */
 } EwmhScreen;
 
 typedef struct EwmhWorkspace {
 } EwmhWorkspace;
+
+char *make_command_from_argv(char **argv);
 
 void Upd_NET_SUPPORTED(ScreenInfo *scr);
 void Upd_NET_CLIENT_LIST(ScreenInfo *scr);
@@ -599,24 +604,26 @@ void Upd_NET_SUPPORTING_WM_CHECK(ScreenInfo *scr);
 void Upd_NET_VIRTUAL_ROOTS(ScreenInfo *scr);
 void Upd_NET_DESKTOP_LAYOUT(ScreenInfo *scr);
 void Upd_NET_SHOWING_DESKTOP(ScreenInfo *scr);
-void Upd_WM_CLIENT_MACHINE(TwmWindow *twin);
+void Upd_WM_CLIENT_MACHINE(ScreenInfo *scr, TwmWindow *twin);
 void Upd_NET_WM_VISIBLE_NAME(TwmWindow *twin);
 void Upd_NET_WM_VISIBLE_ICON_NAME(TwmWindow *twin);
 void Upd_NET_WM_DESKTOP(ScreenInfo *scr, TwmWindow *twin);
+void Upd_NET_WM_WINDOW_TYPE(TwmWindow *twin);
 void Upd_NET_WM_STATE(TwmWindow *twin);
 void Upd_NET_WM_ALLOWED_ACTIONS(TwmWindow *twin);
-void Upd_NET_WM_PID(TwmWindow *twin);
-void Upd_NET_WM_USER_TIME(TwmWindow *twin);
+void Upd_NET_WM_PID(ScreenInfo *scr, TwmWindow *twin);
+void Upd_NET_WM_USER_TIME(ScreenInfo *scr, TwmWindow *twin);
 void Upd_NET_FRAME_EXTENTS(TwmWindow *twin);
 void Upd_NET_WM_FULLSCREEN_MONITORS(ScreenInfo *scr, TwmWindow *twin);
-void Upd_NET_STARTUP_INFO(ScreenInfo *scr, TwmWindow *twin, Bool forced);
 void Upd_NET_STARTUP_ID(ScreenInfo *scr, TwmWindow *twin);
+void Upd_NET_STARTUP_INFO(ScreenInfo *scr, TwmWindow *twin, Bool forced);
 void Upd_KDE_NET_SYSTEM_TRAY_WINDOWS(ScreenInfo *scr);
-void Upd_NET_MAXIMIZED_RESTORE(TwmWindow *twin);
+void Upd_NET_MAXIMIZED_RESTORE(ScreenInfo *scr, TwmWindow *twin);
 void Upd_NET_WM_DESKTOP_MASK(ScreenInfo *scr, TwmWindow *twin);
-void Upd_NET_VIRTUAL_POS(TwmWindow *twin);
+void Upd_NET_VIRTUAL_POS(ScreenInfo *scr, TwmWindow *twin);
 
 EwmhSequence *Seq_NET_STARTUP_ID(ScreenInfo *scr, TwmWindow *twin);
+void Chg_NET_STARTUP_INFO(ScreenInfo *scr, EwmhSequence *seq);
 
 void InitEwmh(ScreenInfo *scr);
 void UpdateEwmh(ScreenInfo *scr);
@@ -654,7 +661,7 @@ void TwmSetCurrentDesktop(ScreenInfo *scr, int current, Time timestamp);
 void TwmGetDesktopNames(ScreenInfo *scr, char ***names, int *count);
 void TwmSetDesktopNames(ScreenInfo *scr, char **names, int count);
 void TwmGetActiveWindow(ScreenInfo *scr, Window *window);
-void TwmSetActiveWindow(TwmWindow *twin, Window active, Time timestamp,
+void TwmSetActiveWindow(ScreenInfo *scr, Window window, Window active, Time timestamp,
 			enum _NET_SOURCE source);
 void TwmGetWorkarea(ScreenInfo *scr, int desktop, struct NetGeometry *workarea);
 void TwmGetWorkareas(ScreenInfo *scr, struct NetGeometry **workarea, int *workareas);
@@ -671,43 +678,59 @@ void TwmStartMoveResize(TwmWindow *twin, int x_root, int y_root,
 			enum _NET_SOURCE source);
 void TwmRestackWindow(TwmWindow *twin, unsigned mask, XWindowChanges *changes,
 		      enum _NET_SOURCE source);
+void TwmGetWMClientMachine(ScreenInfo *scr, TwmWindow *twin, char **machine);
+void TwmSetWMClientMachine(ScreenInfo *scr, TwmWindow *twin, char *machine);
+void TwmSetWMCommand(ScreenInfo *scr, TwmWindow *twin, char **command, int count);
 void TwmEstFrameExtents(Window window, struct NetExtents *extents);
 void TwmSetWMName(TwmWindow *twin, char *name);
 void TwmGetWMVisibleName(TwmWindow *twin, char **name);
 void TwmSetWMIconName(TwmWindow *twin, char *name);
 void TwmGetWMVisibleIconName(TwmWindow *twin, char **name);
 void TwmGetWMDesktop(ScreenInfo *scr, TwmWindow *twin, int *desktop);
+void TwmIniWMDesktop(ScreenInfo *scr, TwmWindow *twin, int *desktop);
 void TwmSetWMDesktop(ScreenInfo *scr, TwmWindow *twin, int desktop,
 		     enum _NET_SOURCE source);
+void TwmGetWMWindowType(TwmWindow *twin, unsigned *type);
 void TwmSetWMWindowType(TwmWindow *twin, unsigned type);
 void TwmGetWMState(TwmWindow *twin, unsigned *flags);
 void TwmSetWMState(TwmWindow *twin, unsigned state);
 void TwmChgWMState(ScreenInfo *scr, TwmWindow *twin, int action1, int action2,
 		   unsigned action, unsigned source);
 void TwmGetWMAllowedActions(TwmWindow *twin, unsigned *flags);
+void TwmGetWMPid(ScreenInfo *scr, TwmWindow *twin, pid_t *pid);
 void TwmSetWMPid(ScreenInfo *scr, TwmWindow *twin, pid_t pid);
+void TwmSetWMIconGeometry(TwmWindow *twin, struct NetGeometry *icon_geometry);
+void TwmSetWMIcon(TwmWindow *twin, struct NetIcon *icon);
 void TwmUpdWMHandledIcons(ScreenInfo *scr);
+void TwmGetWMUserTimeWindow(ScreenInfo *scr, TwmWindow *twin, Window *time_window);
 void TwmSetWMUserTimeWindow(ScreenInfo *scr, TwmWindow *twin, Window time_window);
 void TwmDelWMUserTimeWindow(ScreenInfo *scr, TwmWindow *twin, Window time_window);
-void TwmSetWMUserTime(Time time);
-void TwmGetWMUserTime(Time *time);
+void TwmGetWMUserTime(ScreenInfo *scr, TwmWindow *twin, Time *time);
+void TwmSetWMUserTime(ScreenInfo *scr, TwmWindow *twin, Time time);
+void TwmSetUserTime(Time time);
+void TwmGetUserTime(Time *time);
 void TwmGetWMFrameExtents(TwmWindow *twin, struct NetExtents *extents);
+void TwmGetFullscreenMonitors(ScreenInfo *scr, int *monitors);
 void TwmGetWMFullscreenMonitors(ScreenInfo *scr, TwmWindow *twin,
+				struct NetMonitors *monitors);
+void TwmIniWMFullscreenMonitors(ScreenInfo *scr, TwmWindow *twin,
 				struct NetMonitors *monitors);
 void TwmSetWMFullscreenMonitors(ScreenInfo *scr, TwmWindow *twin,
 				struct NetMonitors *monitors);
+void TwmGetGroupLeader(TwmWindow *twin, Window *leader);
 void TwmSetStartupId(ScreenInfo *scr, TwmWindow *twin, char *startup_id);
-void TwmSetWMProtocols(TwmWindow *twin, unsigned protocols);
 void TwmGetWMDesktopMask(ScreenInfo *scr, TwmWindow *twin, long **mask, int *masks);
 void TwmSetWMDesktopMask(ScreenInfo *scr, TwmWindow *twin, long *mask, int masks);
 void TwmChgWMDesktopMask(ScreenInfo *scr, TwmWindow *twin, unsigned index, unsigned mask);
-void TwmGetWMVirtualPos(TwmWindow *twin, struct NetPosition *virtual_pos);
-void TwmSetWMVirtualPos(TwmWindow *twin, struct NetPosition *virtual_pos);
-void TwmChgWMSyncRequestCounter(TwmWindow *twin, struct NetCounter *counter);
+void TwmGetWMVirtualPos(ScreenInfo *scr, TwmWindow *twin, struct NetPosition *virtual_pos);
+void TwmSetWMVirtualPos(ScreenInfo *scr, TwmWindow *twin, struct NetPosition *virtual_pos);
+void TwmSetWMSyncRequestCounter(TwmWindow *twin, struct NetCounter *counter);
 void TwmGotWMPing(TwmWindow *twin, Time timestamp, Window client);
 void TwmGetKdeSystemTrayWindows(ScreenInfo *scr, Window **systray, int *count);
-void TwmGetMaximizedRestore(TwmWindow *twin, struct NetRestore *restore);
-void TwmSetMaximizedRestore(TwmWindow *twin, struct NetRestore *restore);
+void TwmGetMaximizedRestore(ScreenInfo *scr, TwmWindow *twin, struct NetRestore *restore);
+void TwmSetMaximizedRestore(ScreenInfo *scr, TwmWindow *twin, struct NetRestore *restore);
+void TwmSetWMSystemTrayWindowFor(TwmWindow *twin);
+void TwmSetWMWindowTypeOverride(TwmWindow *twin);
 
 #endif				/* _EWMH_H_ */
 
