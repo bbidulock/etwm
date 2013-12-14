@@ -330,6 +330,16 @@ Set_WIN_SUPPORTING_WM_CHECK(Window root, Window window)
 		    PropModeReplace, (unsigned char *) &data, 1);
 }
 
+static void
+Ini_WIN_SUPPORTING_WM_CHECK(ScreenInfo *scr)
+{
+    Window check = TwmWinManager(scr);
+
+    Set_WIN_SUPPORTING_WM_CHECK(TwmWinRoot(scr), check);
+    scr->wmh.props._WIN_SUPPORTING_WM_CHECK = 1;
+    scr->wmh.check = check;
+}
+
 /** @brief Update the supporting window manager check window property.
   * @param scr - screen
   *
@@ -446,7 +456,7 @@ Set_WIN_PROTOCOLS(Window root)
 /** @brief Update the WinWM/WMH protocols.
   */
 void
-Upd_WIN_PROTOCOLS(ScreenInfo *scr)
+Ini_WIN_PROTOCOLS(ScreenInfo *scr)
 {
     Set_WIN_PROTOCOLS(TwmWinRoot(scr));
 }
@@ -513,6 +523,17 @@ Upd_WIN_CLIENT_LIST(ScreenInfo *scr)
 	free(scr->wmh.clients);
 	scr->wmh.clients = clients;
     }
+}
+
+/** @brief Initialize the client window list.
+  * @param scr - screen
+  *
+  * The client window lists is initialized to an empty list.
+  */
+static void
+Ini_WIN_CLIENT_LIST(ScreenInfo *scr)
+{
+    Set_WIN_CLIENT_LIST(TwmWinRoot(scr), NULL, 0);
 }
 
 /** @brief Delete the client window list.
@@ -597,6 +618,17 @@ Upd_WIN_WORKSPACE_COUNT(ScreenInfo *scr)
     }
 }
 
+static void
+Ini_WIN_WORKSPACE_COUNT(ScreenInfo *scr)
+{
+    Bool present;
+    int workspace_count = 1;
+
+    present = Get_WIN_WORKSPACE_COUNT(TwmWinRoot(scr), &workspace_count);
+    scr->wmh.props._WIN_WORKSPACE_COUNT = present;
+    scr->wmh.workspace_count = workspace_count;
+}
+
 /** @brief Retrieve the workspace count.
   *
   * Should be called on startup to retrieve the workspace count set previously
@@ -605,16 +637,13 @@ Upd_WIN_WORKSPACE_COUNT(ScreenInfo *scr)
 static void
 Ret_WIN_WORKSPACE_COUNT(ScreenInfo *scr)
 {
+    Bool present;
     int workspace_count = 1;
 
-    if (Get_WIN_WORKSPACE_COUNT(TwmWinRoot(scr), &workspace_count)) {
+    if ((present = Get_WIN_WORKSPACE_COUNT(TwmWinRoot(scr), &workspace_count)))
 	TwmSetWorkspaceCount(scr, workspace_count);
-	scr->wmh.props._WIN_WORKSPACE_COUNT = 1;
-	scr->wmh.workspace_count = workspace_count;
-    } else {
-	scr->wmh.props._WIN_WORKSPACE_COUNT = 0;
-	scr->wmh.workspace_count = 0;
-    }
+    scr->wmh.props._WIN_WORKSPACE_COUNT = present;
+    scr->wmh.workspace_count = workspace_count;
     Upd_WIN_WORKSPACE_COUNT(scr);
 }
 
@@ -658,7 +687,7 @@ Set_WIN_WORKSPACE(Window window, long workspace)
   *
   * Returns True when the workspace was retrieved.
   */
-static Bool
+Bool
 Get_WIN_WORKSPACE(Window window, int *workspace)
 {
     Atom actual_type = None;
@@ -709,20 +738,15 @@ Upd_WIN_WORKSPACE(ScreenInfo *scr, TwmWindow *twin)
     }
 }
 
-void
-Ret_WIN_WORKSPACE_root(ScreenInfo *scr)
+static void
+Ini_WIN_WORKSPACE_root(ScreenInfo *scr)
 {
+    Bool present;
     int workspace = -2;
 
-    if (Get_WIN_WORKSPACE(TwmWinRoot(scr), &workspace)) {
-	TwmSetWorkspace(scr, workspace);
-	scr->wmh.props._WIN_WORKSPACE = 1;
-	scr->wmh.workspace = workspace;
-    } else {
-	scr->wmh.props._WIN_WORKSPACE = 0;
-	scr->wmh.workspace = workspace;
-    }
-    Upd_WIN_WORKSPACE_root(scr);
+    present = Get_WIN_WORKSPACE(TwmWinRoot(scr), &workspace);
+    scr->wmh.props._WIN_WORKSPACE = present;
+    scr->wmh.workspace = workspace;
 }
 
 /** @brief Retrieve the workspace for window or root.
@@ -839,6 +863,23 @@ Upd_WIN_WORKSPACE_NAMES(ScreenInfo *scr)
     }
 }
 
+/** @brief - Initialize the workspace names.
+  * @param scr - screen
+  */
+static void
+Ini_WIN_WORKSPACE_NAMES(ScreenInfo *scr)
+{
+    Bool present;
+    char **names = NULL;
+    int count = 0;
+
+    present = Get_WIN_WORKSPACE_NAMES(TwmWinRoot(scr), &names, &count);
+    scr->wmh.props._WIN_WORKSPACE_NAMES = present;
+    if (scr->wmh.names != NULL)
+	XFreeStringList(scr->wmh.names);
+    scr->wmh.names = names;
+}
+
 /** @brief Retrieve the workspace names.
   *
   * Should be called at startup.  Called automatically whenever the
@@ -847,21 +888,16 @@ Upd_WIN_WORKSPACE_NAMES(ScreenInfo *scr)
 static void
 Ret_WIN_WORKSPACE_NAMES(ScreenInfo *scr)
 {
+    Bool present;
     char **names = NULL;
     int count = 0;
 
-    if (Get_WIN_WORKSPACE_NAMES(TwmWinRoot(scr), &names, &count)) {
+    if ((present = Get_WIN_WORKSPACE_NAMES(TwmWinRoot(scr), &names, &count)))
 	TwmSetWorkspaceNames(scr, names, count);
-	scr->wmh.props._WIN_WORKSPACE_NAMES = 1;
-	if (scr->wmh.names != NULL)
-	    XFreeStringList(scr->wmh.names);
-	scr->wmh.names = names;
-    } else {
-	scr->wmh.props._WIN_WORKSPACE_NAMES = 0;
-	if (scr->wmh.names != NULL)
-	    XFreeStringList(scr->wmh.names);
-	scr->wmh.names = NULL;
-    }
+    scr->wmh.props._WIN_WORKSPACE_NAMES = present;
+    if (scr->wmh.names != NULL)
+	XFreeStringList(scr->wmh.names);
+    scr->wmh.names = names;
     Upd_WIN_WORKSPACE_NAMES(scr);
 }
 
@@ -1471,18 +1507,26 @@ Upd_WIN_AREA_COUNT(ScreenInfo *scr)
 }
 
 static void
-Ret_WIN_AREA_COUNT(ScreenInfo *scr)
+Ini_WIN_AREA_COUNT(ScreenInfo *scr)
 {
+    Bool present;
     struct WinLayout area_count = { 1, 1 };
 
-    if (Get_WIN_AREA_COUNT(TwmWinRoot(scr), &area_count)) {
+    present = Get_WIN_AREA_COUNT(TwmWinRoot(scr), &area_count);
+    scr->wmh.props._WIN_AREA_COUNT = present;
+    scr->wmh.area_count = area_count;
+}
+
+static void
+Ret_WIN_AREA_COUNT(ScreenInfo *scr)
+{
+    Bool present;
+    struct WinLayout area_count = { 1, 1 };
+
+    if ((present = Get_WIN_AREA_COUNT(TwmWinRoot(scr), &area_count)))
 	TwmSetWinAreaCount(scr, &area_count);
-	scr->wmh.props._WIN_AREA_COUNT = 1;
-	scr->wmh.area_count = area_count;
-    } else {
-	scr->wmh.props._WIN_AREA_COUNT = 0;
-	scr->wmh.area_count = area_count;
-    }
+    scr->wmh.props._WIN_AREA_COUNT = present;
+    scr->wmh.area_count = area_count;
     Upd_WIN_AREA_COUNT(scr);
 }
 
@@ -1563,25 +1607,18 @@ Upd_WIN_AREA(ScreenInfo *scr)
 }
 
 /*
- * Called on startup to retrieve or set the active area (viewport position).
- * This should only be called after Ret_WIN_WORKSPACE_root().
+ * Called on startup to retrieve the active area (viewport position).
+ * This should only be called after Ini_WIN_WORKSPACE_root().
  */
 static void
-Ret_WIN_AREA(ScreenInfo *scr)
+Ini_WIN_AREA(ScreenInfo *scr)
 {
+    Bool present;
     struct WinArea area = { 0, 0 };
 
-    if (Get_WIN_AREA(TwmWinRoot(scr), &area)) {
-	TwmSetWinArea(scr, &area);
-	scr->wmh.props._WIN_AREA = 1;
-	scr->wmh.area = area;
-    } else {
-	scr->wmh.props._WIN_AREA = 0;
-	scr->wmh.area.col = 0;
-	scr->wmh.area.row = 0;
-    }
-    Upd_WIN_AREA(scr);
-
+    present = Get_WIN_AREA(TwmWinRoot(scr), &area);
+    scr->wmh.props._WIN_AREA = present;
+    scr->wmh.area = area;
 }
 
 /*
@@ -2164,55 +2201,45 @@ InitWmh(ScreenInfo *scr)
 #endif
 
 #ifdef DEBUG_WMH
-    fprintf(stderr, "Updating _WIN_PROTOCOLS on root\n");
+    fprintf(stderr, "Intializing _WIN_PROTOCOLS on root\n");
     fflush(stderr);
 #endif
-    Upd_WIN_PROTOCOLS(scr);
+    Ini_WIN_PROTOCOLS(scr);
 #ifdef DEBUG_WMH
-    fprintf(stderr, "Updating _WIN_CLIENT_LIST on root\n");
+    fprintf(stderr, "Intializing _WIN_CLIENT_LIST on root\n");
     fflush(stderr);
 #endif
-    Upd_WIN_CLIENT_LIST(scr);
+    Ini_WIN_CLIENT_LIST(scr);
 #ifdef DEBUG_WMH
-    fprintf(stderr, "Retrieve or set _WIN_WORKSPACE_COUNT on root\n");
+    fprintf(stderr, "Intializing _WIN_WORKSPACE_COUNT on root\n");
     fflush(stderr);
 #endif
-    Ret_WIN_WORKSPACE_COUNT(scr);
+    Ini_WIN_WORKSPACE_COUNT(scr);
 #ifdef DEBUG_WMH
-    fprintf(stderr, "Retrieve or set _WIN_WORKSPACE_NAMES on root\n");
+    fprintf(stderr, "Initializing _WIN_WORKSPACE_NAMES on root\n");
     fflush(stderr);
 #endif
-    Ret_WIN_WORKSPACE_NAMES(scr);
+    Ini_WIN_WORKSPACE_NAMES(scr);
 #ifdef DEBUG_WMH
-    fprintf(stderr, "Retrieve or set _WIN_AREA_COUNT on root\n");
+    fprintf(stderr, "Initializing _WIN_AREA_COUNT on root\n");
     fflush(stderr);
 #endif
-    Ret_WIN_AREA_COUNT(scr);
+    Ini_WIN_AREA_COUNT(scr);
 #ifdef DEBUG_WMH
-    fprintf(stderr, "Retrieve or set _WIN_WORKSPACE on root\n");
+    fprintf(stderr, "Initializing _WIN_WORKSPACE on root\n");
     fflush(stderr);
 #endif
-    Ret_WIN_WORKSPACE_root(scr);
+    Ini_WIN_WORKSPACE_root(scr);
 #ifdef DEBUG_WMH
-    fprintf(stderr, "Retrieve or set _WIN_AREA on root\n");
+    fprintf(stderr, "Initializing _WIN_AREA on root\n");
     fflush(stderr);
 #endif
-    Ret_WIN_AREA(scr);
-#ifdef DEBUG_WMH
-    fprintf(stderr, "Updating _WIN_WORKAREA on root\n");
-    fflush(stderr);
+    Ini_WIN_AREA(scr);
+
+#if 0
+    /* Do not do this until all other things are set up in UpdateWmh() */
+    Ini_WIN_SUPPORTING_WM_CHECK(scr);
 #endif
-    Upd_WIN_WORKAREA(scr);
-#ifdef DEBUG_WMH
-    fprintf(stderr, "Updating __SWM_VROOT on virtual root\n");
-    fflush(stderr);
-#endif
-    Upd__SWM_VROOT(scr);
-#ifdef DEBUG_WMH
-    fprintf(stderr, "Updating _WIN_SUPPORTING_WM_CHECK on root\n");
-    fflush(stderr);
-#endif
-    Upd_WIN_SUPPORTING_WM_CHECK(scr);
 }
 
 /** @brief Update the window manager in the WinWM/WMH sense.
@@ -2224,14 +2251,52 @@ InitWmh(ScreenInfo *scr)
 void
 UpdateWmh(ScreenInfo *scr)
 {
+#ifdef DEBUG_WMH
+    fprintf(stderr, "Updating _WIN_CLIENT_LIST on root\n");
+    fflush(stderr);
+#endif
     Upd_WIN_CLIENT_LIST(scr);
+#ifdef DEBUG_WMH
+    fprintf(stderr, "Updating _WIN_WORKSPACE_COUNT on root\n");
+    fflush(stderr);
+#endif
     Upd_WIN_WORKSPACE_COUNT(scr);
+#ifdef DEBUG_WMH
+    fprintf(stderr, "Updating _WIN_WORKSPACE_NAMES on root\n");
+    fflush(stderr);
+#endif
     Upd_WIN_WORKSPACE_NAMES(scr);
+#ifdef DEBUG_WMH
+    fprintf(stderr, "Updating _WIN_AREA_COUNT on root\n");
+    fflush(stderr);
+#endif
     Upd_WIN_AREA_COUNT(scr);
+#ifdef DEBUG_WMH
+    fprintf(stderr, "Updating _WIN_WORKSPACE on root\n");
+    fflush(stderr);
+#endif
     Upd_WIN_WORKSPACE_root(scr);
+#ifdef DEBUG_WMH
+    fprintf(stderr, "Updating _WIN_AREA on root\n");
+    fflush(stderr);
+#endif
     Upd_WIN_AREA(scr);
+#ifdef DEBUG_WMH
+    fprintf(stderr, "Updating _WIN_WORKAREA on root\n");
+    fflush(stderr);
+#endif
     Upd_WIN_WORKAREA(scr);
+#ifdef DEBUG_WMH
+    fprintf(stderr, "Updating __SWM_VROOT on virtual roots\n");
+    fflush(stderr);
+#endif
     Upd__SWM_VROOT(scr);
+
+#ifdef DEBUG_WMH
+    fprintf(stderr, "Updating _WIN_SUPPORTING_WM_CHECK on root\n");
+    fflush(stderr);
+#endif
+    Upd_WIN_SUPPORTING_WM_CHECK(scr);
 }
 
 /** @brief Prepare the window manager for restart in the WinWM/WMH sense.

@@ -248,10 +248,29 @@ TwmSetDesktopViewport(ScreenInfo *scr, int desktop, struct NetPosition *viewport
 }
 
 /** @brief Get the index of the current desktop.
+  * @param scr - screen
   * @param current - where to return the current desktop index.
   *
   * There is only one desktop when the workspace manager is not active.  CTWM
   * reverts to TWM mode in that case.
+  *
+  * Unfortunaely CTWM behaves as follows:
+  *
+  * - each virtual screen display a different desktop;
+  *
+  * - a desktop can only be displayed on one virtual screen;
+  *
+  * - windows that occupy multiple desktops can only be displayed on one virtual
+  *   screen at a time;
+  *
+  * The above restrictions are because workspaces are attached to the real
+  * screen and each workspace only has only window list.  Twm windows can only
+  * be on one list.
+  *
+  * We can only store one current desktop per real screen, so, for now, we just
+  * track the first virtual screen, regardless of which desktops are set on the
+  * other virtual screens.  During startup we will set the other virtual screens
+  * to the desktops after the current one (for kind of a ring effect).
   */
 void
 TwmGetCurrentDesktop(ScreenInfo *scr, int *current)
@@ -268,8 +287,8 @@ TwmGetCurrentDesktop(ScreenInfo *scr, int *current)
 	*current = 0;
 	return;
     }
-    if ((vs = scr->currentvs) == NULL && (vs = scr->vScreenList) == NULL) {
-	fprintf(stderr, "ERROR: Current virtual screen is NULL!\n");
+    if ((vs = scr->vScreenList) == NULL) {
+	fprintf(stderr, "ERROR: First virtual screen is NULL!\n");
 	*current = 0;
 	return;
     }
@@ -288,6 +307,7 @@ TwmGetCurrentDesktop(ScreenInfo *scr, int *current)
 }
 
 /** @brief Set the current desktop.
+  * @param scr - screen
   * @param current - the index of the desktop to set.
   * @param timestamp - X server time of corresponding request.
   *
@@ -1787,11 +1807,6 @@ TwmGetWMAllowedActions(TwmWindow *twin, unsigned *allowed)
 }
 
 void
-TwmSetWMIconGeometry(TwmWindow *twin, struct NetGeometry *icon_geometry)
-{
-}
-
-void
 TwmSetWMIcon(TwmWindow *twin, struct NetIcon *icon)
 {
 }
@@ -2400,10 +2415,7 @@ TwmSetMaximizedRestore(ScreenInfo *scr, TwmWindow *twin, struct NetRestore *rest
 {
     VirtualScreen *vs;
 
-    for (vs = scr->vScreenList; vs != NULL; vs = vs->next) {
-	if (vs->x == restore->vx && vs->y == restore->vy)
-	    break;
-    }
+    vs = findIfVScreenOf(restore->vx, restore->vy);
     if (vs != NULL)
 	twin->old_parent_vs = vs;
 

@@ -285,6 +285,8 @@ typedef struct MwmScreen {
     Window *embedded;			/* _DT_WORKSPACE_EMBEDDED_CLIENTS */
 } MwmScreen;
 
+Bool Get_DT_WORKSPACE_CURRENT(Window info, Atom *workspace);
+
 void Upd_MOTIF_WM_INFO(ScreenInfo *scr);
 void Upd_DT_WORKSPACE_LIST(ScreenInfo *scr);
 void Upd_DT_WORKSPACE_CURRENT(ScreenInfo *scr);

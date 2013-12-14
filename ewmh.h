@@ -590,6 +590,8 @@ typedef struct EwmhWorkspace {
 
 char *make_command_from_argv(char **argv);
 
+Bool Get_NET_CURRENT_DESKTOP(Window root, int *desktop);
+
 void Upd_NET_SUPPORTED(ScreenInfo *scr);
 void Upd_NET_CLIENT_LIST(ScreenInfo *scr);
 void Upd_NET_CLIENT_LIST_STACKING(ScreenInfo *scr);
@@ -699,7 +701,6 @@ void TwmChgWMState(ScreenInfo *scr, TwmWindow *twin, int action1, int action2,
 void TwmGetWMAllowedActions(TwmWindow *twin, unsigned *flags);
 void TwmGetWMPid(ScreenInfo *scr, TwmWindow *twin, pid_t *pid);
 void TwmSetWMPid(ScreenInfo *scr, TwmWindow *twin, pid_t pid);
-void TwmSetWMIconGeometry(TwmWindow *twin, struct NetGeometry *icon_geometry);
 void TwmSetWMIcon(TwmWindow *twin, struct NetIcon *icon);
 void TwmUpdWMHandledIcons(ScreenInfo *scr);
 void TwmGetWMUserTimeWindow(ScreenInfo *scr, TwmWindow *twin, Window *time_window);

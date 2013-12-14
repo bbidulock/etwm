@@ -250,6 +250,20 @@ Set_MOTIF_WM_INFO(Window root, MwmInfo *info)
 		    (unsigned char *) info, 2);
 }
 
+/** @brief Initialize the motif window manager information property.
+  * @param scr - screen
+  */
+static void
+Ini_MOTIF_WM_INFO(ScreenInfo *scr)
+{
+    MwmInfo info;
+
+    TwmGetMwmInfo(scr, &info);
+    Set_MOTIF_WM_INFO(TwmMwmRoot(scr), &info);
+    scr->mwmh.props._MOTIF_WM_INFO = 1;
+    scr->mwmh.info = info;
+}
+
 /** @brief Update the motif window manager information property.
   * @param scr - screen
   */
@@ -259,7 +273,8 @@ Upd_MOTIF_WM_INFO(ScreenInfo *scr)
     MwmInfo info;
 
     TwmGetMwmInfo(scr, &info);
-    if (!scr->mwmh.props._MOTIF_WM_INFO || cmp_info(&scr->mwmh.info, &info) != 0) {
+    if (!scr->mwmh.props._MOTIF_WM_INFO || scr->mwmh.info.flags != info.flags
+	|| scr->mwmh.info.wm_window != info.wm_window) {
 	Set_MOTIF_WM_INFO(TwmMwmRoot(scr), &info);
 	scr->mwmh.props._MOTIF_WM_INFO = 1;
 	scr->mwmh.info = info;
@@ -306,6 +321,35 @@ Set_DT_WORKSPACE_LIST(Window info, Atom *list, int count)
 {
     XChangeProperty(dpy, info, _XA_DT_WORKSPACE_LIST, XA_ATOM, 32, PropModeReplace,
 		    (unsigned char *) list, count);
+}
+
+static Bool
+Get_DT_WORKSPACE_LIST(Window info, Atom **list, int *count)
+{
+    Atom actual_type = None;
+    int status, actual_format = 0;
+    unsigned long nitems = 0, bytes_after = 0, n;
+    long *prop = NULL;
+
+    status =
+	XGetWindowProperty(dpy, info, _XA_DT_WORKSPACE_CURRENT, 0L, 32L, False, XA_ATOM,
+			   &actual_type, &actual_format, &nitems, &bytes_after,
+			   (unsigned char **) &prop);
+    if (status != Success || actual_type == None || nitems < 1) {
+	if (prop != NULL)
+	    XFree(prop);
+	return False;
+    }
+    if ((*list = calloc(nitems + 1, sizeof(Atom))) == NULL) {
+	XFree(prop);
+	*count = 0;
+	return False;
+    }
+    for (n = 0; n < nitems; n++)
+	(*list)[n] = prop[n];
+    (*list)[nitems] = None;
+    *count = nitems;
+    return True;
 }
 
 /** @brief Update the workspace atom list.
@@ -358,6 +402,28 @@ Set_DT_WORKSPACE_CURRENT(Window info, Atom workspace)
 #endif
     XChangeProperty(dpy, info, _XA_DT_WORKSPACE_CURRENT, XA_ATOM, 32,
 		    PropModeReplace, (unsigned char *) &workspace, 1);
+}
+
+Bool
+Get_DT_WORKSPACE_CURRENT(Window info, Atom *workspace)
+{
+    Atom actual_type = None;
+    int status, actual_format = 0;
+    unsigned long nitems = 0, bytes_after = 0;
+    long *prop = NULL;
+
+    status =
+	XGetWindowProperty(dpy, info, _XA_DT_WORKSPACE_CURRENT, 0L, 1L, False,
+		XA_ATOM, &actual_type, &actual_format, &nitems, &bytes_after,
+		(unsigned char **) &prop);
+    if (status != Success || actual_type == None || nitems < 1) {
+	if (prop != NULL)
+	    XFree(prop);
+	return False;
+    }
+    *workspace = *(Atom *)prop;
+    XFree(prop);
+    return True;
 }
 
 /** @brief update the current workspace atom.
@@ -1001,12 +1067,10 @@ InitMwmh(ScreenInfo *scr)
 {
     InternMwmAtoms();
 
-    /* Update the info window */
-    Upd_MOTIF_WM_INFO(scr);
-
-    /* Info window properties */
-    Upd_DT_WORKSPACE_LIST(scr);
-    Upd_DT_WORKSPACE_CURRENT(scr);
+#if 0
+    /* Do not do this until all other things are set up in UpdateMwmh() */
+    Ini_MOTIF_WM_INFO(scr);
+#endif
 }
 
 /** @brief Update the window manager in the Motif/MWMH sense.
@@ -1018,12 +1082,22 @@ InitMwmh(ScreenInfo *scr)
 void
 UpdateMwmh(ScreenInfo *scr)
 {
-    /* Update the info window */
-    Upd_MOTIF_WM_INFO(scr);
-
-    /* Info window properties */
+#ifdef DEBUG_MWMH
+    fprintf(stderr, "Updating _DT_WORKSPACE_LIST on info\n");
+    fflush(stderr);
+#endif
     Upd_DT_WORKSPACE_LIST(scr);
+#ifdef DEBUG_MWMH
+    fprintf(stderr, "Updating _DT_WORKSPACE_CURRENT on info\n");
+    fflush(stderr);
+#endif
     Upd_DT_WORKSPACE_CURRENT(scr);
+
+#ifdef DEBUG_MWMH
+    fprintf(stderr, "Updating _MOTIF_WM_INFO on root\n");
+    fflush(stderr);
+#endif
+    Upd_MOTIF_WM_INFO(scr);
 }
 
 /** @brief Prepare the window manager for restart in the Motif/MWMH sense.
@@ -1034,9 +1108,6 @@ UpdateMwmh(ScreenInfo *scr)
 void
 RestartMwmh(ScreenInfo *scr)
 {
-    /* Update the info window */
-    Upd_MOTIF_WM_INFO(scr);
-
     /* Info window properties */
     Upd_DT_WORKSPACE_LIST(scr);
     Upd_DT_WORKSPACE_CURRENT(scr);

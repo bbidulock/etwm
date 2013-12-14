@@ -233,6 +233,8 @@ typedef struct WmhScreen {
     Window *vroots;			/* __SWM_ROOT */
 } WmhScreen;
 
+Bool Get_WIN_WORKSPACE(Window window, int *workspace);
+
 void Upd_WIN_SUPPORTING_WM_CHECK(ScreenInfo *scr);
 void Upd_WIN_PROTOCOLS(ScreenInfo *scr);
 void Upd_WIN_CLIENT_LIST(ScreenInfo *scr);

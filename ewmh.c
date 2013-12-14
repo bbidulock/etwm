@@ -857,7 +857,7 @@ Set_NET_SUPPORTED(Window root)
   * Called automatically by the initialization function, InitEwmh().
   */
 void
-Upd_NET_SUPPORTED(ScreenInfo *scr)
+Ini_NET_SUPPORTED(ScreenInfo *scr)
 {
     Set_NET_SUPPORTED(TwmNetRoot(scr));
     scr->ewmh.props._NET_SUPPORTED = 1;
@@ -1071,17 +1071,18 @@ Upd_NET_NUMBER_OF_DESKTOPS(ScreenInfo *scr)
     }
 }
 
+/** @brief Retrieve the number of desktops.
+  * @param scr - screen
+  */
 static void
-Ret_NET_NUMBER_OF_DESKTOPS(ScreenInfo *scr)
+Ini_NET_NUMBER_OF_DESKTOPS(ScreenInfo *scr)
 {
     Bool present;
     int desktops = 1;
 
     present = Get_NET_NUMBER_OF_DESKTOPS(TwmNetRoot(scr), &desktops);
-    TwmSetNumberOfDesktops(scr, desktops);
     scr->ewmh.props._NET_NUMBER_OF_DESKTOPS = present;
     scr->ewmh.desktops = desktops;
-    Upd_NET_NUMBER_OF_DESKTOPS(scr);
 }
 
 /* A pager can request a change in the number of desktops by sending a
@@ -1171,17 +1172,18 @@ Upd_NET_DESKTOP_GEOMETRY(ScreenInfo *scr)
     }
 }
 
+/** @brief Retrieve the desktop geometry.
+  * @param scr - screen
+  */
 static void
-Ret_NET_DESKTOP_GEOMETRY(ScreenInfo *scr)
+Ini_NET_DESKTOP_GEOMETRY(ScreenInfo *scr)
 {
     Bool present;
     struct NetSize geometry = { scr->rootw, scr->rooth };
 
     present = Get_NET_DESKTOP_GEOMETRY(TwmNetRoot(scr), &geometry);
-    TwmSetDesktopGeometry(scr, &geometry);
     scr->ewmh.props._NET_DESKTOP_GEOMETRY = present;
     scr->ewmh.geometry = geometry;
-    Upd_NET_DESKTOP_GEOMETRY(scr);
 }
 
 /*
@@ -1296,20 +1298,17 @@ Upd_NET_DESKTOP_VIEWPORT(ScreenInfo *scr)
 }
 
 static void
-Ret_NET_DESKTOP_VIEWPORT(ScreenInfo *scr)
+Ini_NET_DESKTOP_VIEWPORT(ScreenInfo *scr)
 {
     Bool present;
     struct NetPosition *viewport = NULL;
     int viewports = 0, n;
 
     present = Get_NET_DESKTOP_VIEWPORT(TwmNetRoot(scr), &viewport, &viewports);
-    for (n = 0; n < viewports; n++)
-	TwmSetDesktopViewport(scr, n, &viewport[n]);
     scr->ewmh.props._NET_DESKTOP_VIEWPORT = present;
     free(scr->ewmh.viewport);
     scr->ewmh.viewport = viewport;
     scr->ewmh.viewports = viewports;
-    Upd_NET_DESKTOP_VIEWPORT(scr);
 }
 
 /** @brief Receive change request for desktop viewport.
@@ -1352,7 +1351,7 @@ Set_NET_CURRENT_DESKTOP(Window root, long desktop)
 		    (unsigned char *) &desktop, 1);
 }
 
-static Bool
+Bool
 Get_NET_CURRENT_DESKTOP(Window root, int *desktop)
 {
     Atom actual_type = None;
@@ -1397,20 +1396,18 @@ Upd_NET_CURRENT_DESKTOP(ScreenInfo *scr)
 /** @brief Retrieve the current desktop.
   * @param scr - screen
   *
-  * Call this function when initializing TWM to read or write the current
-  * desktop to the root.
+  * Call this function when initializing TWM to read the current desktop from
+  * the root.
   */
 static void
-Ret_NET_CURRENT_DESKTOP(ScreenInfo *scr)
+Ini_NET_CURRENT_DESKTOP(ScreenInfo *scr)
 {
     Bool present;
     int current = 0;
 
     present = Get_NET_CURRENT_DESKTOP(TwmNetRoot(scr), &current);
-    TwmSetCurrentDesktop(scr, current, CurrentTime);
     scr->ewmh.props._NET_CURRENT_DESKTOP = present;
     scr->ewmh.current = current;
-    Upd_NET_CURRENT_DESKTOP(scr);
 }
 
 /*
@@ -1509,6 +1506,20 @@ Upd_NET_DESKTOP_NAMES(ScreenInfo *scr)
 }
 
 static void
+Ini_NET_DESKTOP_NAMES(ScreenInfo *scr)
+{
+    Bool present;
+    char **names = NULL;
+    int count = 0;
+
+    present = Get_NET_DESKTOP_NAMES(TwmNetRoot(scr), &names, &count);
+    scr->ewmh.props._NET_DESKTOP_NAMES = present;
+    if (scr->ewmh.names != NULL)
+	XFreeStringList(scr->ewmh.names);
+    scr->ewmh.names = names;
+}
+
+static void
 Ret_NET_DESKTOP_NAMES(ScreenInfo *scr)
 {
     Bool present;
@@ -1587,16 +1598,14 @@ Upd_NET_ACTIVE_WINDOW(ScreenInfo *scr)
 }
 
 static void
-Ret_NET_ACTIVE_WINDOW(ScreenInfo *scr)
+Ini_NET_ACTIVE_WINDOW(ScreenInfo *scr)
 {
     Bool present;
     Window active = None;
 
     present = Get_NET_ACTIVE_WINDOW(TwmNetRoot(scr), &active);
-    TwmSetActiveWindow(scr, active, None, CurrentTime, _NET_SOURCE_UNSPECIFIED);
     scr->ewmh.props._NET_ACTIVE_WINDOW = present;
     scr->ewmh.active = active;
-    Upd_NET_ACTIVE_WINDOW(scr);
 }
 
 /** @brief Handle request to change active window.
@@ -1729,6 +1738,16 @@ Set_NET_SUPPORTING_WM_CHECK(Window root, Window window)
 		    PropModeReplace, (unsigned char *) &data, 1);
 }
 
+static void
+Ini_NET_SUPPORTING_WM_CHECK(ScreenInfo *scr)
+{
+    Window check = TwmNetManager(scr);
+
+    Set_NET_SUPPORTING_WM_CHECK(TwmNetRoot(scr), check);
+    scr->ewmh.props._NET_SUPPORTING_WM_CHECK = 1;
+    scr->ewmh.check = check;
+}
+
 void
 Upd_NET_SUPPORTING_WM_CHECK(ScreenInfo *scr)
 {
@@ -1859,7 +1878,7 @@ Get_NET_DESKTOP_LAYOUT(Window root, struct NetLayout *layout)
   * @param scr - screen
   *
   * Updates the desktop layout to the current layout of the workspace manager.
-  * We do not change the layout unless we own the _NET_WM_DESKTOP_LAYOUT_Sn
+  * We do not change the layout unless we own the _NET_DESKTOP_LAYOUT_Sn
   * selection.
   *
   * Note that this function does not change the property unless the layout
@@ -1884,6 +1903,23 @@ Upd_NET_DESKTOP_LAYOUT(ScreenInfo *scr)
 	    scr->ewmh.layout = layout;
 	}
     }
+}
+
+/** @brief Initialize the desktop layou.
+  * @param scr - screen
+  */
+static void
+Ini_NET_DESKTOP_LAYOUT(ScreenInfo *scr)
+{
+    struct NetLayout layout = {
+	_NET_WM_ORIENTATION_HORZ, 1, 1,
+	_NET_WM_STARTING_CORNER_TOPLEFT
+    };
+    Bool present;
+
+    present = Get_NET_DESKTOP_LAYOUT(TwmNetRoot(scr), &layout);
+    scr->ewmh.props._NET_DESKTOP_LAYOUT = present;
+    scr->ewmh.layout = layout;
 }
 
 /** @brief Retrieve or set the desktop layout.
@@ -1926,6 +1962,31 @@ Ret_NET_DESKTOP_LAYOUT(ScreenInfo *scr)
   * control access to the _NET_DESKTOP_LAYOUT root window property.
   *
   * @{ */
+
+static void
+Ini_NET_DESKTOP_LAYOUT_Sn(ScreenInfo *scr)
+{
+    char selection[48];
+
+    /* get the _NET_DESKTOP_LAYOUT_Sn selection */
+    snprintf(selection, 32, "_NET_DESKTOP_LAYOUT_S%d", scr->screen);
+    scr->ewmh.layout_sn.atom = XInternAtom(dpy, selection, False);
+    XGrabServer(dpy);
+    scr->ewmh.layout_sn.owner = XGetSelectionOwner(dpy, scr->ewmh.layout_sn.atom);
+    if (scr->ewmh.layout_sn.owner == None) {
+	scr->ewmh.layout_sn.window =
+	    XCreateSimpleWindow(dpy, TwmNetRoot(scr), scr->rootw, scr->rooth, 1, 1, 0, 0L,
+				0L);
+	XSetSelectionOwner(dpy, scr->ewmh.layout_sn.atom, scr->ewmh.layout_sn.window,
+			   CurrentTime);
+    } else {
+	scr->ewmh.layout_sn.window = None;
+	XSelectInput(dpy, scr->ewmh.layout_sn.owner, StructureNotifyMask);
+	XSaveContext(dpy, scr->ewmh.layout_sn.owner, ScreenContext, (XPointer) scr);
+    }
+    XSync(dpy, False);
+    XUngrabServer(dpy);
+}
 /*
  * A new manager has announced itself as owning the _NET_DESKTOP_LAYOUT_Sn
  * selection.
@@ -2035,23 +2096,21 @@ Upd_NET_SHOWING_DESKTOP(ScreenInfo *scr)
     }
 }
 
-/** @brief Retrieve or set the desktop showing mode.
+/** @brief Initialize the desktop showing mode.
   * @param scr - screen
   *
   * This function should be called when TWM initially starts to retrieve the
   * desktop showing mode from the root window or set the internal default.
   */
 static void
-Ret_NET_SHOWING_DESKTOP(ScreenInfo *scr)
+Ini_NET_SHOWING_DESKTOP(ScreenInfo *scr)
 {
     Bool present;
     Bool showing = False;
 
     present = Get_NET_SHOWING_DESKTOP(TwmNetRoot(scr), &showing);
     scr->ewmh.props._NET_SHOWING_DESKTOP = present;
-    TwmSetShowingDesktop(scr, showing);
     scr->ewmh.showing = showing;
-    Upd_NET_SHOWING_DESKTOP(scr);
 }
 
 /** @brief Handle showing desktop request.
@@ -3414,22 +3473,11 @@ Ret_NET_WM_STRUT_PARTIAL(ScreenInfo *scr, TwmWindow *twin)
   * @{ */
 
 
-/** @brief Set the icon geometry for a window.
-  * @param window - window on which to set
-  * @param icon_geometry - icon geometry to set
-  */
-static void
-Set_NET_WM_ICON_GEOMETRY(Window window, struct NetGeometry *icon_geometry)
-{
-    XChangeProperty(dpy, window, _XA_NET_WM_ICON_GEOMETRY, XA_CARDINAL, 32,
-		    PropModeReplace, (unsigned char *) icon_geometry, 4);
-}
-
 /** @brief Get the icon geometry for a window.
   * @param window - window from which to fetch
   * @param icon_geometry - where to store the icon geometry
   */
-static Bool
+Bool
 Get_NET_WM_ICON_GEOMETRY(Window window, struct NetGeometry *icon_geometry)
 {
     Atom actual_type = None;
@@ -3465,19 +3513,8 @@ Ret_NET_WM_ICON_GEOMETRY(TwmWindow *twin)
     Bool present;
     struct NetGeometry icon_geometry = { 0, 0, 0, 0 };
 
-    if ((present = Get_NET_WM_ICON_GEOMETRY(twin->w, &icon_geometry)))
-	TwmSetWMIconGeometry(twin, &icon_geometry);
+    present = Get_NET_WM_ICON_GEOMETRY(twin->w, &icon_geometry);
     twin->ewmh.props._NET_WM_ICON_GEOMETRY = present;
-    twin->ewmh.icon_geometry = icon_geometry;
-}
-
-void
-Del_NET_WM_ICON_GEOMETRY(TwmWindow *twin)
-{
-    struct NetGeometry icon_geometry = { 0, 0, 0, 0 };
-
-    XDeleteProperty(dpy, twin->w, _XA_NET_WM_ICON_GEOMETRY);
-    twin->ewmh.props._NET_WM_ICON_GEOMETRY = 0;
     twin->ewmh.icon_geometry = icon_geometry;
 }
 
@@ -6268,7 +6305,6 @@ void
 InitEwmh(ScreenInfo *scr)
 {
     char *cp, *name = Argv[0];
-    char layout[32];
 
     InternKdeAtoms();
     InternNetAtoms();
@@ -6279,10 +6315,10 @@ InitEwmh(ScreenInfo *scr)
 #endif
 
 #ifdef DEBUG_EWMH
-    fprintf(stderr, "Updating _NET_SUPPORTED\n");
+    fprintf(stderr, "Initializing Updating _NET_SUPPORTED\n");
     fflush(stderr);
 #endif
-    Upd_NET_SUPPORTED(scr);
+    Ini_NET_SUPPORTED(scr);
 
 #if 0
     if ((cp = strrchr(name, '/')))
@@ -6303,67 +6339,55 @@ InitEwmh(ScreenInfo *scr)
     Set_NET_WM_PID(TwmNetManager(scr), getpid());
 
 #ifdef DEBUG_EWMH
-    fprintf(stderr, "Retrieve or set _NET_NUMBER_OF_DESKTOPS on root\n");
+    fprintf(stderr, "Initializing _NET_NUMBER_OF_DESKTOPS on root\n");
     fflush(stderr);
 #endif
-    Ret_NET_NUMBER_OF_DESKTOPS(scr);
+    Ini_NET_NUMBER_OF_DESKTOPS(scr);
 #ifdef DEBUG_EWMH
-    fprintf(stderr, "Retrieve or set _NET_DESKTOP_GEOMETRY on root\n");
+    fprintf(stderr, "Initializing _NET_DESKTOP_GEOMETRY on root\n");
     fflush(stderr);
 #endif
-    Ret_NET_DESKTOP_GEOMETRY(scr);
+    Ini_NET_DESKTOP_GEOMETRY(scr);
 #ifdef DEBUG_EWMH
-    fprintf(stderr, "Retrieve or set _NET_DESKTOP_VIEWPORT on root\n");
+    fprintf(stderr, "Initializing _NET_DESKTOP_VIEWPORT on root\n");
     fflush(stderr);
 #endif
-    Ret_NET_DESKTOP_VIEWPORT(scr);
+    Ini_NET_DESKTOP_VIEWPORT(scr);
 #ifdef DEBUG_EWMH
-    fprintf(stderr, "Retrieve or set _NET_CURRENT_DESKTOP on root\n");
+    fprintf(stderr, "Initializing _NET_CURRENT_DESKTOP on root\n");
     fflush(stderr);
 #endif
-    Ret_NET_CURRENT_DESKTOP(scr);
+    Ini_NET_CURRENT_DESKTOP(scr);
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "Initializing _NET_DESKTOP_NAMES on root\n");
+    fflush(stderr);
+#endif
+    Ini_NET_DESKTOP_NAMES(scr);
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "Initializing _NET_ACTIVE_WINDOW on root\n");
+    fflush(stderr);
+#endif
+    Ini_NET_ACTIVE_WINDOW(scr);
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "Initializing _NET_DESKTOP_LAYOUT on root\n");
+    fflush(stderr);
+#endif
+    Ini_NET_DESKTOP_LAYOUT(scr);
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "Initializing _NET_SHOWING_DESKTOP on root\n");
+    fflush(stderr);
+#endif
+    Ini_NET_SHOWING_DESKTOP(scr);
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "Initializing _NET_DESKTOP_LAYOUT_Sn selection\n");
+    fflush(stderr);
+#endif
+    Ini_NET_DESKTOP_LAYOUT_Sn(scr);
+
 #if 0
-#ifdef DEBUG_EWMH
-    fprintf(stderr, "Retrieve or set _NET_DESKTOP_NAMES on root\n");
-    fflush(stderr);
+    /* Do not do this until all other things are set up in UpdateEwmh() */
+    Ini_NET_SUPPORTING_WM_CHECK(scr);
 #endif
-    Ret_NET_DESKTOP_NAMES(scr);
-#endif
-#ifdef DEBUG_EWMH
-    fprintf(stderr, "Retrieve or set _NET_ACTIVE_WINDOW on root\n");
-    fflush(stderr);
-#endif
-    Ret_NET_ACTIVE_WINDOW(scr);
-#ifdef DEBUG_EWMH
-    fprintf(stderr, "Retrieve or set _NET_DESKTOP_LAYOUT on root\n");
-    fflush(stderr);
-#endif
-    Ret_NET_DESKTOP_LAYOUT(scr);
-#ifdef DEBUG_EWMH
-    fprintf(stderr, "Retrieve or set _NET_SHOWING_DESKTOP on root\n");
-    fflush(stderr);
-#endif
-    Ret_NET_SHOWING_DESKTOP(scr);
-
-    Set_NET_SUPPORTING_WM_CHECK(TwmNetRoot(scr), TwmNetManager(scr));
-
-    /* get the _NET_WM_DESKTOP_LAYOUT_Sn selection */
-    snprintf(layout, 32, "_NET_DESKTOP_LAYOUT_S%d", scr->screen);
-    scr->ewmh.layout_sn.atom = XInternAtom(dpy, layout, False);
-    XGrabServer(dpy);
-    scr->ewmh.layout_sn.owner = XGetSelectionOwner(dpy, scr->ewmh.layout_sn.atom);
-    if (scr->ewmh.layout_sn.owner == None) {
-	scr->ewmh.layout_sn.window =
-	    XCreateSimpleWindow(dpy, TwmNetRoot(scr), scr->rootw, scr->rooth, 1, 1, 0, 0L, 0L);
-	XSetSelectionOwner(dpy, scr->ewmh.layout_sn.atom, scr->ewmh.layout_sn.window,
-			   CurrentTime);
-    } else {
-	scr->ewmh.layout_sn.window = None;
-	XSelectInput(dpy, scr->ewmh.layout_sn.owner, StructureNotifyMask);
-	XSaveContext(dpy, scr->ewmh.layout_sn.owner, ScreenContext, (XPointer) scr);
-    }
-    XSync(dpy, False);
-    XUngrabServer(dpy);
 }
 
 /** @brief Update the window manager in the NetWM/WMH sense.
@@ -6433,6 +6457,12 @@ UpdateEwmh(ScreenInfo *scr)
     fflush(stderr);
 #endif
     Upd_NET_SHOWING_DESKTOP(scr);
+
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "Updating _NET_SUPPORING_WM_CHECK on root\n");
+    fflush(stderr);
+#endif
+    Upd_NET_SUPPORTING_WM_CHECK(scr);
 }
 
 /** @brief Terminate the window manager in the NetWM/WMH sense.
