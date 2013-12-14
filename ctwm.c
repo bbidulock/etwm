@@ -193,6 +193,9 @@ XContext IconManagerContext;	/* context for all window list windows */
 XContext ScreenContext;		/* context to get screen data */
 XContext ColormapContext;	/* context for colormap operations */
 XContext VirtScreenContext;	/* context for virtual screen */
+#ifdef EWMH
+XContext NotifyContext;		/* context for startup notification */
+#endif				/* EWMH */
 
 XClassHint NoClass;		/* for applications with no class */
 
@@ -216,6 +219,9 @@ char **Argv;
 #ifndef VMS
 char **Environ;
 #endif
+
+Bool HasXinerama = False;
+Bool HasXrandr = False;
 
 Bool RestartPreviousState = False;	/* try to restart in previous state */
 #ifdef NOTRAP
@@ -427,6 +433,41 @@ int main(int argc, char **argv, char **environ)
 	exit (1);
     }
 
+#ifdef USE_XINERAMA
+    {
+	int event_base, error_base;
+	int major_version, minor_version;
+
+	HasXinerama = False;
+	if (XineramaQueryExtension(dpy, &event_base, &error_base) == True)
+	    if (XineramaQueryVersion(dpy, &major_version, &minor_version))
+		if (XineramaIsActive(dpy) == True) {
+		    HasXinerama = True;
+		    MultiScreen = False;
+		    fprintf(stderr, "Using Xinerama Extension Version %d.%d\n",
+				    major_version, minor_version);
+		    fflush(stderr);
+		}
+    }
+#endif				/* USE_XINERAMA */
+
+#ifdef USE_XRANDR
+    {
+	int event_base, error_base;
+	int major_version, minor_version;
+
+	HasXrandr = False;
+	if (XRRQueryExtension(dpy, &event_base, &error_base) == True)
+	    if (XRRQueryVersion(dpy, &major_version, &minor_version)) {
+		HasXrandr = True;
+		MultiScreen = False;
+		fprintf(stderr, "Using XRANDR Extension Version %d.%d\n",
+				major_version, minor_version);
+	        fflush(stderr);
+	    }
+    }
+#endif				/* USE_XRANDR */
+
 #ifndef VMS
     if (fcntl(ConnectionNumber(dpy), F_SETFD, 1) == -1) {
 	fprintf (stderr, 
@@ -443,6 +484,9 @@ int main(int argc, char **argv, char **environ)
     ScreenContext = XUniqueContext();
     ColormapContext = XUniqueContext();
     VirtScreenContext = XUniqueContext();
+#ifdef EWMH
+    NotifyContext = XUniqueContext();
+#endif				/* EWMH */
 
     InternUsefulAtoms ();
 
@@ -506,6 +550,48 @@ int main(int argc, char **argv, char **environ)
 	    XClassHint class_hint;
 	    XClientMessageEvent manager_event;
 	    char name[32], hostname[64] = { 0, };
+	    long data[] = {
+		XA_WM_COMMAND,
+		XA_WM_HINTS,
+		XA_WM_CLIENT_MACHINE,
+		XA_WM_ICON_NAME,
+		XA_WM_ICON_SIZE,
+		XA_WM_NAME,
+		XA_WM_NORMAL_HINTS,
+		XA_WM_SIZE_HINTS,
+		XA_WM_ZOOM_HINTS,
+		XA_WM_CLASS,
+		XA_WM_TRANSIENT_FOR,
+		_XA_WM_CLIENT_LEADER,
+		_XA_WM_DELETE_WINDOW,
+		_XA_WM_LOCALE_NAME,
+		_XA_WM_PROTOCOLS,
+		_XA_WM_TAKE_FOCUS,
+		_XA_WM_WINDOW_ROLE,
+		_XA_WM_STATE,
+		_XA_WM_CHANGE_STATE,
+		_XA_WM_SAVE_YOURSELF,
+		_XA_SM_CLIENT_ID,
+		_XA_KDE_WM_CHANGE_STATE,
+		_XA_KDE_SPLASH_PROGRESS,
+		_XA_KWM_WIN_ICON,
+		_XA_KWM_DOCKWINDOW,
+		_XA_MOTIF_BINDINGS,
+		_XA_MOTIF_WM_HINTS,
+		_XA_MOTIF_WM_MESSAGES,
+		_XA_MOTIF_WM_OFFSET,
+		_XA_MOTIF_WM_MENU,
+		_XA_MOTIF_WM_INFO,
+		_XA_MOTIF_DRAG_RECEIVER_INFO,
+		_XA__SWM_VROOT,
+		_XA_WM_END_OF_ANIMATION,
+		_XA_WM_WORKSPACESLIST,
+		_XA_WM_CURRENTWORKSPACE,
+		_XA_WM_NOREDIRECT,
+		_XA_WM_OCCUPATION,
+		_XA_WM_CTWM_VSCREENMAP,
+		_OL_WIN_ATTR
+	    };
 
 	    snprintf(name, 32, "WM_S%d", scrnum);
 	    _XA_WM_SN = XInternAtom(dpy, name, False);
@@ -539,6 +625,8 @@ int main(int argc, char **argv, char **environ)
 	    Xutf8SetWMProperties(dpy, selwin, Version, "ctwm",
 		    argv, argc, NULL, NULL, &class_hint);
 	    XSetWMClientMachine(dpy, selwin, &hname);
+	    XChangeProperty(dpy, selwin, _XA_WM_PROTOCOLS, XA_ATOM, 32, PropModeReplace,
+		    (unsigned char *)data, sizeof(data)/sizeof(long));
 
 	    manager_event.type = ClientMessage;
 	    manager_event.window = croot;
@@ -657,6 +745,7 @@ int main(int argc, char **argv, char **environ)
 	Scr->XineramaRoot = croot;
 	Scr->ManagerWindow = selwin;
 	XSaveContext (dpy, Scr->Root, ScreenContext, (XPointer) Scr);
+	XSaveContext (dpy, selwin,    ScreenContext, (XPointer) Scr);
 
 	if (captive) {
 	    AddToCaptiveList ();
@@ -665,6 +754,31 @@ int main(int argc, char **argv, char **environ)
 	    }
 	} else {
 	    captivename = "Root";
+#ifdef USE_XRANDR
+	    if (HasXrandr) {
+		if ((Scr->randr = XRRGetScreenResources(dpy, Scr->Root)) != NULL && Scr->randr->ncrtc > 0) {
+		    if ((Scr->crtc = calloc(Scr->randr->ncrtc + 1, sizeof(XRRCrtcInfo *))) != NULL) {
+			int n;
+			for (n=0;n<Scr->randr->ncrtc;n++)
+			    Scr->crtc[n] = XRRGetCrtcInfo(dpy, Scr->randr, Scr->randr->crtcs[n]);
+			Scr->crtcs = Scr->randr->ncrtc;
+		    }
+		}
+	    }
+#endif				/* USE_XRANDR */
+#ifdef USE_XINERAMA
+	    if (HasXinerama)
+		Scr->head = XineramaQueryScreens(dpy, &Scr->heads);
+#endif				/* USE_XINERAMA */
+#ifdef EWMH
+	    InitEwmh(Scr);
+#endif				/* EWMH */
+#ifdef WMH
+	    InitWmh(Scr);
+#endif				/* WMH */
+#ifdef MWMH
+	    InitMwmh(Scr);
+#endif				/* MWMH */
 	}
 	Scr->RootColormaps.number_cwins = 1;
 	Scr->RootColormaps.cwins = (ColormapWindow **) malloc(sizeof(ColormapWindow *));
@@ -844,9 +958,19 @@ int main(int argc, char **argv, char **environ)
 	CreateWorkSpaceManager ();
 	MakeWorkspacesMenu ();
 	createWindowBoxes ();
+
 #ifdef GNOME
 	InitGnome ();
 #endif /* GNOME */
+#ifdef EWMH
+	UpdateEwmh(Scr);
+#endif				/* EWMH */
+#ifdef WMH
+	UpdateWmh(Scr);
+#endif				/* WMH */
+#ifdef MWMH
+	UpdateMwmh(Scr);
+#endif				/* MWMH */
 
 	XQueryTree(dpy, Scr->Root, &croot, &parent, &children, &nchildren);
 	/*
@@ -959,6 +1083,54 @@ int main(int argc, char **argv, char **environ)
 #ifdef SOUNDS
     play_startup_sound();
 #endif
+    /* need to indicate splash progress to KDE (startup notification basically) */
+    {
+	XClientMessageEvent xev;
+
+	xev.display = dpy;
+	xev.type = ClientMessage;
+	xev.window = ScreenList[firstscrn]->Root;
+	xev.message_type = _XA_KDE_SPLASH_PROGRESS;
+	xev.format = 8;
+	strcpy(xev.data.b, "wm started");
+	XSendEvent(dpy, xev.window, False, SubstructureNotifyMask, (XEvent *)&xev);
+    }
+
+    {
+	char *id, *msg;
+	int len;
+
+	/* startup notification completion for window manager
+	 * - don't need libsn for this */
+	if ((id = getenv("DESKTOP_STARTUP_ID")) != NULL && (len = strlen(id)) > 0) {
+	    if ((msg = calloc(len + 16, sizeof(char))) != NULL) {
+		XClientMessageEvent xev;
+		Window droot;
+		
+		droot = ScreenList[firstscrn]->Root;
+
+		msg[0] = '\0';
+		strcat(msg, "remove: ID=");
+		strcat(msg, id);
+		len = strlen(msg) + 1;
+
+		xev.display = dpy;
+		xev.type = ClientMessage;
+		xev.window = ScreenList[firstscrn]->ManagerWindow;
+		xev.message_type = _XA_NET_STARTUP_INFO_BEGIN;
+		xev.format = 8;
+
+		while (len > 0) {
+		    strncpy(xev.data.b, msg, 20);
+		    msg += 20;
+		    len -= 20;
+		    XSendEvent(dpy, droot, False, PropertyChangeMask, (XEvent *)&xev);
+		    xev.message_type = _XA_NET_STARTUP_INFO;
+		}
+	    }
+	    unsetenv("DESKTOP_STARTUP_ID");
+	}
+    }
 
     RestartPreviousState = True;
     HandlingEvents = TRUE;
@@ -1036,7 +1208,11 @@ static void InitVariables(void)
     NewFontCursor(&Scr->DestroyCursor, "pirate");
     NewFontCursor(&Scr->AlterCursor, "question_arrow");
 
+#if defined(EWMH) || defined(WMH)
+    Scr->workSpaceManagerActive = TRUE;
+#else
     Scr->workSpaceManagerActive = FALSE;
+#endif
     Scr->Ring = NULL;
     Scr->RingLeader = NULL;
 
@@ -1478,11 +1654,22 @@ Atom _XA_WM_WORKSPACESLIST;
 Atom _XA_WM_CURRENTWORKSPACE;
 Atom _XA_WM_NOREDIRECT;
 Atom _XA_WM_OCCUPATION;
-Atom _XA_WM_CURRENTWORKSPACE;
-Atom _XA_WM_CTWMSLIST;
 Atom _XA_WM_CTWM_VSCREENMAP;
 Atom _XA_MANAGER;
 Atom _OL_WIN_ATTR;
+Atom _XA_KDE_WM_CHANGE_STATE;
+Atom _XA_KDE_SPLASH_PROGRESS;
+Atom _XA_WM_LOCALE_NAME;
+Atom _XA_KWM_WIN_ICON;
+Atom _XA_KWM_DOCKWINDOW;
+Atom _XA_MOTIF_BINDINGS;
+Atom _XA_MOTIF_WM_HINTS;
+Atom _XA_MOTIF_WM_MESSAGES;
+Atom _XA_MOTIF_WM_OFFSET;
+Atom _XA_MOTIF_WM_MENU;
+Atom _XA_MOTIF_WM_INFO;
+Atom _XA_MOTIF_DRAG_RECEIVER_INFO;
+Atom _XA__SWM_VROOT;
 
 
 void InternUsefulAtoms (void)
@@ -1514,6 +1701,19 @@ void InternUsefulAtoms (void)
     _OL_WIN_ATTR            = XInternAtom (dpy, "_OL_WIN_ATTR",      False);
     _XA_WM_NOREDIRECT = XInternAtom (dpy, "WM_NOREDIRECT", False);
     _XA_MANAGER = XInternAtom(dpy, "MANAGER", False);
+    _XA_KDE_WM_CHANGE_STATE = XInternAtom (dpy, "_KDE_WM_CHANGE_STATE", False);
+    _XA_KDE_SPLASH_PROGRESS = XInternAtom (dpy, "_KDE_SPLASH_PROGRESS", False);
+    _XA_WM_LOCALE_NAME = XInternAtom (dpy, "WM_LOCALE_NAME", False);
+    _XA_KWM_WIN_ICON = XInternAtom (dpy, "KWM_WIN_ICON", False);
+    _XA_KWM_DOCKWINDOW = XInternAtom (dpy, "KWM_DOCKWINDOW", False);
+    _XA_MOTIF_BINDINGS = XInternAtom (dpy, "_MOTIF_BINDINGS", False);
+    _XA_MOTIF_WM_HINTS = XInternAtom (dpy, "_MOTIF_WM_HINTS", False);
+    _XA_MOTIF_WM_MESSAGES = XInternAtom (dpy, "_MOTIF_WM_MESSAGES", False);
+    _XA_MOTIF_WM_OFFSET = XInternAtom (dpy, "_MOTIF_WM_OFFSET", False);
+    _XA_MOTIF_WM_MENU = XInternAtom (dpy, "_MOTIF_WM_MENU", False);
+    _XA_MOTIF_WM_INFO = XInternAtom (dpy, "_MOTIF_WM_INFO", False);
+    _XA_MOTIF_DRAG_RECEIVER_INFO = XInternAtom (dpy, "_MOTIF_DRAG_RECEIVER_INFO", False);
+    _XA__SWM_VROOT = XInternAtom (dpy, "__SWM_VROOT", False);
 
 }
 

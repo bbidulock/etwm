@@ -566,7 +566,9 @@ static void CtwmNextEvent (Display *display, XEvent  *event)
     int		found;
     fd_set	mask;
     int		fd;
+#ifndef USE_SIGNALS
     struct timeval timeout, *tout = NULL;
+#endif
 
     if (RestartFlag)
 	DoRestart(CurrentTime);
@@ -860,6 +862,9 @@ void HandleFocusIn(XFocusInEvent *event)
     if (Tmp_win->AutoSqueeze && Tmp_win->squeezed) AutoSqueeze (Tmp_win);
     SetFocusVisualAttributes (Tmp_win, True);
     Scr->Focus = Tmp_win;
+#ifdef EWMH
+    Upd_NET_ACTIVE_WINDOW(Scr);
+#endif				/* EWMH */
 }
 
 void HandleFocusOut(XFocusOutEvent *event)
@@ -875,6 +880,9 @@ void HandleFocusOut(XFocusOutEvent *event)
     if (Tmp_win->AutoSqueeze && !Tmp_win->squeezed) AutoSqueeze (Tmp_win);
     SetFocusVisualAttributes (Tmp_win, False);
     Scr->Focus= NULL;
+#ifdef EWMH
+    Upd_NET_ACTIVE_WINDOW(Scr);
+#endif				/* EWMH */
 }
 
 void HandleFocusChange(void)
@@ -1326,8 +1334,8 @@ void HandleKeyPress(void)
 
 
 
-static void free_window_names (TwmWindow *tmp,
-			       Bool nukefull, Bool nukename, Bool nukeicon)
+void free_window_names (TwmWindow *tmp,
+			Bool nukefull, Bool nukename, Bool nukeicon)
 {
 /*
  * XXX - are we sure that nobody ever sets these to another constant (check
@@ -1416,7 +1424,9 @@ void HandlePropertyNotify(void)
     XRectangle inc_rect;
     XRectangle logical_rect;
 
+#ifdef GNOME
     unsigned char *gwkspc;
+#endif
 
     /* watch for standard colormap changes */
     if (Event.xproperty.window == Scr->Root) {
@@ -1453,6 +1463,18 @@ void HandlePropertyNotify(void)
 	    return;
 	}
     }
+#ifdef EWMH
+    if (HandleNetPropertyNotify(Scr, Tmp_win, &Event))
+	return;
+#endif				/* EWMH */
+#ifdef WMH
+    if (HandleWinPropertyNotify(Scr, Tmp_win, &Event))
+	return;
+#endif				/* WMH */
+#ifdef MWMH
+    if (HandleMwmPropertyNotify(Scr, Tmp_win, &Event))
+	return;
+#endif				/* MWMH */
 
     if (!Tmp_win) return;		/* unknown window */
 
@@ -1910,8 +1932,10 @@ wmapupd:
 
 void HandleClientMessage(void)
 {
+#ifdef GNOME
     TwmWindow *twm_win;
     int i;
+#endif
 
     if (Event.xclient.message_type == _XA_WM_CHANGE_STATE) {
 	if (Tmp_win != NULL) {
@@ -1981,6 +2005,18 @@ void HandleClientMessage(void)
       else
            fprintf(stderr, "!! end of unknown animation !!\n");
    }
+#ifdef EWMH
+    else if (HandleNetClientMessage(Scr, Tmp_win, &Event))
+	return;
+#endif				/* EWMH */
+#ifdef WMH
+    else if (HandleWinClientMessage(Scr, Tmp_win, &Event))
+	return;
+#endif				/* WMH */
+#ifdef MWMH
+    else if (HandleMwmClientMessage(Scr, Tmp_win, &Event))
+	return;
+#endif				/* MWMH */
 }
 
 
@@ -2002,9 +2038,14 @@ void HandleSelectionClear(void)
 	if (name[0] == 'W' && name[1] == 'M' && name[2] == '_' && name[3] == 'S') {
 	    /* lost a window manager selection - must exit */
 	    Done(0);
+	    XFree(name);
+	    return; /* should never reach this */
 	}
 	XFree(name);
     }
+#ifdef EWMH
+    HandleNetSelectionClear(Scr, Tmp_win, &Event);
+#endif				/* EWMH */
 }
 
 
@@ -2200,6 +2241,11 @@ void HandleDestroyNotify(void)
      * into a DestroyNotify.
      */
 
+#ifdef EWMH
+    if (HandleNetDestroyNotify(Scr, Tmp_win, &Event))
+	return;
+#endif				    /* EWMH */
+
     if (Tmp_win == NULL)
 	return;
 
@@ -2207,10 +2253,22 @@ void HandleDestroyNotify(void)
 #ifdef GNOME
     GnomeDeleteClientWindow (Tmp_win); /* Fix the gnome client list */
 #endif /* GNOME */
+#ifdef EWMH
+    DelWindowEwmh(Scr, Tmp_win);
+#endif				/* EWMH */
+#ifdef WMH
+    DelWindowWmh(Scr, Tmp_win);
+#endif				/* WMH */
+#ifdef MWMH
+    DelWindowMwmh(Scr, Tmp_win);
+#endif				/* MWMH */
     if (Tmp_win == Scr->Focus)
     {
 	Scr->Focus = (TwmWindow*) NULL;
 	FocusOnRoot();
+#ifdef EWMH
+	Upd_NET_ACTIVE_WINDOW(Scr);
+#endif				/* EWMH */
     }
     if (Scr->SaveWorkspaceFocus) {
 	struct WorkSpace *ws;
@@ -2315,7 +2373,9 @@ void HandleDestroyNotify(void)
 	Tmp_win->next->prev = Tmp_win->prev;
     if (Tmp_win->auto_raise) Scr->NumAutoRaises--;
     if (Tmp_win->auto_lower) Scr->NumAutoLowers--;
+#if 0
     if (Tmp_win->frame == Lowerontop) Lowerontop = (Window)-1;
+#endif
 
     free_window_names (Tmp_win, True, True, True);		/* 1, 2, 3 */
     if (Tmp_win->wmhints)					/* 4 */
@@ -2383,6 +2443,15 @@ void HandleMapRequest(void)
 #ifdef GNOME
 	GnomeAddClientWindow (Tmp_win); /* add the new window to the gnome client list */
 #endif /* GNOME */
+#ifdef EWMH
+	AddWindowEwmh(Scr, Tmp_win);
+#endif				/* EWMH */
+#ifdef WMH
+	AddWindowWmh(Scr, Tmp_win);
+#endif				/* WMH */
+#ifdef MWMH
+	AddWindowMwmh(Scr, Tmp_win);
+#endif				/* MWMH */
     }
     else
     {
@@ -2646,6 +2715,7 @@ void HandleMotionNotify(void)
 
 
 
+void WarpCursorToDefaultEntry (MenuRoot *menu);
 /***********************************************************************
  *
  *  Procedure:

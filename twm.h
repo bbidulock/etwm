@@ -84,6 +84,15 @@
 #include <X11/Xfuncs.h>
 #endif	/* VMS */
 #include "types.h"
+#ifdef EWMH
+#include "ewmh.h"
+#endif /* EWMH */
+#ifdef WMH
+#include "wmh.h"
+#endif /* WMH */
+#ifdef MWMH
+#include "mwmh.h"
+#endif /* MWMH */
 
 #ifndef WithdrawnState
 #define WithdrawnState 0
@@ -301,6 +310,56 @@ struct WindowBox {
     struct TwmWindow	*twmwin;
 };
 
+union WindowLists {
+    struct {
+	unsigned window:1;		/* on window list? */
+	unsigned pager:1;		/* on pager (workspace manager) list? */
+	unsigned task:1;		/* on task (icon manager) list? */
+    } list;
+    unsigned lists;
+};
+
+union WindowFunctions {
+    struct {
+	unsigned move:1;		/* can move */
+	unsigned resize:1;		/* can resize */
+	unsigned minimize:1;		/* can minimize */
+	unsigned shade:1;		/* can shade */
+	unsigned stick:1;		/* can stick */
+	unsigned maximize_horz:1;	/* can maximize horizontally */
+	unsigned maximize_vert:1;	/* can maximize vertically */
+	unsigned maximize:1;		/* can maximize (any) */
+	unsigned fullscreen:1;		/* can fullscreen */
+	unsigned change_desktop:1;	/* can change desktop */
+	unsigned close:1;		/* can close */
+	unsigned above:1;		/* can set above */
+	unsigned below:1;		/* can set below */
+	unsigned maximus_left:1;	/* can maximize left */
+	unsigned maximus_right:1;	/* can maximize right */
+	unsigned maximus_top:1;		/* can maximize top */
+	unsigned maximus_bottom:1;	/* can maximize bottom */
+	unsigned maximus:1;		/* can maximize (any direction) */
+    } function;
+    unsigned functions;
+};
+
+union WindowDecorations {
+    struct {
+	unsigned border:1;		/* has border */
+	unsigned resizeh:1;		/* has resize handles */
+	unsigned title:1;		/* has title */
+	unsigned menu:1;		/* has menu button */
+	unsigned minimize:1;		/* has minimize button */
+	unsigned maximize:1;		/* has maximize buttons */
+	unsigned close:1;		/* has close button */
+	unsigned resize:1;		/* has resize button */
+	unsigned shade:1;		/* has shade button */
+	unsigned stick:1;		/* has stick button */
+	unsigned maximus:1;		/* has maximus buttons */
+    } decoration;
+    unsigned decorations;
+};
+
 /* for each window that is on the display, one of these structures
  * is allocated and linked into a list 
  */
@@ -418,6 +477,19 @@ struct TwmWindow
     Bool widthEverChangedByUser;
     Bool heightEverChangedByUser;
 
+    union WindowLists list;
+    union WindowFunctions func;
+    union WindowDecorations decor;
+
+#ifdef EWMH
+    EwmhWindow ewmh;
+#endif				/* EWMH */
+#ifdef WMH
+    WmhWindow wmh;
+#endif				/* WMH */
+#ifdef MWMH
+    MwmWindow mwmh;
+#endif				/* MWMH */
 };
 
 struct TWMWinConfigEntry
@@ -517,6 +589,9 @@ extern XContext IconManagerContext;
 extern XContext ScreenContext;
 extern XContext ColormapContext;
 extern XContext VirtScreenContext;
+#ifdef EWMH
+extern XContext NotifyContext;
+#endif				/* EWMH */
 
 extern char *Home;
 extern int HomeLen;
@@ -566,13 +641,49 @@ extern Atom _XA_WM_CLIENT_LEADER;
 extern Atom _XA_WM_WINDOW_ROLE;
 extern Atom _XA_WM_WORKSPACESLIST;
 extern Atom _XA_WM_CURRENTWORKSPACE;
+extern Atom _XA_WM_NOREDIRECT;
 extern Atom _XA_WM_OCCUPATION;
 extern Atom _XA_WM_CTWM_VSCREENMAP;
 extern Atom _XA_MANAGER;
 extern Atom _OL_WIN_ATTR;
-extern Atom _XA_WM_NOREDIRECT;
+extern Atom _XA_KDE_WM_CHANGE_STATE;
+extern Atom _XA_KDE_SPLASH_PROGRESS;
+extern Atom _XA_WM_LOCALE_NAME;
+extern Atom _XA_KWM_WIN_ICON;
+extern Atom _XA_KWM_DOCKWINDOW;
+extern Atom _XA__SWM_VROOT;
 
 #define OCCUPY(w, b) ((b == NULL) ? 1 : (w->occupation & (1 << b->number)))
 #define VISIBLE(w) OCCUPY(w, Scr->workSpaceMgr.activeWSPC)
+
+#define TWM_ATOM_ENTRY(atom) [atom ## _BIT] = &_XA ## atom
+
+/* bit definitions for WM_PROTOCOLS */
+enum WM_PROTOCOLS {
+    _WM_TAKE_FOCUS_BIT = 0,
+    _WM_SAVE_YOURSELF_BIT,
+    _WM_DELETE_WINDOW_BIT,
+#ifdef EWMH
+    _NET_WM_PING_BIT,
+    _NET_WM_SYNC_REQUEST_BIT,
+#endif					/* EWMH */
+#ifdef MWMH
+    _MOTIF_WM_MESSAGES_BIT,
+    _MOTIF_WM_OFFSET_BIT,
+#endif					/* MWMH */
+    WM_PROTOCOLS_last
+};
+
+#define _WM_TAKE_FOCUS			(1L<<_WM_TAKE_FOCUS_BIT)
+#define _WM_DELETE_WINDOW		(1L<<_WM_DELETE_WINDOW_BIT)
+#define _WM_SAVE_YOURSELF		(1L<<_WM_SAVE_YOURSELF_BIT)
+#ifdef EWMH
+#define _NET_WM_PING			(1L<<_NET_WM_PING_BIT)
+#define _NET_WM_SYNC_REQUEST		(1L<<_NET_WM_SYNC_REQUEST_BIT)
+#endif					/* EWMH */
+#ifdef MWMH
+#define _MOTIF_WM_MESSAGES		(1L<<_MOTIF_WM_MESSAGES_BIT)
+#define _MOTIF_WM_OFFSET		(1L<<_MOTIF_WM_OFFSET_BIT)
+#endif					/* MWMH */
 
 #endif /* _TWM_ */

@@ -104,7 +104,6 @@ static void ResizeOccupyWindow		(TwmWindow *win);
 static WorkSpace *GetWorkspace		(char *wname);
 static void WMapRedrawWindow		(Window window, int width, int height,
 					 ColorPair cp, char *label);
-static int CanChangeOccupation          (TwmWindow **twm_winp);
 void safecopy                           (char *dest, char *src, int size);
 
 static Atom _XA_WM_CTWMSLIST;
@@ -182,7 +181,7 @@ void CreateWorkSpaceManager (void)
     char wrkSpcList [512];
     char vsmapbuf    [1024], *vsmap;
     VirtualScreen    *vs;
-    WorkSpace        *ws, *fws;
+    WorkSpace        *ws = NULL, *fws;
     int len, vsmaplen;
     long junk;
 
@@ -202,13 +201,27 @@ void CreateWorkSpaceManager (void)
     else
 	vsmap = NULL;
 
+#ifdef EWMH
+    if (ws == NULL && Scr->ewmh.props._NET_CURRENT_DESKTOP)
+	for (ws = Scr->workSpaceMgr.workSpaceList; ws != NULL; ws = ws->next)
+	    if (ws->number == (long) Scr->ewmh.current)
+		break;
+#endif				/* EWMH */
+#ifdef WMH
+    if (ws == NULL && Scr->wmh.props._WIN_WORKSPACE)
+	for (ws = Scr->workSpaceMgr.workSpaceList; ws != NULL; ws = ws->next)
+	    if (ws->number == (long) Scr->wmh.workspace)
+		break;
+#endif				/* WMH */
+    if (ws == NULL)
+	ws = Scr->workSpaceMgr.workSpaceList;
+
     /*
      * weird things can happen if the config file is changed or the atom
      * returned above is messed with.  Sometimes windows may disappear in
      * that case depending on what's changed.  (depending on where they were
      * on the actual screen.
      */
-    ws = Scr->workSpaceMgr.workSpaceList;
     for (vs = Scr->vScreenList; vs != NULL; vs = vs->next) {
       WorkSpaceWindow *wsw = vs->wsw;
       if(vsmap)
@@ -400,24 +413,28 @@ void ShowBackground (VirtualScreen *vs)
   static int state = 0;
   TwmWindow *twmWin;
 
-  if (state) {
+  if (Scr->showingDesktop) {
     for (twmWin = Scr->FirstWindow; twmWin != NULL; twmWin = twmWin->next) {
-      if (twmWin->savevs == vs) {
-	DisplayWin (vs, twmWin);
+      if (twmWin->savevs) {
+	DisplayWin (twmWin->savevs, twmWin);
       }
       twmWin->savevs = NULL;
     }
-    state = 0;
+    Scr->showingDesktop = False;
   } else {
     for (twmWin = Scr->FirstWindow; twmWin != NULL; twmWin = twmWin->next) {
-      if (twmWin->vs == vs) {
+      if (twmWin->vs) {
 	twmWin->savevs = twmWin->vs;
-	Vanish (vs, twmWin);
+	Vanish (twmWin->vs, twmWin);
       }
     }
-    state = 1;
+    Scr->showingDesktop = True;
   }
+#ifdef EWMH
+  Upd_NET_SHOWING_DESKTOP(Scr);
+#endif				/* EWMH */
 }
+
 
 void GotoWorkSpace (VirtualScreen *vs, WorkSpace *ws)
 {
@@ -431,7 +448,7 @@ void GotoWorkSpace (VirtualScreen *vs, WorkSpace *ws)
     IconMgr		 *iconmgr;
     Window		 oldw;
     Window		 neww;
-    unsigned long	 valuemask;
+/*  unsigned long	 valuemask; */
     TwmWindow		 *focuswindow;
     TwmWindow		 *last_twmWin = NULL;
     VirtualScreen	 *tmpvs;
@@ -447,7 +464,7 @@ void GotoWorkSpace (VirtualScreen *vs, WorkSpace *ws)
     newws = ws;
     if (oldws == newws) return;
 
-    valuemask = (CWBackingStore | CWSaveUnder);
+    /* valuemask = (CWBackingStore | CWSaveUnder); */
     attr.backing_store = NotUseful;
     attr.save_under    = False;
     /*    cachew = XCreateWindow (dpy, Scr->Root, vs->x, vs->y,
@@ -541,7 +558,7 @@ void GotoWorkSpace (VirtualScreen *vs, WorkSpace *ws)
 		for (tvs = Scr->vScreenList; tvs != NULL; tvs = tvs->next) {
 		    if (tvs == vs)
 			continue;
-		    if (OCCUPY (twmWin, tvs->wsw->currentwspc)) {
+		    if (OCCUPY (twmWin, tvs->wsw->currentwspc) && !twmWin->savevs) {
 			DisplayWin (tvs, twmWin);
 			break;
 		    }
@@ -556,7 +573,7 @@ void GotoWorkSpace (VirtualScreen *vs, WorkSpace *ws)
 
     /* Make visible in reverse order */
     for (twmWin = last_twmWin; twmWin != NULL; twmWin = twmWin->prev) {
-	if (OCCUPY (twmWin, newws) && !twmWin->vs) {
+	if (OCCUPY (twmWin, newws) && !twmWin->vs && !twmWin->savevs) {
 	    DisplayWin (vs, twmWin);
 	}
     }
@@ -658,6 +675,15 @@ void GotoWorkSpace (VirtualScreen *vs, WorkSpace *ws)
 	XChangeProperty (dpy, Scr->Root, _XA_WIN_WORKSPACE, XA_CARDINAL, 32,
 		    PropModeReplace, (unsigned char *) &(newws->number), 1);
 #endif /* GNOME */
+#ifdef EWMH
+    Upd_NET_CURRENT_DESKTOP(Scr);
+#endif				/* EWMH */
+#ifdef WMH
+    Upd_WIN_WORKSPACE_root(Scr);
+#endif				/* WMH */
+#ifdef MWMH
+    Upd_DT_WORKSPACE_CURRENT(Scr);
+#endif				/* MWMH */
     XSelectInput(dpy, Scr->Root, eventMask);
 
     /*    XDestroyWindow (dpy, cachew);*/
@@ -804,6 +830,16 @@ void SetupOccupation (TwmWindow *twm_win,
     XrmDatabase       db = NULL;
     VirtualScreen     *vs;
     long gwkspc = 0; /* for GNOME - which workspace we occupy */
+#if defined(EWMH) || defined(WMH)
+    unsigned		mask;
+#endif
+#if defined(EWMH)
+    int			desktop;
+    EwmhSequence	*seq;
+#endif
+#if defined(WMH)
+    int			workspace;
+#endif
 
     if (! Scr->workSpaceManagerActive) {
 	twm_win->occupation = 1 << 0;   /* occupy workspace #0 */
@@ -878,6 +914,82 @@ void SetupOccupation (TwmWindow *twm_win,
 
     /*================================================================*/
 
+#ifdef EWMH
+    if (XGetWindowProperty (dpy, twm_win->w, _XA_NET_WM_DESKTOP_MASK, 0L, 1, False,
+			    XA_CARDINAL, &actual_type, &actual_format, &nitems,
+			    &bytesafter, &prop) == Success && nitems != 0) {
+	if ((mask = *(long *)prop & fullOccupation) != 0)
+	    twm_win->occupation = mask & fullOccupation;
+	XFree((char *) prop);
+    }
+    else
+    if (XGetWindowProperty (dpy, twm_win->w, _XA_NET_WM_DESKTOP, 0L, 1, False,
+			    XA_CARDINAL, &actual_type, &actual_format, &nitems,
+			    &bytesafter, &prop) == Success && nitems != 0) {
+	if ((desktop = *(long *)prop) == -1)
+	    twm_win->occupation = fullOccupation;
+	else if (((1 << desktop) & fullOccupation) != 0)
+	    twm_win->occupation = (1 << desktop);
+	XFree((char *) prop);
+    }
+    else
+    if ((seq = Seq_NET_STARTUP_ID(Scr, twm_win)) != NULL && seq->field.desktop != NULL) {
+	if ((desktop = seq->numb.desktop) == -1)
+	    twm_win->occupation = fullOccupation;
+	else if (((1 << desktop) & fullOccupation) != 0)
+	    twm_win->occupation = (1 << desktop);
+    }
+#endif				/* EWMH */
+#if defined(EWMH) && defined(WMH)
+    else
+#endif
+#ifdef WMH
+    if (XGetWindowProperty (dpy, twm_win->w, _XA_WIN_WORKSPACES, 0L, 1, False,
+			    XA_CARDINAL, &actual_type, &actual_format, &nitems,
+			    &bytesafter, &prop) == Success && nitems != 0) {
+	if ((mask = *(long *)prop & fullOccupation) != 0)
+	    twm_win->occupation = mask & fullOccupation;
+	XFree((char *) prop);
+    }
+    else
+    if (XGetWindowProperty (dpy, twm_win->w, _XA_WIN_WORKSPACE, 0L, 1, False,
+			    XA_CARDINAL, &actual_type, &actual_format, &nitems,
+			    &bytesafter, &prop) == Success && nitems != 0) {
+	if ((workspace = *(long *)prop) == -1)
+	    twm_win->occupation = fullOccupation;
+	else if (((1 << workspace) & fullOccupation) != 0)
+	    twm_win->occupation = (1 << workspace);
+	XFree((char *) prop);
+    }
+#endif				/* WMH */
+#if (defined(EWMH) || defined(WMH)) && defined(MWMH)
+    else
+#endif
+#ifdef MWMH
+    if (XGetWindowProperty (dpy, twm_win->w, _XA_DT_WORKSPACE_HINTS, 0L, 36L, False,
+			    _XA_DT_WORKSPACE_HINTS, &actual_type, &actual_format, &nitems,
+			    &bytesafter, &prop) == Success && nitems >= 4) {
+	struct DtWmWorkspaceHints wshints;
+
+	wshints.version = ((long *)prop)[0];
+	wshints.flags = ((long *)prop)[1];
+	wshints.wsflags = ((long *)prop)[2];
+	wshints.numWorkspaces = ((long *)prop)[3];
+	if ((wshints.flags & DT_WORKSPACE_HINTS_WSFLAGS) && (wshints.wsflags & DT_WORKSPACE_FLAGS_OCCUPY_ALL))
+	    twm_win->occupation = fullOccupation;
+	else if ((wshints.flags & DT_WORKSPACE_HINTS_WORKSPACES) && nitems >= 4 + wshints.numWorkspaces) {
+	    Atom *list, *atoms = (Atom *)&prop[4];
+	    int n, m;
+
+	    if ((list = Scr->mwmh.list) != NULL)
+		for (n = 0; n < wshints.numWorkspaces; n++)
+		    for (m = 0; *list != None; list++, m++)
+			if (atoms[n] = list[m])
+			    twm_win->occupation |= (1<<m);
+	}
+    }
+#endif				/* MWMH */
+
     if ((twm_win->occupation & fullOccupation) == 0) {
       vs = Scr->currentvs;
       if (vs && vs->wsw->currentwspc) 
@@ -917,6 +1029,17 @@ void SetupOccupation (TwmWindow *twm_win,
     XChangeProperty (dpy, twm_win->w, _XA_WIN_STATE, XA_CARDINAL, 32, 
 		     PropModeReplace, (unsigned char *)&gwkspc, 1); 
 #endif /* GNOME */
+#ifdef EWMH
+    Upd_NET_WM_DESKTOP_MASK(Scr, twm_win);
+    Upd_NET_WM_DESKTOP(Scr, twm_win);
+#endif				/* EWMH */
+#ifdef WMH
+    Upd_WIN_WORKSPACES(Scr, twm_win);
+    Upd_WIN_WORKSPACE(Scr, twm_win);
+#endif				/* WMH */
+#ifdef MWMH
+    Upd_DT_WORKSPACE_PRESENCE(Scr, twm_win);
+#endif
     XSelectInput (dpy, twm_win->w, eventMask);
 
 /* kludge */
@@ -1012,7 +1135,7 @@ Bool RedirectToCaptive (Window window)
  */
 static TwmWindow *occupyWin = (TwmWindow*) 0;
 
-static int CanChangeOccupation(TwmWindow **twm_winp)
+int CanChangeOccupation(TwmWindow **twm_winp)
 {
     TwmWindow *twm_win;
 
@@ -1405,7 +1528,6 @@ static void DisplayWin (VirtualScreen *vs, TwmWindow *tmp_win)
 	    if (tmp_win->icon_on) {
 		if (tmp_win->icon && tmp_win->icon->w) {
 		    if (vs != tmp_win->old_parent_vs) {
-			struct Icon *icon = tmp_win->icon;
 			ReparentFrameAndIcon(vs, tmp_win);
 		    }
 
@@ -1483,6 +1605,17 @@ void ChangeOccupation (TwmWindow *tmp_win, int newoccupation)
  	XChangeProperty (dpy, tmp_win->w, _XA_WIN_STATE, XA_CARDINAL, 32, 
 			 PropModeReplace, (unsigned char *)&gwkspc, 1); 
 #endif /* GNOME */
+#ifdef EWMH
+	Upd_NET_WM_DESKTOP(Scr, tmp_win);
+	Upd_NET_WM_DESKTOP_MASK(Scr, tmp_win);
+#endif				/* EWMH */
+#ifdef WMH
+	Upd_WIN_WORKSPACE(Scr, tmp_win);
+	Upd_WIN_WORKSPACES(Scr, tmp_win);
+#endif				/* WMH */
+#ifdef MWMH
+	Upd_DT_WORKSPACE_PRESENCE(Scr, tmp_win);
+#endif				/* MWMH */
 	XSelectInput (dpy, tmp_win->w, eventMask);
 	return;
     }
@@ -1500,7 +1633,7 @@ void ChangeOccupation (TwmWindow *tmp_win, int newoccupation)
      * which is currently in another virtual screen, so that the window
      * can be shown there now.
      */
-    if (!tmp_win->vs) {
+    if (!tmp_win->vs && !tmp_win->savevs) {
       for (vs = Scr->vScreenList; vs != NULL; vs = vs->next) {
 	if (OCCUPY (tmp_win, vs->wsw->currentwspc)) {
 	  DisplayWin (vs, tmp_win);
@@ -1543,6 +1676,17 @@ void ChangeOccupation (TwmWindow *tmp_win, int newoccupation)
     XChangeProperty (dpy, tmp_win->w, _XA_WIN_STATE, XA_CARDINAL, 32, 
 		     PropModeReplace, (unsigned char *)&gwkspc, 1); 
 #endif /* GNOME */
+#ifdef EWMH
+    Upd_NET_WM_DESKTOP(Scr, tmp_win);
+    Upd_NET_WM_DESKTOP_MASK(Scr, tmp_win);
+#endif				/* EWMH */
+#ifdef WMH
+    Upd_WIN_WORKSPACE(Scr, tmp_win);
+    Upd_WIN_WORKSPACES(Scr, tmp_win);
+#endif				/* WMH */
+#ifdef MWMH
+    Upd_DT_WORKSPACE_PRESENCE(Scr, tmp_win);
+#endif				/* MWMH */
     XSelectInput(dpy, tmp_win->w, eventMask);
 
     if (!WMapWindowMayBeAdded(tmp_win)) {
@@ -1655,7 +1799,7 @@ static void CreateWorkSpaceManagerWindow (VirtualScreen *vs)
 {
     int		  mask;
     int		  lines, vspace, hspace, count, columns;
-    unsigned int  width, height, bwidth, bheight, wwidth, wheight;
+    unsigned int  width, height, bwidth, bheight;
     char	  *name, *icon_name, *geometry;
     int		  i, j;
     ColorPair	  cp;
@@ -1740,8 +1884,6 @@ static void CreateWorkSpaceManagerWindow (VirtualScreen *vs)
 	y       = vs->h - height;
 	gravity = NorthWestGravity;
     }
-    wwidth  = width  / columns;
-    wheight = height / lines;
 
 #define Dummy	1
 
@@ -2612,6 +2754,9 @@ void WMapRestack (WorkSpace *ws)
     }
     XFree ((char *) children);
     free  (smallws);
+#ifdef EWMH
+    Upd_NET_CLIENT_LIST_STACKING(Scr);
+#endif				/* EWMH */
     return;
 }
 

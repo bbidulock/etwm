@@ -1,3 +1,5 @@
+ACLOCAL_AMFLAGS	 = -I m4
+
 AM_YFLAGS = -d
 
 bin_PROGRAMS = ctwm
@@ -12,16 +14,25 @@ AM_CPPFLAGS = -include config.h \
 	'-DSYSTEM_INIT_FILE="$(ctwmdir)/system.ctwmrc"' \
 	'-DPIXMAP_DIRECTORY="$(pixmapdir)"'
 
-AM_CFLAGS = $(CTWM_CFLAGS)
+AM_CFLAGS = $(CTWM_CFLAGS) $(xpm_CFLAGS) $(xrandr_CFLAGS) $(xinerama_CFLAGS)
 
 libctwm_a_SOURCES = \
 	twm.h \
 	ctwm.h \
 	libctwm.c
 
-ctwm_LDADD = $(CTWM_LIBS) libctwm.a
+ctwm_LDADD = $(CTWM_LIBS) $(xpm_LIBS) $(xrandr_LIBS) $(xinerama_LIBS) libctwm.a
 
 EXTRA_ctwm_SOURCES = \
+	ewmh.c \
+	ewmh.h \
+	ewmh_ctwm.c \
+	wmh.c \
+	wmh.h \
+	wmh_ctwm.c \
+	mwmh.c \
+	mwmh.h \
+	mwmh_ctwm.c \
 	gnome.c \
 	gnome.h \
 	gnomewindefs.h \
@@ -87,6 +98,27 @@ if SOUND
 ctwm_SOURCES += \
 	sound.c \
 	sound.h
+endif
+
+if EWMH
+ctwm_SOURCES += \
+	ewmh.c \
+	ewmh.h \
+	ewmh_ctwm.c
+endif
+
+if WMH
+ctwm_SOURCES += \
+	wmh.c \
+	wmh.h \
+	wmh_ctwm.c
+endif
+
+if MWMH
+ctwm_SOURCES += \
+	mwmh.c \
+	mwmh.h \
+	mwmh_ctwm.c
 endif
 
 dist_pixmap_DATA = \

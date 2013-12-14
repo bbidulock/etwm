@@ -363,20 +363,11 @@ void MoveOutline(Window root,
  ***********************************************************************
  */
 
-void Zoom(Window wf, Window wt)
+void ZoomIt(int fx, int fy , unsigned fw, unsigned fh, int tx, int ty, unsigned tw, unsigned th)
 {
-    int fx, fy, tx, ty;			/* from, to */
-    unsigned int fw, fh, tw, th;	/* from, to */
     long dx, dy, dw, dh;
     long z;
     int j;
-
-    if ((Scr->IconifyStyle != ICONIFY_NORMAL) || !Scr->DoZoom || Scr->ZoomCount < 1) return;
-
-    if (wf == None || wt == None) return;
-
-    XGetGeometry (dpy, wf, &JunkRoot, &fx, &fy, &fw, &fh, &JunkBW, &JunkDepth);
-    XGetGeometry (dpy, wt, &JunkRoot, &tx, &ty, &tw, &th, &JunkBW, &JunkDepth);
 
     dx = (long) tx - (long) fx;	/* going from -> to */
     dy = (long) ty - (long) fy;	/* going from -> to */
@@ -401,6 +392,205 @@ void Zoom(Window wf, Window wt)
     }
 }
 
+void Zoom(Window wf, Window wt)
+{
+    int fx, fy, tx, ty;			/* from, to */
+    unsigned int fw, fh, tw, th;	/* from, to */
+
+    if ((Scr->IconifyStyle != ICONIFY_NORMAL) || !Scr->DoZoom || Scr->ZoomCount < 1) return;
+
+    if (wf == None || wt == None) return;
+
+    XGetGeometry (dpy, wf, &JunkRoot, &fx, &fy, &fw, &fh, &JunkBW, &JunkDepth);
+    XGetGeometry (dpy, wt, &JunkRoot, &tx, &ty, &tw, &th, &JunkBW, &JunkDepth);
+
+    ZoomIt(fx, fy, fw, fh, tx, ty, tw, th);
+}
+
+void ZoomTo(Window wf, TwmWindow *twm_win)
+{
+#ifdef EWMH
+    int fx, fy, tx, ty;			/* from, to */
+    unsigned int fw, fh, tw, th;	/* from, to */
+#endif				/* EWMH */
+    Window wt = twm_win->frame;
+
+#ifndef EWMH
+    Zoom(wf, wt);
+#else				/* EWMH */
+    if ((Scr->IconifyStyle != ICONIFY_NORMAL) || !Scr->DoZoom || Scr->ZoomCount < 1) return;
+
+    if (wt != None)
+	XGetGeometry (dpy, wt, &JunkRoot, &tx, &ty, &tw, &th, &JunkBW, &JunkDepth);
+    else
+	return;
+
+    if (twm_win->ewmh.props._NET_WM_ICON_GEOMETRY) {
+	fx = twm_win->ewmh.icon_geometry.x;
+	fy = twm_win->ewmh.icon_geometry.y;
+	fw = twm_win->ewmh.icon_geometry.width;
+	fh = twm_win->ewmh.icon_geometry.height;
+    } else if (wf != None)
+	XGetGeometry (dpy, wf, &JunkRoot, &fx, &fy, &fw, &fh, &JunkBW, &JunkDepth);
+    else
+	return;
+
+    ZoomIt(fx, fy, fw, fh, tx, ty, tw, th);
+#endif				/* EWMH */
+
+}
+
+void ZoomFrom(TwmWindow *twm_win, Window wt)
+{
+#ifdef EWMH
+    int fx, fy, tx, ty;			/* from, to */
+    unsigned int fw, fh, tw, th;	/* from, to */
+#endif				/* EWMH */
+    Window wf = twm_win->frame;
+
+#ifndef EWMH
+    Zoom(wf, wt);
+#else				/* EWMH */
+    if ((Scr->IconifyStyle != ICONIFY_NORMAL) || !Scr->DoZoom || Scr->ZoomCount < 1) return;
+
+    if (wf != None)
+	XGetGeometry (dpy, wf, &JunkRoot, &fx, &fy, &fw, &fh, &JunkBW, &JunkDepth);
+    else
+	return;
+
+    if (twm_win->ewmh.props._NET_WM_ICON_GEOMETRY) {
+	tx = twm_win->ewmh.icon_geometry.x;
+	ty = twm_win->ewmh.icon_geometry.y;
+	tw = twm_win->ewmh.icon_geometry.width;
+	th = twm_win->ewmh.icon_geometry.height;
+    } else if (wt != None)
+	XGetGeometry (dpy, wt, &JunkRoot, &tx, &ty, &tw, &th, &JunkBW, &JunkDepth);
+    else
+	return;
+
+    ZoomIt(fx, fy, fw, fh, tx, ty, tw, th);
+#endif				/* EWMH */
+}
+
+void ZoomIconToFrame(TwmWindow *ftwm, TwmWindow *ttwm)
+{
+#ifdef EWMH
+    int fx, fy, tx, ty;			/* from, to */
+    unsigned int fw, fh, tw, th;	/* from, to */
+#endif				/* EWMH */
+    Window wf = (ftwm->icon_on && ftwm->icon) ? ftwm->icon->w : None;
+    Window wt = ttwm->frame;
+
+#ifndef EWMH
+    Zoom(wf, wt);
+#else				/* EWMH */
+    if ((Scr->IconifyStyle != ICONIFY_NORMAL) || !Scr->DoZoom || Scr->ZoomCount < 1) return;
+
+    if (wt != None)
+	XGetGeometry (dpy, wt, &JunkRoot, &tx, &ty, &tw, &th, &JunkBW, &JunkDepth);
+    else
+	return;
+
+    if (ttwm->ewmh.props._NET_WM_ICON_GEOMETRY) {
+	fx = ttwm->ewmh.icon_geometry.x;
+	fy = ttwm->ewmh.icon_geometry.y;
+	fw = ttwm->ewmh.icon_geometry.width;
+	fh = ttwm->ewmh.icon_geometry.height;
+    } else
+    if (ftwm->ewmh.props._NET_WM_ICON_GEOMETRY) {
+	fx = ttwm->ewmh.icon_geometry.x;
+	fy = ttwm->ewmh.icon_geometry.y;
+	fw = ttwm->ewmh.icon_geometry.width;
+	fh = ttwm->ewmh.icon_geometry.height;
+    } else
+    if (wf != None)
+	XGetGeometry (dpy, wf, &JunkRoot, &fx, &fy, &fw, &fh, &JunkBW, &JunkDepth);
+    else
+	return;
+
+    ZoomIt(fx, fy, fw, fh, tx, ty, tw, th);
+#endif				/* EWMH */
+}
+
+void ZoomFrameToIcon(TwmWindow *ftwm, TwmWindow *ttwm)
+{
+#ifdef EWMH
+    int fx, fy, tx, ty;			/* from, to */
+    unsigned int fw, fh, tw, th;	/* from, to */
+#endif				/* EWMH */
+    Window wf = ftwm->frame;
+    Window wt = (ttwm->icon_on && ttwm->icon) ? ttwm->icon->w : None;
+
+#ifndef EWMH
+    Zoom(wf, wt);
+#else				/* EWMH */
+    if ((Scr->IconifyStyle != ICONIFY_NORMAL) || !Scr->DoZoom || Scr->ZoomCount < 1) return;
+
+    if (wf != None)
+	XGetGeometry (dpy, wf, &JunkRoot, &fx, &fy, &fw, &fh, &JunkBW, &JunkDepth);
+    else
+	return;
+
+    if (ftwm->ewmh.props._NET_WM_ICON_GEOMETRY) {
+	tx = ttwm->ewmh.icon_geometry.x;
+	ty = ttwm->ewmh.icon_geometry.y;
+	tw = ttwm->ewmh.icon_geometry.width;
+	th = ttwm->ewmh.icon_geometry.height;
+    } else
+    if (ttwm->ewmh.props._NET_WM_ICON_GEOMETRY) {
+	tx = ttwm->ewmh.icon_geometry.x;
+	ty = ttwm->ewmh.icon_geometry.y;
+	tw = ttwm->ewmh.icon_geometry.width;
+	th = ttwm->ewmh.icon_geometry.height;
+    } else
+    if (wt != None)
+	XGetGeometry (dpy, wt, &JunkRoot, &tx, &ty, &tw, &th, &JunkBW, &JunkDepth);
+    else
+	return;
+
+    ZoomIt(fx, fy, fw, fh, tx, ty, tw, th);
+#endif				/* EWMH */
+}
+
+void ZoomIconToIcon(TwmWindow *ftwm, TwmWindow *ttwm)
+{
+#ifdef EWMH
+    int fx, fy, tx, ty;			/* from, to */
+    unsigned int fw, fh, tw, th;	/* from, to */
+#endif				/* EWMH */
+    Window wf = (ftwm->icon_on && ftwm->icon) ? ftwm->icon->w : None;
+    Window wt = (ttwm->icon_on && ttwm->icon) ? ttwm->icon->w : None;
+
+#ifndef EWMH
+    Zoom(wf, wt);
+#else				/* EWMH */
+    if ((Scr->IconifyStyle != ICONIFY_NORMAL) || !Scr->DoZoom || Scr->ZoomCount < 1) return;
+
+    if (wf != None)
+	XGetGeometry (dpy, wf, &JunkRoot, &fx, &fy, &fw, &fh, &JunkBW, &JunkDepth);
+    else
+	return;
+
+    if (ftwm->ewmh.props._NET_WM_ICON_GEOMETRY) {
+	tx = ttwm->ewmh.icon_geometry.x;
+	ty = ttwm->ewmh.icon_geometry.y;
+	tw = ttwm->ewmh.icon_geometry.width;
+	th = ttwm->ewmh.icon_geometry.height;
+    } else
+    if (ttwm->ewmh.props._NET_WM_ICON_GEOMETRY) {
+	tx = ttwm->ewmh.icon_geometry.x;
+	ty = ttwm->ewmh.icon_geometry.y;
+	tw = ttwm->ewmh.icon_geometry.width;
+	th = ttwm->ewmh.icon_geometry.height;
+    } else
+    if (wt != None)
+	XGetGeometry (dpy, wt, &JunkRoot, &tx, &ty, &tw, &th, &JunkBW, &JunkDepth);
+    else
+	return;
+
+    ZoomIt(fx, fy, fw, fh, tx, ty, tw, th);
+#endif				/* EWMH */
+}
 
 char *ExpandFilePath (char *path)
 {
@@ -938,7 +1128,6 @@ void UnmaskScreen (void)
     Colormap		cmap;
     XColor		colors [256], stdcolors [256];
     int			i, j, usec;
-    Status		status;
     unsigned long	planemask;
 
 #ifdef VMS
@@ -962,7 +1151,7 @@ void UnmaskScreen (void)
 	XFreeColors  (dpy, cmap, pixels, 256, 0L);
 	XFreeColors  (dpy, cmap, pixels, 256, 0L); /* Ah Ah */
 
-	status = XAllocColorCells (dpy, cmap, False, &planemask, 0, stdpixels, 256);
+	XAllocColorCells (dpy, cmap, False, &planemask, 0, stdpixels, 256);
 	for (i = 0; i < 256; i++) {
 	    colors [i].pixel = i;
 	    colors [i].flags = DoRed | DoGreen | DoBlue;
@@ -1014,7 +1203,7 @@ void UnmaskScreen (void)
 
     cmap = XCreateColormap (dpy, Scr->Root, Scr->d_visual, AllocNone);
     if (! cmap) goto fin;
-    status = XAllocColorCells (dpy, cmap, False, &planemask, 0, stdpixels, 256);
+    XAllocColorCells (dpy, cmap, False, &planemask, 0, stdpixels, 256);
     for (i = 0; i < 256; i++) {
 	colors [i].pixel = i;
 	colors [i].red   = 0;
@@ -1531,7 +1720,8 @@ Bool UpdateFont (MyFont *font, int height)
 {
     int prev = font->avg_height;
     font->avg_fheight = (font->avg_fheight * font->avg_count + height)
-	/ ++font->avg_count;
+	/ (font->avg_count+1);
+    font->avg_count++;
     /* Arbitrary limit.  */
     if (font->avg_count >= 256) font->avg_count = 256;
     font->avg_height = (int) (font->avg_fheight + 0.5);
@@ -1737,6 +1927,9 @@ void SetFocus (TwmWindow *tmp_win, Time	tim)
 	SetFocusVisualAttributes (tmp_win, True);
     }
     Scr->Focus = tmp_win;
+#ifdef EWMH
+    Upd_NET_ACTIVE_WINDOW(Scr);
+#endif				/* EWMH */
 #if 0
     /*
      * Not wanted if we sort-of want to keep the window list in
@@ -1747,7 +1940,7 @@ void SetFocus (TwmWindow *tmp_win, Time	tim)
 }
 
 
-#ifdef NOPUTENV
+#ifndef HAVE_PUTENV
 /*
  * define our own putenv() if the system doesn't have one.
  * putenv(s): place s (a string of the form "NAME=value") in
@@ -1810,7 +2003,7 @@ putenv(s)
     
     return 0;
 }
-#endif /* NOPUTENV */
+#endif /* HAVE_PUTENV  */
 
 
 static Pixmap CreateXLogoPixmap (unsigned int *widthp, unsigned int *heightp)
@@ -2975,6 +3168,7 @@ void AdoptWindow (void)
     unsigned int	nchildren, key_buttons;
     int			root_x, root_y, win_x, win_y;
     int			savedRestartPreviousState;
+    XClientMessageEvent xev;
 
     localroot = w = RootWindow (dpy, Scr->screen);
     XGrabPointer (dpy, localroot, False,
@@ -3018,6 +3212,18 @@ void AdoptWindow (void)
     }
     XReparentWindow (dpy, w, Scr->Root, 0, 0);
 
+    xev.display = dpy;
+    xev.type = ClientMessage;
+    xev.window = w;
+    xev.message_type = _XA_KDE_WM_CHANGE_STATE;
+    xev.format = 32;
+    xev.data.l[0] = NormalState;
+    xev.data.l[1] = 1;
+    xev.data.l[2] = xev.data.l[3] = xev.data.l[4] = 0;
+
+    XSendEvent(dpy, Scr->Root, False, SubstructureRedirectMask | SubstructureNotifyMask,
+	    (XEvent *) &xev);
+
     data [0] = (unsigned long) NormalState;
     data [1] = (unsigned long) None;
 
@@ -3042,6 +3248,7 @@ void AdoptWindow (void)
     return;
 }
 
+void SetupWindow (TwmWindow *tmp_win, int x, int y, int w, int h, int bw);
 void RescueWindows (void)
 {
     TwmWindow *twm_win = Scr->FirstWindow;
@@ -3151,7 +3358,7 @@ void SetBorderCursor (TwmWindow *tmp_win, int x, int y)
     fw = tmp_win->frame_width;
     fh = tmp_win->frame_height;
 
-#if defined DEBUG && DEBUG
+#ifdef DEBUG
     fprintf(stderr, "wd=%d h=%d, fw=%d fh=%d x=%d y=%d\n",
 	    wd, h, fw, fh, x, y);
 #endif

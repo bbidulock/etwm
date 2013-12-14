@@ -64,6 +64,8 @@
 #ifndef _LIST_
 #define _LIST_
 
+#include "types.h"
+
 struct name_list
 {
     name_list *next;		/* pointer to the next name */

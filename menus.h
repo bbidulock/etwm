@@ -234,9 +234,11 @@ extern void SendTakeFocusMessage (TwmWindow *tmp, Time timestamp);
 extern void ModifyCurrentTB(int button, int mods, int func, char *action,
 			    MenuRoot *menuroot);
 extern void RaiseWindow(TwmWindow *tmp_win);
+extern void RaiseIcon(Window icon, short ontop);
 extern void LowerWindow(TwmWindow *tmp_win);
+extern void LowerIcon(Window icon, short ontop);
 extern void RaiseLower(TwmWindow *tmp_win);
-extern void RaiseLowerFrame(Window frame, int ontop);
+extern void RaiseLowerIcon(Window frame, short ontop);
 extern void MapRaised(TwmWindow *tmp_win);
 extern void RaiseFrame(Window frame);
 extern void FocusOnRoot(void);

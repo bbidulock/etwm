@@ -87,6 +87,9 @@ struct WorkSpaceMgr {
 
 struct WorkSpace {
   long	              number;
+#ifdef MWMH
+  Atom		      atom;
+#endif				/* MWMH */
   char	              *name;
   char	              *label;
   Image	              *image;

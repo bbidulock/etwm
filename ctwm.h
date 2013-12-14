@@ -40,3 +40,7 @@ extern char *keepM4_filename;		/* Keep M4 output here */
 extern int GoThroughM4;
 #endif
 char *captivename;
+
+extern Bool HasXinerama;
+extern Bool HasXrandr;
+

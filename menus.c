@@ -1793,7 +1793,10 @@ static Bool belongs_to_twm_window (register TwmWindow *t, register Window w)
 
 void resizeFromCenter(Window w, TwmWindow *tmp_win)
 {
-  int lastx, lasty, width, height, bw2;
+  int lastx, lasty, bw2;
+/*****
+  int width, height;
+*****/
   int namelen;
   XRectangle inc_rect;
   XRectangle logical_rect;
@@ -1805,9 +1808,11 @@ void resizeFromCenter(Window w, TwmWindow *tmp_win)
 
   XmbTextExtents(Scr->SizeFont.font_set, tmp_win->name, namelen,
 		 &inc_rect, &logical_rect);
+/*****
   width = (SIZE_HINDENT + logical_rect.width);
 
   height = Scr->SizeFont.height + SIZE_VINDENT * 2;
+*****/
   XGetGeometry(dpy, w, &JunkRoot, &origDragX, &origDragY,
 	       &DragWidth, &DragHeight, 
 	       &JunkBW, &JunkDepth);
@@ -1882,6 +1887,7 @@ void resizeFromCenter(Window w, TwmWindow *tmp_win)
 
 
 
+void RescueWindows (void);
 /***********************************************************************
  *
  *  Procedure:
@@ -3213,8 +3219,8 @@ int ExecuteFunction(int func, char *action, Window w, TwmWindow *tmp_win,
 	    return TRUE;
 
 	if (!WindowMoved) {
-	    if (tmp_win->icon && w == tmp_win->icon->w) {
-		RaiseLowerFrame(w, ONTOP_DEFAULT);
+	    if (tmp_win->icon && (w == tmp_win->icon->w)) {
+		RaiseLowerIcon(w, ONTOP_DEFAULT);
 	    } else {
 		RaiseLower(tmp_win);
 		WMapRaiseLower (tmp_win);
@@ -3241,7 +3247,7 @@ int ExecuteFunction(int func, char *action, Window w, TwmWindow *tmp_win,
 
 	/* check to make sure raise is not from the WindowFunction */
 	if (tmp_win->icon && (w == tmp_win->icon->w) && Context != C_ROOT) 
-	    XRaiseWindow(dpy, tmp_win->icon->w);
+	    RaiseIcon(w, CTWM_LAYER_ONTOP);
 	else {
 	    RaiseWindow (tmp_win);
 	    WMapRaise   (tmp_win);
@@ -3253,7 +3259,7 @@ int ExecuteFunction(int func, char *action, Window w, TwmWindow *tmp_win,
 	    return TRUE;
 
 	if (tmp_win->icon && (w == tmp_win->icon->w))
-	    XLowerWindow(dpy, tmp_win->icon->w);
+	    LowerIcon(w, CTWM_LAYER_BELOW);
 	else {
 	    LowerWindow(tmp_win);
 	    WMapLower (tmp_win);
@@ -3261,11 +3267,9 @@ int ExecuteFunction(int func, char *action, Window w, TwmWindow *tmp_win,
 	break;
 
     case F_RAISEICONS:
-	for (t = Scr->FirstWindow; t != NULL; t = t->next) {
-	    if (t->icon && t->icon->w) {
-		XRaiseWindow (dpy, t->icon->w);	
-	    }
-	}
+	for (t = Scr->FirstWindow; t != NULL; t = t->next)
+	    if (t->icon && t->icon->w)
+		RaiseIcon(t->icon->w, CTWM_LAYER_ONTOP);
 	break;
 
     case F_FOCUS:
@@ -3948,9 +3952,12 @@ static void Execute(char *s)
 
 
 
-Window Lowerontop = -1;
+#if 0
+Window Lowerontop = None;
+Window Upperonbot = None;
+#endif
 
-void PlaceTransients (TwmWindow *tmp_win, int where)
+static void PlaceTransients (TwmWindow *tmp_win, int where)
 {
     int	sp, sc;
     TwmWindow *t;
@@ -3967,9 +3974,14 @@ void PlaceTransients (TwmWindow *tmp_win, int where)
 		if (sc < ((sp * Scr->TransientOnTop) / 100)) {
 		    xwc.sibling = tmp_win->frame;
 		    XConfigureWindow(dpy, t->frame, CWSibling | CWStackMode, &xwc);
+#if 0
 		    if (Lowerontop == t->frame) {
-			Lowerontop = (Window)-1;
+			Lowerontop = None;
 		    }
+		    if (Upperonbot == t->frame) {
+			Upperonbot = None;
+		    }
+#endif
 		}
 	    }
 	}
@@ -3978,30 +3990,129 @@ void PlaceTransients (TwmWindow *tmp_win, int where)
 
 #include <assert.h>
 
-void PlaceOntop (int ontop, int where)
+#if 0
+static void PlaceOntop (int ontop, int where)
 {
     TwmWindow *t;
     XWindowChanges xwc;
     xwc.stack_mode = where;
 
-    Lowerontop = (Window)-1;
+    Lowerontop = None;
 
     for (t = Scr->FirstWindow; t != NULL; t = t->next) {
 	if (t->ontoppriority > ontop) {
 	    XConfigureWindow(dpy, t->frame, CWStackMode, &xwc);
 	    PlaceTransients(t, Above);
-	    if (Lowerontop == (Window)-1) {
+	    if (Lowerontop == None) {
 		Lowerontop = t->frame;
 	    }
 	}
     }
 }
 
+static void PlaceOnbot (int ontop, int where)
+{
+    TwmWindow *t;
+    XWindowChanges xwc;
+    xwc.stack_mode = where;
+
+    Upperonbot = None;
+
+    for (t = Scr->FirstWindow; t != NULL; t = t->next) {
+	if (t->ontoppriority < ontop) {
+	    XConfigureWindow(dpy, t->frame, CWStackMode, &xwc);
+	    PlaceTransients(t, Above);
+	    if (Upperonbot == None) {
+		Upperonbot = t->frame;
+	    }
+	}
+    }
+}
+#endif
+
 void MapRaised (TwmWindow *tmp_win)
 {
     XMapWindow(dpy, tmp_win->frame);
     RaiseWindow(tmp_win);
 }
+
+#if 1
+
+void
+RaiseWindow(TwmWindow *tmp_win)
+{
+    Window root, parent, *children, above = None;
+    unsigned int nchildren, n;
+    short ontop = tmp_win->ontoppriority;
+    XWindowChanges xwc;
+    int xwcm;
+
+    if (!XQueryTree(dpy, Scr->Root, &root, &parent, &children, &nchildren))
+	return;
+
+    /* find the bottom-most window that has a higher layer than the window
+       being raised */
+    for (n = 0; n < nchildren; n++) {
+	TwmWindow *twin = NULL;
+
+	if (XFindContext(dpy, children[n], TwmContext, (XPointer *) &twin) != XCSUCCESS
+	    || twin == NULL || twin->frame != children[n])
+	    continue;
+	if (twin->ontoppriority > ontop) {
+	    above = twin->frame;
+	    break;
+	}
+    }
+    xwcm = CWStackMode;
+    if (above == None) {
+	xwc.stack_mode = Above;
+    } else {
+	xwc.stack_mode = Below;
+	xwc.sibling = above;
+	xwcm |= CWSibling;
+    }
+    XConfigureWindow(dpy, tmp_win->frame, xwcm, &xwc);
+    PlaceTransients(tmp_win, Above);
+    XFree(children);
+}
+
+void
+RaiseIcon(Window icon, short ontop)
+{
+    Window root, parent, *children, above = None;
+    unsigned int nchildren, n;
+    XWindowChanges xwc;
+    int xwcm;
+
+    if (!XQueryTree(dpy, Scr->Root, &root, &parent, &children, &nchildren))
+	return;
+
+    /* find the bottom-most window that has a higher layer than the window
+       being raised */
+    for (n = 0; n < nchildren; n++) {
+	TwmWindow *twin = NULL;
+
+	if (XFindContext(dpy, children[n], TwmContext, (XPointer *) &twin) != XCSUCCESS
+	    || twin == NULL || twin->frame != children[n])
+	    continue;
+	if (twin->ontoppriority > ontop) {
+	    above = twin->frame;
+	    break;
+	}
+    }
+    xwcm = CWStackMode;
+    if (above == None) {
+	xwc.stack_mode = Above;
+    } else {
+	xwc.stack_mode = Below;
+	xwc.sibling = above;
+	xwcm |= CWSibling;
+    }
+    XConfigureWindow(dpy, icon, xwcm, &xwc);
+    XFree(children);
+}
+
+#else
 
 void RaiseWindow (TwmWindow *tmp_win)
 {
@@ -4010,17 +4121,17 @@ void RaiseWindow (TwmWindow *tmp_win)
 
     if (tmp_win->ontoppriority == ONTOP_MAX) {
 	XRaiseWindow(dpy, tmp_win->frame);
-	if (Lowerontop == (Window)-1) {
+	if (Lowerontop == None) {
 	    Lowerontop = tmp_win->frame;
 	} else if (Lowerontop == tmp_win->frame) {
-	    Lowerontop = (Window)-1;
+	    Lowerontop = None;
 	}
     } else {
-	if (Lowerontop == (Window)-1) {
+	if (Lowerontop == None) {
 	    PlaceOntop(tmp_win->ontoppriority, Above);
 	}
 	xwcm = CWStackMode;
-	if (Lowerontop != (Window)-1) {
+	if (Lowerontop != None) {
 	    xwc.stack_mode = Below;
 	    xwc.sibling = Lowerontop;
 	    xwcm |= CWSibling;
@@ -4032,37 +4143,259 @@ void RaiseWindow (TwmWindow *tmp_win)
     PlaceTransients(tmp_win, Above);
 }
 
+#endif
+
+#if 1
+
+void
+RaiseLower(TwmWindow *tmp_win)
+{
+    Window root, parent, *children;
+    unsigned int nchildren, n, top, bot;
+    short ontop = tmp_win->ontoppriority;
+    XWindowChanges xwc;
+    int xwcm;
+
+    if (!XQueryTree(dpy, Scr->Root, &root, &parent, &children, &nchildren))
+	return;
+
+    /* find the bottom-most window with same priority. */
+    for (n = 0; n < nchildren; n++) {
+	TwmWindow *twin = NULL;
+
+	if (XFindContext(dpy, children[n], TwmContext, (XPointer *) &twin) != XCSUCCESS
+	    || twin == NULL || twin->frame != children[n])
+	    continue;
+	if (twin->ontoppriority == ontop) {
+	    bot = n;
+	    break;
+	}
+    }
+    /* find the top-most window with the same priority */
+    for (n = nchildren - 1; n >= 0; n--) {
+	TwmWindow *twin = NULL;
+
+	if (XFindContext(dpy, children[n], TwmContext, (XPointer *) &twin) != XCSUCCESS
+	    || twin == NULL || twin->frame != children[n])
+	    continue;
+	if (twin->ontoppriority == ontop) {
+	    top = n;
+	    break;
+	}
+    }
+    if (top != bot) {
+	XWindowChanges xwc;
+	int xwcm = CWStackMode|CWSibling;
+
+	if (children[top] != tmp_win->frame) {
+	    /* raise it above children[top] */
+	    xwc.stack_mode = Above;
+	    xwc.sibling = children[top];
+	} else if (children[bot] != tmp_win->frame) {
+	    /* lower it below children[bot] */
+	    xwc.stack_mode = Below;
+	    xwc.sibling = children[bot];
+	}
+	XConfigureWindow(dpy, tmp_win->frame, xwcm, &xwc);
+	PlaceTransients(tmp_win, Above);
+    }
+    XFree(children);
+}
+
+#else
+
 void RaiseLower (TwmWindow *tmp_win)
 {
     XWindowChanges xwc;
 
     PlaceOntop(tmp_win->ontoppriority, Below);
     PlaceTransients(tmp_win, Below);
-    Lowerontop = (Window)-1;
+    Lowerontop = None;
     xwc.stack_mode = Opposite;
     XConfigureWindow(dpy, tmp_win->frame, CWStackMode, &xwc);
     PlaceOntop(tmp_win->ontoppriority, Above);
     PlaceTransients(tmp_win, Above);
 }
 
-void RaiseLowerFrame (Window frame, int ontop)
+#endif
+
+#if 1
+
+void
+RaiseLowerIcon(Window icon, short ontop)
+{
+    Window root, parent, *children;
+    unsigned int nchildren, n, top, bot;
+    XWindowChanges xwc;
+    int xwcm;
+
+    if (!XQueryTree(dpy, Scr->Root, &root, &parent, &children, &nchildren))
+	return;
+
+    /* find the bottom-most window with same priority. */
+    for (n = 0; n < nchildren; n++) {
+	TwmWindow *twin = NULL;
+
+	if (XFindContext(dpy, children[n], TwmContext, (XPointer *) &twin) != XCSUCCESS
+	    || twin == NULL || twin->frame != children[n])
+	    continue;
+	if (twin->ontoppriority == ontop) {
+	    bot = n;
+	    break;
+	}
+    }
+    /* find the top-most window with the same priority */
+    for (n = nchildren - 1; n >= 0; n--) {
+	TwmWindow *twin = NULL;
+
+	if (XFindContext(dpy, children[n], TwmContext, (XPointer *) &twin) != XCSUCCESS
+	    || twin == NULL || twin->frame != children[n])
+	    continue;
+	if (twin->ontoppriority == ontop) {
+	    top = n;
+	    break;
+	}
+    }
+    if (top != bot) {
+	XWindowChanges xwc;
+	int xwcm = CWStackMode | CWSibling;
+
+	if (children[top] != icon) {
+	    /* raise it above children[top] */
+	    xwc.stack_mode = Above;
+	    xwc.sibling = children[top];
+	} else if (children[bot] != icon) {
+	    /* lower it below children[bot] */
+	    xwc.stack_mode = Below;
+	    xwc.sibling = children[bot];
+	}
+	XConfigureWindow(dpy, icon, xwcm, &xwc);
+    }
+    XFree(children);
+}
+
+#else
+
+void RaiseLowerIcon (Window icon, int ontop)
 {
     XWindowChanges xwc;
 
     PlaceOntop(ontop, Below);
-    Lowerontop = (Window)-1;
+    Lowerontop = None;
     xwc.stack_mode = Opposite;
-    XConfigureWindow(dpy, frame, CWStackMode, &xwc);
+    XConfigureWindow(dpy, icon, CWStackMode, &xwc);
     PlaceOntop(ontop, Above);
 }
 
+#endif
+
+#if 1
+
+void
+LowerWindow(TwmWindow *tmp_win)
+{
+    Window root, parent, *children, below = None;
+    unsigned int nchildren, n, bot;
+    short ontop = tmp_win->ontoppriority;
+    XWindowChanges xwc;
+    int xwcm;
+
+    if (!XQueryTree(dpy, Scr->Root, &root, &parent, &children, &nchildren))
+	return;
+
+    /* find the top-most window that has a lower layer than the window being
+       lowered */
+    for (n = nchildren - 1; n >= 0; n--) {
+	TwmWindow *twin = NULL;
+
+	if (XFindContext(dpy, children[n], TwmContext, (XPointer *) &twin) != XCSUCCESS
+	    || twin == NULL || twin->frame != children[n])
+	    continue;
+	if (twin->ontoppriority < ontop) {
+	    below = twin->frame;
+	    break;
+	}
+    }
+    xwcm = CWStackMode;
+    if (below == None) {
+	xwc.stack_mode = Below;
+    } else {
+	xwc.stack_mode = Above;
+	xwc.sibling = below;
+	xwcm |= CWSibling;
+    }
+    XConfigureWindow(dpy, tmp_win->frame, xwcm, &xwc);
+    PlaceTransients(tmp_win, Above);
+    XFree(children);
+}
+
+#else
+
 void LowerWindow (TwmWindow *tmp_win)
 {
-    XLowerWindow(dpy, tmp_win->frame);
-    if (tmp_win->frame == Lowerontop) {
-	Lowerontop = (Window)-1;
+    XWindowChanges xwc;
+    int xwcm;
+
+    if (tmp_win->ontoppriority == ONTOP_MIN) {
+	XLowerWindow(dpy, tmp_win->frame);
+	if (Upperonbot == None) {
+	    Upperonbot = tmp_win->frame;
+	} else if (tmp_win->frame == Upperonbot) {
+	    Upperonbot = None;
+	}
+    } else {
+	if (Upperonbot == None) {
+	    PlaceOnbot(tmp_win->ontoppriority, Below);
+	}
+	xwcm = CWStackMode;
+	if (Upperonbot != None) {
+	    xwc.stack_mode = Above;
+	    xwc.sibling = Upperonbot;
+	    xwcm |= CWSibling;
+	} else {
+	    xwc.stack_mode = Below;
+	}
+	XConfigureWindow(dpy, tmp_win->frame, xwcm, &xwc);
     }
     PlaceTransients(tmp_win, Above);
+}
+
+#endif
+
+void
+LowerIcon(Window icon, short ontop)
+{
+    Window root, parent, *children, below = None;
+    unsigned int nchildren, n, bot;
+    XWindowChanges xwc;
+    int xwcm;
+
+    if (!XQueryTree(dpy, Scr->Root, &root, &parent, &children, &nchildren))
+	return;
+
+    /* find the top-most window that has a lower layer than the window being
+       lowered */
+    for (n = nchildren - 1; n >= 0; n--) {
+	TwmWindow *twin = NULL;
+
+	if (XFindContext(dpy, children[n], TwmContext, (XPointer *) &twin) != XCSUCCESS
+	    || twin == NULL || twin->frame != children[n])
+	    continue;
+	if (twin->ontoppriority < ontop) {
+	    below = twin->frame;
+	    break;
+	}
+    }
+    xwcm = CWStackMode;
+    if (below == None) {
+	xwc.stack_mode = Below;
+    } else {
+	xwc.stack_mode = Above;
+	xwc.sibling = below;
+	xwcm |= CWSibling;
+    }
+    XConfigureWindow(dpy, icon, xwcm, &xwc);
+    XFree(children);
 }
 
 void RaiseFrame (Window frame)
@@ -4096,9 +4429,11 @@ void FocusOnRoot(void)
 static void ReMapOne(TwmWindow *t, TwmWindow *leader)
 {
     if (t->icon_on)
-	Zoom(t->icon->w, t->frame);
+	ZoomIconToFrame(t, t);
     else if (leader->icon)
-	Zoom(leader->icon->w, t->frame);
+	ZoomIconToFrame(leader, t);
+    else
+	ZoomTo(None, t);
 
     if (!t->squeezed)
 	XMapWindow(dpy, t->w);
@@ -4155,16 +4490,18 @@ void DeIconify(TwmWindow *tmp_win)
     {
 	isicon = TRUE;
 	if (tmp_win->icon_on && tmp_win->icon && tmp_win->icon->w)
-	    Zoom(tmp_win->icon->w, tmp_win->frame);
+	    ZoomIconToFrame(tmp_win, tmp_win);
 	else if (tmp_win->group != (Window) 0)
 	{
 	    t = GetTwmWindow(tmp_win->group);
 	    if (t && t->icon_on && t->icon && t->icon->w)
-	    {
-		Zoom(t->icon->w, tmp_win->frame);
-	    }
-	}
-    }
+		ZoomIconToFrame(t, tmp_win);
+	    else
+		ZoomTo(None, tmp_win);
+	} else
+	    ZoomTo(None, tmp_win);
+    } else
+	ZoomTo(None, tmp_win);
 
     ReMapOne(tmp_win, t);
 
@@ -4199,9 +4536,9 @@ static void UnmapTransients(TwmWindow *tmp_win, int iconify, unsigned long event
 		 t->group == tmp_win->w)) {
 	    if (iconify) {
 		if (t->icon_on)
-		    Zoom(t->icon->w, tmp_win->icon->w);
-		else if (tmp_win->icon)
-		    Zoom(t->frame, tmp_win->icon->w);
+		    ZoomIconToIcon(t, tmp_win);
+		else
+		    ZoomFrameToIcon(t, tmp_win);
 	    }
 
 	    /*
@@ -4276,7 +4613,7 @@ void Iconify(TwmWindow *tmp_win, int def_x, int def_y)
     /* iconify transients and window group first */
     UnmapTransients(tmp_win, iconify, eventMask);
     
-    if (iconify) Zoom(tmp_win->frame, tmp_win->icon->w);
+    ZoomFrameToIcon(tmp_win, tmp_win);
 
     /*
      * Prevent the receipt of an UnmapNotify, since that would
@@ -4353,6 +4690,12 @@ void Squeeze (TwmWindow *tmp_win)
 #endif /* GNOME */
     if (tmp_win->squeezed) {
 	tmp_win->squeezed = False;
+#ifdef EWMH
+	Upd_NET_WM_STATE(tmp_win);
+#endif				/* EWMH */
+#ifdef WMH
+	Upd_WIN_STATE(Scr, tmp_win);
+#endif				/* WMH */
 #ifdef GNOME
  	XGetWindowAttributes (dpy, tmp_win->w, &winattrs);
 	eventMask = winattrs.your_event_mask;
@@ -4361,7 +4704,10 @@ void Squeeze (TwmWindow *tmp_win)
 			       XA_CARDINAL, &actual_type, &actual_format,
 			       &nitems, &bytesafter, &prop) 
 	    != Success || nitems == 0) gwkspc = 0;
- 	else gwkspc = (int)*prop;
+ 	else {
+	    gwkspc = *(long *)prop;
+	    XFree(prop);
+	}
  	gwkspc &= ~(1<<5);
  	XChangeProperty (dpy, tmp_win->w, _XA_WIN_STATE, XA_CARDINAL, 32, 
 			 PropModeReplace, (unsigned char *)&gwkspc, 1);
@@ -4387,6 +4733,12 @@ void Squeeze (TwmWindow *tmp_win)
     if (tmp_win->title_height && !tmp_win->AlwaysSqueezeToGravity) south = False;
 
     tmp_win->squeezed = True;
+#ifdef EWMH
+    Upd_NET_WM_STATE(tmp_win);
+#endif				/* EWMH */
+#ifdef WMH
+    Upd_WIN_STATE(Scr, tmp_win);
+#endif				/* WMH */
     tmp_win->actual_frame_width  = tmp_win->frame_width;
     tmp_win->actual_frame_height = tmp_win->frame_height;
     savex = fx = tmp_win->frame_x;
@@ -4405,7 +4757,10 @@ void Squeeze (TwmWindow *tmp_win)
 			    XA_CARDINAL, &actual_type, &actual_format, &nitems,
 			    &bytesafter, &prop) 
 	!= Success || nitems == 0) gwkspc = 0;
-    else gwkspc = (int)*prop;
+    else {
+	gwkspc = *(long *)prop;
+	XFree(prop);
+    }
     gwkspc |= (1<<5);
     XChangeProperty (dpy, tmp_win->w, _XA_WIN_STATE, XA_CARDINAL, 32, 
 		     PropModeReplace, (unsigned char *)&gwkspc, 1);
@@ -4463,6 +4818,21 @@ static void Identify (TwmWindow *t)
 #ifdef GNOME
     if (!first) (void) strcat(Info[n], ", ");
     (void) strcat (Info[n], "GNOME");
+    first = False;
+#endif
+#ifdef EWMH
+    if (!first) (void) strcat(Info[n], ", ");
+    (void) strcat (Info[n], "EWMH");
+    first = False;
+#endif
+#ifdef WMH
+    if (!first) (void) strcat(Info[n], ", ");
+    (void) strcat (Info[n], "WMH");
+    first = False;
+#endif
+#ifdef MWMH
+    if (!first) (void) strcat(Info[n], ", ");
+    (void) strcat (Info[n], "MWMH");
     first = False;
 #endif
 #ifdef SOUNDS
@@ -4530,7 +4900,7 @@ static void Identify (TwmWindow *t)
 				&bytesafter, &prop) == Success) {
 	    if (nitems && prop) {
 		(void) sprintf(Info[n++], "Client machine     = %s", (char*)prop);
-		XFree ((char *) prop);
+		XFree(prop);
 	    }
 	}
 	Info[n++][0] = '\0';
@@ -4576,9 +4946,29 @@ static void Identify (TwmWindow *t)
 
 
 
+void Snd_KDE_WM_CHANGE_STATE(TwmWindow *twin, int state)
+{
+    XClientMessageEvent ev;
+
+    ev.display = dpy;
+    ev.type = ClientMessage;
+    ev.window = twin->w;
+    ev.message_type = _XA_KDE_WM_CHANGE_STATE;
+    ev.format = 32;
+    ev.data.l[0] = state;
+    ev.data.l[1] = 1;
+    ev.data.l[2] = 0;
+    ev.data.l[3] = 0;
+    ev.data.l[4] = 0;
+    XSendEvent(dpy, Scr->Root, False, SubstructureRedirectMask | SubstructureNotifyMask,
+	    (XEvent *) &ev);
+}
+
 void SetMapStateProp(TwmWindow *tmp_win, int state)
 {
     unsigned long data[2];		/* "suggested" by ICCCM version 1 */
+
+    Snd_KDE_WM_CHANGE_STATE(tmp_win, state);
   
     data[0] = (unsigned long) state;
     data[1] = (unsigned long) (tmp_win->iconify_by_unmapping ? None : 
@@ -4811,7 +5201,7 @@ static void WarpAlongRing (XButtonEvent *ev, Bool forward)
 	    p->ring.curs_x = ev->x_root - t->frame_x;
 	    p->ring.curs_y = ev->y_root - t->frame_y;
 #ifdef DEBUG
-	    fprintf(stderr, "WarpAlongRing: cursor_valid := True; x := %d (%d-%d), y := %d (%d-%d)\n", Tmp_win->ring.curs_x, ev->x_root, t->frame_x, Tmp_win->ring.curs_y, ev->y_root, t->frame_y);
+	    fprintf(stderr, "WarpAlongRing: cursor_valid := True; x := %d (%d-%d), y := %d (%d-%d)\n", p->ring.curs_x, ev->x_root, t->frame_x, p->ring.curs_y, ev->y_root, t->frame_y);
 #endif
 	    /*
 	     * The check if the cursor position is inside the window is now

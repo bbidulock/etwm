@@ -108,10 +108,6 @@
 #include <netdb.h>
 #endif
 
-#if defined(ultrix)
-#define NOSTEMP
-#endif
-
 #ifndef SYSTEM_INIT_FILE
 #ifdef VMS
 #define SYSTEM_INIT_FILE "DECW$SYSTEM_DEFAULTS:SYSTEM.CTWMRC"
@@ -2199,7 +2195,7 @@ static char *MkNum(char *name, int def)
         return(MkDef(name, num));
 }
 
-#ifdef NOSTEMP
+#ifndef HAVE_MKSTEMP
 int mkstemp(str)
 char *str;
 {
@@ -2292,6 +2288,15 @@ static char *m4_defs(Display *display, char *host)
 #endif
 #ifdef GNOME
 	fputs(MkDef("GNOME", "Yes"), tmpf);
+#endif
+#ifdef EWMH
+	fputs(MkDef("EWMH", "Yes"), tmpf);
+#endif
+#ifdef WMH
+	fputs(MkDef("WMH", "Yes"), tmpf);
+#endif
+#ifdef MWMH
+	fputs(MkDef("MWMH", "Yes"), tmpf);
 #endif
 #ifdef SOUNDS
 	fputs(MkDef("SOUNDS", "Yes"), tmpf);

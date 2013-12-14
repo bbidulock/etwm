@@ -392,7 +392,7 @@ TwmWindow *AddWindow(Window w, int iconm, IconMgr *iconp)
 	    &tmp_win->class));
 
     tmp_win->ontoppriority = (LookInList(Scr->AlwaysOnTopL,
-	tmp_win->full_name, &tmp_win->class)) ? ONTOP_MAX : ONTOP_DEFAULT;
+	tmp_win->full_name, &tmp_win->class)) ? CTWM_LAYER_DOCK : CTWM_LAYER_NORMAL;
 
     tmp_win->titlehighlight = Scr->TitleHighlight && 
 	(!LookInList(Scr->NoTitleHighlight, tmp_win->full_name, 

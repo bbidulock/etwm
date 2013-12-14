@@ -30,6 +30,9 @@
 #include "cursor.h"
 #include "screen.h"
 
+extern Bool HasXrandr;
+extern Bool HasXinerama;
+
 extern void twmrc_error_prefix(void);
 
 void InitVirtualScreens (ScreenInfo *scr) {
@@ -38,9 +41,101 @@ void InitVirtualScreens (ScreenInfo *scr) {
   XSetWindowAttributes attributes;
   name_list *nptr;
   Atom _XA_WM_VIRTUALROOT = XInternAtom (dpy, "WM_VIRTUALROOT", False);
+  Atom _XA__SWM_VROOT = XInternAtom(dpy, "__SWM_VROOT", False);
   Bool userealroot = True;
+  int n;
 
   NewFontCursor (&cursor, "X_cursor");
+
+  attrmask  = ColormapChangeMask | EnterWindowMask | PropertyChangeMask | 
+              SubstructureRedirectMask | KeyPressMask | ButtonPressMask |
+              ButtonReleaseMask;
+
+  valuemask = CWBackingStore | CWSaveUnder | CWBackPixel | CWOverrideRedirect |
+              CWEventMask | CWCursor;
+  attributes.backing_store     = NotUseful;
+  attributes.save_under	       = False;
+  attributes.override_redirect = True;
+  attributes.event_mask	       = attrmask;
+  attributes.cursor    	       = cursor;
+  attributes.background_pixel  = Scr->Black;
+
+  scr->vScreenList = NULL;
+
+  /* If we have, prefferably XRANDR, or alternately Xinerama, information we
+     use that instead of VirtualScreens from the configuration file. */
+
+#if 0
+#ifdef USE_XRANDR
+  if (HasXrandr && scr->crtcs > 1) {
+    fprintf(stderr, "Creating %d virtual screens from XRANDR\n", scr->crtcs);
+    fflush(stderr);
+    for (n = 0; n < scr->crtcs; n++) {
+      XRRCrtcInfo *crtc;
+      VirtualScreen *vs;
+      long data;
+
+      if ((crtc = scr->crtc[n]) == NULL)
+	continue;
+      vs = calloc (1, sizeof(*vs));
+      vs->monitor = n;
+      vs->x = crtc->x;
+      vs->y = crtc->y;
+      vs->w = crtc->width;
+      vs->h = crtc->height;
+      fprintf(stderr, "Creating vitual screen %d : %dx%d+%d+%d\n", vs->monitor, vs->w, vs->h, vs->x, vs->y);
+      vs->window = XCreateWindow (dpy, scr->Root, vs->x, vs->y, vs->w, vs->h, 0,
+				  CopyFromParent, (unsigned int)CopyFromParent,
+				  (Visual *)CopyFromParent, valuemask, &attributes);
+      vs->wsw = NULL;
+      XSync (dpy, False);
+      XMapWindow (dpy, vs->window);
+      XChangeProperty (dpy, vs->window, _XA_WM_VIRTUALROOT, XA_STRING, 8,
+		       PropModeReplace, (unsigned char *) "Yes", 4);
+      data = vs->window;
+      XChangeProperty (dpy, vs->window, _XA__SWM_VROOT, XA_WINDOW, 32,
+		       PropModeReplace, (unsigned char *) &data, 1);
+      vs->next = scr->vScreenList;
+      scr->vScreenList = vs;
+    }
+    return;
+  }
+#endif				/* USE_XRANDR */
+#endif
+#ifdef USE_XINERAMA
+  if (HasXinerama && scr->heads > 1) {
+    fprintf(stderr, "Creating %d virtual screens from Xinerama\n", scr->heads);
+    fflush(stderr);
+    for (n = 0; n < scr->heads; n++) {
+      XineramaScreenInfo *head;
+      VirtualScreen *vs;
+      long data;
+
+      head = &scr->head[n];
+      vs = calloc (1, sizeof(*vs));
+      vs->monitor = head->screen_number;
+      vs->x = head->x_org;
+      vs->y = head->y_org;
+      vs->w = head->width;
+      vs->h = head->height;
+      fprintf(stderr, "Creating vitual screen %d : %dx%d+%d+%d\n", vs->monitor, vs->w, vs->h, vs->x, vs->y);
+      vs->window = XCreateWindow (dpy, scr->Root, vs->x, vs->y, vs->w, vs->h, 0,
+				  CopyFromParent, (unsigned int)CopyFromParent,
+				  (Visual *)CopyFromParent, valuemask, &attributes);
+      vs->wsw = NULL;
+      XSync (dpy, False);
+      XMapWindow (dpy, vs->window);
+      XChangeProperty (dpy, vs->window, _XA_WM_VIRTUALROOT, XA_STRING, 8,
+		       PropModeReplace, (unsigned char *) "Yes", 4);
+      data = vs->window;
+      XChangeProperty (dpy, vs->window, _XA__SWM_VROOT, XA_WINDOW, 32,
+		       PropModeReplace, (unsigned char *) &data, 1);
+      vs->next = scr->vScreenList;
+      scr->vScreenList = vs;
+    }
+    return;
+  }
+#endif				/* USE_XINERAMA */
 
   if (scr->VirtualScreens == NULL) {
     if (userealroot) {
@@ -64,25 +159,12 @@ void InitVirtualScreens (ScreenInfo *scr) {
     }
   }
 
-  attrmask  = ColormapChangeMask | EnterWindowMask | PropertyChangeMask | 
-              SubstructureRedirectMask | KeyPressMask | ButtonPressMask |
-              ButtonReleaseMask;
-
-  valuemask = CWBackingStore | CWSaveUnder | CWBackPixel | CWOverrideRedirect |
-              CWEventMask | CWCursor;
-  attributes.backing_store     = NotUseful;
-  attributes.save_under	       = False;
-  attributes.override_redirect = True;
-  attributes.event_mask	       = attrmask;
-  attributes.cursor    	       = cursor;
-  attributes.background_pixel  = Scr->Black;
-
-  scr->vScreenList = NULL;
-  for (nptr = Scr->VirtualScreens; nptr != NULL; nptr = nptr->next) {
+  for (n = 0, nptr = Scr->VirtualScreens; nptr != NULL; nptr = nptr->next) {
     VirtualScreen *vs;
     char *geometry = (char*) nptr->name;
     int x = 0, y = 0;
     unsigned int w = 0, h = 0;
+    long data;
 
     XParseGeometry (geometry, &x, &y, &w, &h);
 
@@ -92,6 +174,7 @@ void InitVirtualScreens (ScreenInfo *scr) {
       continue;
     }
     vs = (VirtualScreen*) malloc (sizeof (VirtualScreen));
+    vs->monitor = n++;
     vs->x = x;
     vs->y = y;
     vs->w = w;
@@ -105,6 +188,9 @@ void InitVirtualScreens (ScreenInfo *scr) {
     XMapWindow (dpy, vs->window);
     XChangeProperty (dpy, vs->window, _XA_WM_VIRTUALROOT, XA_STRING, 8, 
 		     PropModeReplace, (unsigned char *) "Yes", 4);
+    data = vs->window;
+    XChangeProperty (dpy, vs->window, _XA__SWM_VROOT, XA_WINDOW, 32,
+		     PropModeReplace, (unsigned char *) &data, 1);
 
     vs->next = scr->vScreenList;
     scr->vScreenList = vs;

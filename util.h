@@ -93,6 +93,11 @@ extern struct timeval AnimateTimeout;
 #endif /* USE_SIGNALS */
 
 extern void	Zoom(Window wf, Window wt);
+extern void	ZoomTo(Window wf, TwmWindow *twm_win);
+extern void	ZoomFrom(TwmWindow *twm_win, Window wt);
+extern void	ZoomIconToFrame(TwmWindow *ftwm, TwmWindow *ttwm);
+extern void	ZoomFrameToIcon(TwmWindow *ftwm, TwmWindow *ttwm);
+extern void	ZoomIconToIcon(TwmWindow *ftwm, TwmWindow *ttwm);
 extern void	MoveOutline(Window root,
 			    int x, int y, int width, int height,
 			    int bw, int th);

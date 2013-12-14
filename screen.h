@@ -65,11 +65,26 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/cursorfont.h>
+#ifdef USE_XINERAMA
+#include <X11/extensions/Xinerama.h>
+#endif				/* USE_XINERAMA */
+#ifdef USE_XRANDR
+#include <X11/extensions/Xrandr.h>
+#endif				/* USE_XRANDR */
 #endif
 
 #ifdef GNOME
 #  include "gnome.h"
 #endif /* GNOME */
+#ifdef EWMH
+#  include "ewmh.h"
+#endif /* EWMH */
+#ifdef WMH
+#  include "wmh.h"
+#endif
+#ifdef MWMH
+#  include "mwmh.h"
+#endif
 #include "list.h"
 #include "menus.h"
 #include "iconmgr.h"
@@ -127,7 +142,6 @@ struct ScreenInfo
     Window XineramaRoot;	/* the root window, may be CaptiveRoot or otherwise RealRoot */
     Window CaptiveRoot;		/* the captive root window, if any, or 0 */
     Window RealRoot;		/* the actual root window of the display */
-    Window ManagerWindow;	/* the WM_S%d selection owner window */
 
 /*
  *  +--RealRoot-----------------------------------------------------------+
@@ -150,6 +164,18 @@ struct ScreenInfo
  *  +---------------------------------------------------------------------+
  */
 
+#ifdef USE_XINERAMA
+    XineramaScreenInfo *head;	/* Xinerama head array */
+    int heads;			/* number of heads */
+#endif				/* USE_XINERAMA */
+
+#ifdef USE_XRANDR
+    XRRScreenResources *randr;	/* XRANDR screen resources */
+    XRRCrtcInfo **crtc;		/* XRANDR crtc array */
+    int crtcs;			/* number of ctrcs */
+#endif				/* USE_XRANDR */
+
+    Window ManagerWindow;	/* the WM_S%d selection owner window */
     Window SizeWindow;		/* the resize dimensions window */
     Window InfoWindow;		/* the information window */
     Window WindowMask;		/* the window masking the screen at startup */
@@ -462,9 +488,19 @@ struct ScreenInfo
     FuncKey FuncKeyRoot;
     FuncButton FuncButtonRoot;
 
+    Bool showingDesktop;
 #ifdef GNOME
     GnomeData *gnomedata;
-#endif /* GNOME */
+#endif				/* GNOME */
+#ifdef EWMH
+    EwmhScreen ewmh;
+#endif				/* EWMH */
+#ifdef WMH
+    WmhScreen wmh;
+#endif				/* WMH */
+#ifdef MWMH
+    MwmScreen mwmh;
+#endif				/* MWMH */
 };
 
 extern int captive;
@@ -484,7 +520,15 @@ extern int FirstScreen;
 #define RP_ALL 1
 #define RP_UNMAPPED 2
 
-#define ONTOP_MAX 16
-#define ONTOP_DEFAULT 8
+#define CTWM_LAYER_DESKTOP	(0L<<2)	    /* desktop layer */
+#define CTWM_LAYER_BELOW	(1L<<2)	    /* windows set below (stuck to desktop) */
+#define CTWM_LAYER_NORMAL	(2L<<2)	    /* normal windows */
+#define CTWM_LAYER_ONTOP	(3L<<2)	    /* windows set above (stuck to screen) */
+#define CTWM_LAYER_DOCK		(4L<<2)	    /* docks and panels (not set below) */
+#define CTWM_LAYER_ABOVE_DOCK	(5L<<2)	    /* fullscreen windows */
+#define CTWM_LAYER_MENU		(6L<<2)	    /* popup menus, dnd menus, tooltips and such */
+
+#define ONTOP_DEFAULT		CTWM_LAYER_NORMAL
+#define ONTOP_MAX		CTWM_LAYER_MENU
 
 #endif /* _SCREEN_ */
