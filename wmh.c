@@ -2201,17 +2201,17 @@ InitWmh(ScreenInfo *scr)
 #endif
 
 #ifdef DEBUG_WMH
-    fprintf(stderr, "Intializing _WIN_PROTOCOLS on root\n");
+    fprintf(stderr, "Initializing _WIN_PROTOCOLS on root\n");
     fflush(stderr);
 #endif
     Ini_WIN_PROTOCOLS(scr);
 #ifdef DEBUG_WMH
-    fprintf(stderr, "Intializing _WIN_CLIENT_LIST on root\n");
+    fprintf(stderr, "Initializing _WIN_CLIENT_LIST on root\n");
     fflush(stderr);
 #endif
     Ini_WIN_CLIENT_LIST(scr);
 #ifdef DEBUG_WMH
-    fprintf(stderr, "Intializing _WIN_WORKSPACE_COUNT on root\n");
+    fprintf(stderr, "Initializing _WIN_WORKSPACE_COUNT on root\n");
     fflush(stderr);
 #endif
     Ini_WIN_WORKSPACE_COUNT(scr);
