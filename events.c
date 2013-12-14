@@ -2484,6 +2484,10 @@ void HandleMapRequest(void)
 	switch (state) 
 	{
 	    case DontCareState:
+		/* FIXME: There is no DontCareState anymore: this value is now
+		   WithdrawnState and is the first clue that this window is a
+		   Windowmaker Dock App.  Do an unmapping by moving far away
+		   and let an external dock play with the window. */
 	    case NormalState:
 	    case ZoomState:
 		if (Tmp_win->StartSqueezed)

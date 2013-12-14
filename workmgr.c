@@ -751,6 +751,10 @@ void AddWorkSpace (char *name, char *background, char *foreground,
     ws->clientlist = NULL;
     ws->save_focus = NULL;
 
+#ifdef MWMH
+    ws->atom = XInternAtom(dpy, name, False);
+#endif				/* MWMH */
+
     if (background == NULL)
 	ws->cp.back = Scr->IconManagerC.back;
     else

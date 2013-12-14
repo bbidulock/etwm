@@ -121,6 +121,7 @@ void
 TwmGetWorkspace(ScreenInfo *scr, int *workspace)
 {
     VirtualScreen *vs;
+    WorkSpace *ws;
 
     if (!scr->workSpaceManagerActive) {
 	*workspace = 0;
@@ -131,8 +132,8 @@ TwmGetWorkspace(ScreenInfo *scr, int *workspace)
 	*workspace = 0;
 	return;
     }
-    if ((vs = scr->currentvs) == NULL && (vs = scr->vScreenList) == NULL) {
-	fprintf(stderr, "ERROR: Current virtual screen is NULL!\n");
+    if ((vs = scr->vScreenList) == NULL) {
+	fprintf(stderr, "ERROR: First virtual screen is NULL!\n");
 	*workspace = 0;
 	return;
     }
@@ -141,13 +142,13 @@ TwmGetWorkspace(ScreenInfo *scr, int *workspace)
 	*workspace = 0;
 	return;
     }
-    if (vs->wsw->currentwspc == NULL) {
+    if ((ws = vs->wsw->currentwspc) == NULL) {
 	fprintf(stderr, "ERROR: Current workspace is NULL!\n");
 	*workspace = 0;
 	return;
     }
 
-    *workspace = vs->wsw->currentwspc->number;
+    *workspace = ws->number;
 }
 
 /** @brief Set the active workspace.

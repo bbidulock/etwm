@@ -234,8 +234,8 @@ TwmGetWorkspaceCurrent(ScreenInfo *scr, Atom *current)
 	*current = None;
 	return;
     }
-    if ((vs = scr->currentvs) == NULL && (vs = scr->vScreenList) == NULL) {
-	fprintf(stderr, "ERROR: Current virtual screen is NULL!\n");
+    if ((vs = scr->vScreenList) == NULL) {
+	fprintf(stderr, "ERROR: First virtual screen is NULL!\n");
 	*current = None;
 	return;
     }
