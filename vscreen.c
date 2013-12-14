@@ -101,7 +101,6 @@ void InitVirtualScreens (ScreenInfo *scr) {
     return;
   }
 #endif				/* USE_XRANDR */
-#endif
 #ifdef USE_XINERAMA
   if (HasXinerama && scr->heads > 1) {
     fprintf(stderr, "Creating %d virtual screens from Xinerama\n", scr->heads);
@@ -136,6 +135,7 @@ void InitVirtualScreens (ScreenInfo *scr) {
     return;
   }
 #endif				/* USE_XINERAMA */
+#endif
 
   if (scr->VirtualScreens == NULL) {
     if (userealroot) {
