@@ -682,7 +682,7 @@ void TwmRestackWindow(TwmWindow *twin, unsigned mask, XWindowChanges *changes,
 		      enum _NET_SOURCE source);
 void TwmGetWMClientMachine(ScreenInfo *scr, TwmWindow *twin, char **machine);
 void TwmEstFrameExtents(Window window, struct NetExtents *extents);
-void TwmSetWMName(TwmWindow *twin, char *name);
+void TwmSetWMName(ScreenInfo *scr, TwmWindow *twin, char *name);
 void TwmGetWMVisibleName(TwmWindow *twin, char **name);
 void TwmSetWMIconName(TwmWindow *twin, char *name);
 void TwmGetWMVisibleIconName(TwmWindow *twin, char **name);

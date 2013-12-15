@@ -24,6 +24,7 @@
 -ss
 -nhnl
 -nbc
+-TXRectangle
 -TDtWmWorkspaceHints
 -TDtWmHints
 -TWorkSpace

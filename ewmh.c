@@ -2478,13 +2478,13 @@ Ini_NET_WM_NAME(TwmWindow *twin)
   * @param twin - the TWM window
   */
 static void
-Ret_NET_WM_NAME(TwmWindow *twin)
+Ret_NET_WM_NAME(ScreenInfo *scr, TwmWindow *twin)
 {
     Bool present;
     char *name = NULL;
 
     if ((present = Get_NET_WM_NAME(twin->w, &name)))
-	TwmSetWMName(twin, name);
+	TwmSetWMName(scr, twin, name);
     twin->ewmh.props._NET_WM_NAME = present;
     free(twin->ewmh.name);
     twin->ewmh.name = name;
@@ -6934,7 +6934,7 @@ HandleNetPropertyNotify(ScreenInfo *scr, TwmWindow *twin, XEvent *xev)
     if (twin != NULL) {
 	if (0) {
 	} else if (atom == _XA_NET_WM_NAME || atom == XA_WM_NAME) {
-	    Ret_NET_WM_NAME(twin);
+	    Ret_NET_WM_NAME(scr, twin);
 	} else if (atom == _XA_NET_WM_ICON_NAME || atom == XA_WM_ICON_NAME) {
 	    Ret_NET_WM_ICON_NAME(twin);
 	} else if (atom == _XA_NET_WM_STRUT || atom == _XA_NET_WM_STRUT_PARTIAL) {

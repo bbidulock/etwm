@@ -934,18 +934,39 @@ TwmEstFrameExtents(Window window, struct NetExtents *extents)
 extern void free_window_names(TwmWindow *twin, Bool nukefull, Bool nukename,
 			      Bool nukeicon);
 
+extern void RedoIcon(void);
+
+extern char *NoName;
+
 void
-TwmSetWMName(TwmWindow *twin, char *name)
+TwmSetWMName(ScreenInfo *scr, TwmWindow *twin, char *name)
 {
+    XRectangle inc_rect, logical_rect;
+
     if (name == NULL)
 	return;
 #ifdef CLAUDE
     if (strstr(name, " - Mozilla"))
 	*strstr(name, " - Mozilla") = '\0';
 #endif				/* CLAUDE */
-    // free_window_names(twin, True, True, False);
-    /* FIXME: more... */
-    /* FIXME: update CTWM's names and redisplay title bar. */
+    free_window_names(twin, True, True, False);
+
+    twin->full_name = name;
+    twin->name = name;
+    twin->nameChanged = 1;
+    Xutf8TextExtents(scr->TitleBarFont.font_set, name, strlen(name), &inc_rect,
+		     &logical_rect);
+    twin->name_width = logical_rect.width;
+    SetupWindow(twin, twin->frame_x, twin->frame_y, twin->frame_width, twin->frame_height,
+		-1);
+    if (twin->title_w)
+	XClearArea(dpy, twin->title_w, 0, 0, 0, 0, True);
+    if (scr->AutoOccupy)
+	WmgrRedoOccupation(twin);
+    if (twin->icon_name == NoName) {
+	twin->icon_name = name;
+	RedoIcon();
+    }
 }
 
 /** @brief Get the visible name.
@@ -975,7 +996,19 @@ TwmSetWMIconName(TwmWindow *twin, char *name)
 {
     if (name == NULL)
 	return;
-    /* FIXME: update CTWM's names and redisplay title bar. */
+#ifdef CLAUDE
+    {
+	char *moz = strstr(prop, " - Mozilla");
+
+	if (moz)
+	    *moz = '\0';
+    }
+#endif
+    free_window_names(twin, False, False, True);
+    twin->icon_name = name;
+
+    if (strcmp(twin->icon_name, name))
+	RedoIcon();
 }
 
 /** @brief Get the visible icon name.

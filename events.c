@@ -104,7 +104,7 @@
 #endif
 
 static void CtwmNextEvent (Display *display, XEvent  *event);
-static void RedoIcon(void);
+void RedoIcon(void);
 static void do_key_menu (MenuRoot *menu,	/* menu to pop up */
 			 Window w);		/* invoking window or None */
 void RedoIconName(void);
@@ -1758,7 +1758,7 @@ void HandlePropertyNotify(void)
 
 
 
-static void RedoIcon(void)
+void RedoIcon(void)
 {
     Icon *icon;
     char *pattern;
