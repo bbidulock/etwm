@@ -2410,7 +2410,7 @@ void HandleDestroyNotify(void)
 void HandleCreateNotify(void)
 {
 #ifdef DEBUG_EVENTS
-    fprintf(stderr, "CreateNotify w = 0x%x\n", Event.xcreatewindow.window);
+    fprintf(stderr, "CreateNotify w = 0x%lx\n", Event.xcreatewindow.window);
     fflush(stderr);
     XBell(dpy, 0);
     XSync(dpy, 0);
@@ -3906,7 +3906,7 @@ void HandleLeaveNotify(void)
 	    (Event.xcrossing.detail != NotifyInferior &&
 	     Event.xcrossing.window != Tmp_win->w)) {
 #ifdef DEBUG
-	     fprintf(stderr, "HandleLeaveNotify: Event.xcrossing.window %x != Tmp_win->w %x\n", Event.xcrossing.window, Tmp_win->w);
+	     fprintf(stderr, "HandleLeaveNotify: Event.xcrossing.window %lx != Tmp_win->w %lx\n", Event.xcrossing.window, Tmp_win->w);
 #endif
 	    if (!inicon) {
 		if (Event.xcrossing.window != Tmp_win->frame /*was: Tmp_win->mapped*/) {
@@ -4007,7 +4007,7 @@ void HandleConfigureRequest(void)
     if (cre->value_mask & CWHeight)
 	fprintf(stderr, "  height = %d\n", cre->height);
     if (cre->value_mask & CWSibling)
-	fprintf(stderr, "  above = 0x%x\n", cre->above);
+	fprintf(stderr, "  above = 0x%lx\n", cre->above);
     if (cre->value_mask & CWStackMode)
 	fprintf(stderr, "  stack = %d\n", cre->detail);
 #endif

@@ -358,7 +358,6 @@ TwmGetWorkspaceList(ScreenInfo *scr, Atom **list, int *count)
     WorkSpace *ws = NULL;
     int number = 0, n = 0;
     Atom *atoms = NULL;
-    char *name;
 
     /* There are no desktop atoms unless the workspace manager is active.  CTWM
        reverse to TWM behaviour otherwise. */

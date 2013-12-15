@@ -246,6 +246,10 @@ cmp_hints(MwmHints *h1, MwmHints *h2)
 static void
 Set_MOTIF_WM_INFO(Window root, MwmInfo *info)
 {
+#ifdef DEBUG_MWMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, root, _XA_MOTIF_WM_INFO, _XA_MOTIF_WM_INFO, 32, PropModeReplace,
 		    (unsigned char *) info, 2);
 }
@@ -319,6 +323,10 @@ Del_MOTIF_WM_INFO(ScreenInfo *scr)
 static void
 Set_DT_WORKSPACE_LIST(Window info, Atom *list, int count)
 {
+#ifdef DEBUG_MWMH
+    fprintf(stderr, "%s on info 0x%08lx\n", __FUNCTION__, info);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, info, _XA_DT_WORKSPACE_LIST, XA_ATOM, 32, PropModeReplace,
 		    (unsigned char *) list, count);
 }
@@ -331,6 +339,10 @@ Get_DT_WORKSPACE_LIST(Window info, Atom **list, int *count)
     unsigned long nitems = 0, bytes_after = 0, n;
     long *prop = NULL;
 
+#ifdef DEBUG_MWMH
+    fprintf(stderr, "%s from info 0x%08lx\n", __FUNCTION__, info);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, info, _XA_DT_WORKSPACE_CURRENT, 0L, 32L, False, XA_ATOM,
 			   &actual_type, &actual_format, &nitems, &bytes_after,
@@ -408,7 +420,8 @@ static void
 Set_DT_WORKSPACE_CURRENT(Window info, Atom workspace)
 {
 #ifdef DEBUG_MWMH
-    fprintf(stderr, "Setting _DT_WORKSPACE_CURRENT to 0x%08lx on root 0x%08lx\n", workspace, info);
+    fprintf(stderr, "%s on info 0x%08lx\n", __FUNCTION__, info);
+    fflush(stderr);
 #endif
     XChangeProperty(dpy, info, _XA_DT_WORKSPACE_CURRENT, XA_ATOM, 32,
 		    PropModeReplace, (unsigned char *) &workspace, 1);
@@ -422,6 +435,10 @@ Get_DT_WORKSPACE_CURRENT(Window info, Atom *workspace)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_MWMH
+    fprintf(stderr, "%s from info 0x%08lx\n", __FUNCTION__, info);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, info, _XA_DT_WORKSPACE_CURRENT, 0L, 1L, False,
 		XA_ATOM, &actual_type, &actual_format, &nitems, &bytes_after,
@@ -575,6 +592,10 @@ static const Atom *MwmWmProtocols[] = {
 static Bool
 Get_MWM_WM_PROTOCOLS(Window window, unsigned *protocols)
 {
+#ifdef DEBUG_MWMH
+    fprintf(stderr, "%s from window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     return Get_MWM_WM_atoms(window, _XA_WM_PROTOCOLS, MwmWmProtocols, protocols);
 }
 
@@ -680,6 +701,10 @@ Ret_MWM_WM_PROTOCOLS(TwmWindow *twin)
 static void
 Set_MOTIF_WM_HINTS(Window window, MwmHints *hints)
 {
+#ifdef DEBUG_MWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, window, _XA_MOTIF_WM_HINTS, _XA_MOTIF_WM_HINTS, 32,
 	    PropModeReplace, (unsigned char *) hints, 5);
 }
@@ -697,6 +722,10 @@ Get_MOTIF_WM_HINTS(Window window, MwmHints *hints)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_MWMH
+    fprintf(stderr, "%s from window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_MOTIF_WM_HINTS, 0L, 5L, False,
 			   _XA_MOTIF_WM_HINTS, &actual_type, &actual_format, &nitems,
@@ -887,6 +916,10 @@ Set_DT_WORKSPACE_HINTS(Window window, DtWmWorkspaceHints *hints)
 	4 + ((hints->flags & DT_WORKSPACE_HINTS_WORKSPACES) ? hints->numWorkspaces : 0);
     long *prop = calloc(len, sizeof(long));
 
+#ifdef DEBUG_MWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     if (prop == NULL)
 	return;
     prop[0] = hints->version;
@@ -909,6 +942,10 @@ Get_DT_WORKSPACE_HINTS(Window window, DtWmWorkspaceHints *hints)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_MWMH
+    fprintf(stderr, "%s from window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_DT_WORKSPACE_HINTS, 0L, 4L, False,
 			   _XA_DT_WORKSPACE_HINTS, &actual_type, &actual_format, &nitems,
@@ -987,6 +1024,10 @@ Ret_DT_WORKSPACE_HINTS(ScreenInfo *scr, TwmWindow *twin)
 static void
 Set_DT_WORKSPACE_PRESENCE(Window window, Atom *presence, int count)
 {
+#ifdef DEBUG_MWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, window, _XA_DT_WORKSPACE_PRESENCE, _XA_DT_WORKSPACE_PRESENCE, 32,
 		    PropModeReplace, (unsigned char *) presence, count);
 }
@@ -1051,6 +1092,10 @@ Get_DT_WM_HINTS(Window window, DtWmHints *hints)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_MWMH
+    fprintf(stderr, "%s from window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_DT_WM_HINTS, 0L, 4L, False, _XA_DT_WM_HINTS,
 			   &actual_type, &actual_format, &nitems, &bytes_after,
@@ -1346,6 +1391,7 @@ HandleMwmClientMessage(ScreenInfo *scr, TwmWindow *twin, XEvent *xev)
     XClientMessageEvent *event = &xev->xclient;
     Atom message_type = event->message_type;
 
+    (void) message_type;
     if (scr == NULL)
 	return False;
     if (event->format != 32)

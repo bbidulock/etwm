@@ -251,7 +251,6 @@ TwmSetWorkspaceNames(ScreenInfo *scr, char **names, int count)
 void
 TwmGetWinLayer(TwmWindow *twin, unsigned *layer)
 {
-    short ontop = twin->ontoppriority;
     *layer = twin->ontoppriority / 2;
 }
 
@@ -426,9 +425,6 @@ TwmSetWinState(ScreenInfo *scr, TwmWindow *twin, unsigned mask, unsigned state)
 {
     unsigned m, j, result;
     int current = 0;
-    TwmWindow *tmp_win;
-
-    tmp_win = TwmWinCanChangeWorkspace(twin);
 
     TwmGetWorkspace(scr, &current);
 
@@ -446,6 +442,11 @@ TwmSetWinState(ScreenInfo *scr, TwmWindow *twin, unsigned mask, unsigned state)
 	    switch (j) {
 	    case WIN_STATE_STICKY_BIT:
 #if 0
+	    {
+		TwmWindow *tmp_win;
+
+		tmp_win = TwmWinCanChangeWorkspace(twin);
+
 		if (tmp_win != NULL) {
 		    if (state & m) {
 			if (twin->occupation != fullOccupation)
@@ -455,6 +456,7 @@ TwmSetWinState(ScreenInfo *scr, TwmWindow *twin, unsigned mask, unsigned state)
 			    ChangeOccupation(tmp_win, 1 << current);
 		    }
 		}
+	    }
 #endif
 		break;
 	    case WIN_STATE_MINIMIZED_BIT:

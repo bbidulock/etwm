@@ -846,7 +846,8 @@ Set_NET_SUPPORTED(Window root)
 	_XA_NET_WM_DESKTOP_MASK
     };
 #ifdef DEBUG_EWMH
-    fprintf(stderr, "Setting _NET_SUPPORTED on root 0x%08x\n", root);
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
 #endif
     XChangeProperty(dpy, root, _XA_NET_SUPPORTED, XA_ATOM, 32, PropModeReplace,
 		    (unsigned char *) data, sizeof(data) / sizeof(long));
@@ -892,6 +893,10 @@ Set_NET_CLIENT_LIST(Window root, Window *windows, int count)
     long *data = NULL;
     int i;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     if (count > 0 && (data = calloc(count, sizeof(long))) == NULL)
 	count = 0;
     for (i = 0; i < count; i++)
@@ -914,6 +919,10 @@ Upd_NET_CLIENT_LIST(ScreenInfo *scr)
     Window *clients = NULL;
     int count = 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     TwmGetClientList(scr, &clients, &count);
     if (!scr->ewmh.props._NET_CLIENT_LIST
 	|| cmp_window_list(scr->ewmh.clients, clients) != 0) {
@@ -966,6 +975,10 @@ Set_NET_CLIENT_LIST_STACKING(Window root, Window *windows, int count)
     long *data = NULL;
     int i;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     if (count > 0 && (data = calloc(count, sizeof(long))) == NULL)
 	count = 0;
     for (i = 0; i < count; i++)
@@ -988,6 +1001,10 @@ Upd_NET_CLIENT_LIST_STACKING(ScreenInfo *scr)
     Window *stacking = NULL;
     int count = 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     TwmGetClientListStacking(scr, &stacking, &count);
     if (!scr->ewmh.props._NET_CLIENT_LIST_STACKING
 	|| cmp_window_list(scr->ewmh.stacking, stacking) != 0) {
@@ -1016,7 +1033,8 @@ static void
 Set_NET_NUMBER_OF_DESKTOPS(Window root, long number)
 {
 #ifdef DEBUG_EWMH
-    fprintf(stderr, "Setting _NET_NUMBER_OF_DESKTOPS to %ld on root 0x%08x\n", number, root);
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
 #endif
     XChangeProperty(dpy, root, _XA_NET_NUMBER_OF_DESKTOPS, XA_CARDINAL, 32,
 		    PropModeReplace, (unsigned char *) &number, 1);
@@ -1030,6 +1048,10 @@ Get_NET_NUMBER_OF_DESKTOPS(Window root, int *number)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, root, _XA_NET_NUMBER_OF_DESKTOPS, 0L, 1L, False,
 			   XA_CARDINAL, &actual_type, &actual_format, &nitems,
@@ -1056,6 +1078,10 @@ Upd_NET_NUMBER_OF_DESKTOPS(ScreenInfo *scr)
 {
     int desktops = 1;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     TwmGetNumberOfDesktops(scr, &desktops);
     if (!scr->ewmh.props._NET_NUMBER_OF_DESKTOPS || scr->ewmh.desktops != desktops) {
 	Set_NET_NUMBER_OF_DESKTOPS(TwmNetRoot(scr), desktops);
@@ -1124,7 +1150,8 @@ static void
 Set_NET_DESKTOP_GEOMETRY(Window root, struct NetSize *geometry)
 {
 #ifdef DEBUG_EWMH
-    fprintf(stderr, "Setting _NET_DESKTOP_GEOMETRY to %ld x %ld on root 0x%08x\n", geometry->width, geometry->height, root);
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
 #endif
     XChangeProperty(dpy, root, _XA_NET_DESKTOP_GEOMETRY, XA_CARDINAL, 32, PropModeReplace,
 		    (unsigned char *) geometry, 2);
@@ -1138,6 +1165,10 @@ Get_NET_DESKTOP_GEOMETRY(Window root, struct NetSize *geometry)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, root, _XA_NET_DESKTOP_GEOMETRY, 0L, 2L, False,
 			   XA_CARDINAL, &actual_type, &actual_format, &nitems,
@@ -1163,6 +1194,10 @@ Upd_NET_DESKTOP_GEOMETRY(ScreenInfo *scr)
 {
     struct NetSize geometry = { scr->rootw, scr->rooth };
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     TwmGetDesktopGeometry(scr, &geometry);
     if (!scr->ewmh.props._NET_DESKTOP_GEOMETRY
 	|| cmp_size(&scr->ewmh.geometry, &geometry) != 0) {
@@ -1220,7 +1255,8 @@ static void
 Set_NET_DESKTOP_VIEWPORT(Window root, struct NetPosition *pos, int desktops)
 {
 #ifdef DEBUG_EWMH
-    fprintf(stderr, "Setting _NET_DESKTOP_VIEWPORT for %d desktops on root 0x%08x\n", desktops, root);
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
 #endif
     XChangeProperty(dpy, root, _XA_NET_DESKTOP_VIEWPORT, XA_CARDINAL, 32, PropModeReplace,
 		    (unsigned char *) pos, desktops * 2);
@@ -1234,6 +1270,10 @@ Get_NET_DESKTOP_VIEWPORT(Window root, struct NetPosition **pos, int *desktops)
     unsigned long nitems = 0, bytes_after = 0, len, n, i;
     long *prop = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     if (*pos != NULL) {
 	free(*pos);
 	*pos = NULL;
@@ -1285,6 +1325,10 @@ Upd_NET_DESKTOP_VIEWPORT(ScreenInfo *scr)
     struct NetPosition *viewport = NULL;
     int viewports = 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     TwmGetDesktopViewports(scr, &viewport, &viewports);
     if (!scr->ewmh.props._NET_DESKTOP_VIEWPORT
 	|| cmp_pos_list(scr->ewmh.viewport, scr->ewmh.viewports, viewport,
@@ -1302,7 +1346,7 @@ Ini_NET_DESKTOP_VIEWPORT(ScreenInfo *scr)
 {
     Bool present;
     struct NetPosition *viewport = NULL;
-    int viewports = 0, n;
+    int viewports = 0;
 
     present = Get_NET_DESKTOP_VIEWPORT(TwmNetRoot(scr), &viewport, &viewports);
     scr->ewmh.props._NET_DESKTOP_VIEWPORT = present;
@@ -1345,7 +1389,8 @@ static void
 Set_NET_CURRENT_DESKTOP(Window root, long desktop)
 {
 #ifdef DEBUG_EWMH
-    fprintf(stderr, "Setting _NET_CURRENT_DESKTOP to %ld on root 0x%08x\n", desktop, root);
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
 #endif
     XChangeProperty(dpy, root, _XA_NET_CURRENT_DESKTOP, XA_CARDINAL, 32, PropModeReplace,
 		    (unsigned char *) &desktop, 1);
@@ -1359,6 +1404,10 @@ Get_NET_CURRENT_DESKTOP(Window root, int *desktop)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, root, _XA_NET_CURRENT_DESKTOP, 0L, 1L, False, XA_CARDINAL,
 			   &actual_type, &actual_format, &nitems, &bytes_after,
@@ -1385,6 +1434,10 @@ Upd_NET_CURRENT_DESKTOP(ScreenInfo *scr)
 {
     int current = -1;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     TwmGetCurrentDesktop(scr, &current);
     if (!scr->ewmh.props._NET_CURRENT_DESKTOP || scr->ewmh.current != current) {
 	Set_NET_CURRENT_DESKTOP(TwmNetRoot(scr), current);
@@ -1449,16 +1502,27 @@ Rcv_NET_CURRENT_DESKTOP(ScreenInfo *scr, XClientMessageEvent *event)
 static void
 Set_NET_DESKTOP_NAMES(Window root, char **names, int count)
 {
-    int status;
-    XTextProperty text = { NULL, };
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
+    if (names != NULL && count > 0) {
+	XTextProperty text = { NULL, };
 
-    status = Xutf8TextListToTextProperty(dpy, names, count, XUTF8StringStyle, &text);
-    if (status == Success) {
-	/* Nul terminated, not null separated */
-	text.value[text.nitems] = '\0';
-	text.nitems += 1;
-	XSetTextProperty(dpy, root, &text, _XA_NET_DESKTOP_NAMES);
-	XFree(text.value);
+	if (XmbTextListToTextProperty(dpy, names, count, XUTF8StringStyle, &text) ==
+	    Success) {
+	    /* Nul terminated, not null separated */
+	    text.value[text.nitems] = '\0';
+	    text.nitems += 1;
+	    XSetTextProperty(dpy, root, &text, _XA_NET_DESKTOP_NAMES);
+	    XFree(text.value);
+	}
+    } else {
+#ifdef DEBUG_EWMH
+	fprintf(stderr, "ERROR: no desktop names!\n");
+	fflush(stderr);
+#endif
+	XDeleteProperty(dpy, root, _XA_NET_DESKTOP_NAMES);
     }
 }
 
@@ -1467,17 +1531,18 @@ Get_NET_DESKTOP_NAMES(Window root, char ***names, int *count)
 {
     XTextProperty text = { NULL, };
 
-    if (*names != NULL) {
-	XFreeStringList(*names);
-	*count = 0;
-	*names = NULL;
-    }
-    if (XGetTextProperty(dpy, root, &text, _XA_NET_DESKTOP_NAMES) == Success) {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
+    if (XGetTextProperty(dpy, root, &text, _XA_NET_DESKTOP_NAMES) && text.nitems > 0) {
 	/* Nul terminated, not null separated */
-	if (text.nitems > 0)
-	    text.nitems -= 1;
-	Xutf8TextPropertyToTextList(dpy, &text, names, count);
-	return True;
+	text.nitems -= 1;
+	if (XmbTextPropertyToTextList(dpy, &text, names, count) == Success) {
+	    XFree(text.value);
+	    return True;
+	}
+	XFree(text.value);
     }
     return False;
 }
@@ -1494,6 +1559,10 @@ Upd_NET_DESKTOP_NAMES(ScreenInfo *scr)
     char **names = NULL;
     int count = 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     TwmGetDesktopNames(scr, &names, &count);
     if (!scr->ewmh.props._NET_DESKTOP_NAMES || strcmp_list(names, scr->ewmh.names) != 0) {
 	Set_NET_DESKTOP_NAMES(TwmNetRoot(scr), names, count);
@@ -1526,6 +1595,10 @@ Ret_NET_DESKTOP_NAMES(ScreenInfo *scr)
     char **names = NULL;
     int count = 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     present = Get_NET_DESKTOP_NAMES(TwmNetRoot(scr), &names, &count);
     TwmSetDesktopNames(scr, names, count);
     scr->ewmh.props._NET_DESKTOP_NAMES = present;
@@ -1549,7 +1622,8 @@ Set_NET_ACTIVE_WINDOW(Window root, Window window)
     long data = (long) window;
 
 #ifdef DEBUG_EWMH
-    fprintf(stderr, "Setting _NET_ACTIVE_WINOW to 0x%08x on root 0x%08x\n", window, root);
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
 #endif
     XChangeProperty(dpy, root, _XA_NET_ACTIVE_WINDOW, XA_WINDOW, 32, PropModeReplace,
 		    (unsigned char *) &data, 1);
@@ -1563,6 +1637,10 @@ Get_NET_ACTIVE_WINDOW(Window root, Window *window)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, root, _XA_NET_ACTIVE_WINDOW, 0L, 1L, False, XA_WINDOW,
 			   &actual_type, &actual_format, &nitems, &bytes_after,
@@ -1589,6 +1667,10 @@ Upd_NET_ACTIVE_WINDOW(ScreenInfo *scr)
 {
     Window active = None;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     TwmGetActiveWindow(scr, &active);
     if (!scr->ewmh.props._NET_ACTIVE_WINDOW || scr->ewmh.active != active) {
 	Set_NET_ACTIVE_WINDOW(TwmNetRoot(scr), active);
@@ -1630,7 +1712,6 @@ Ini_NET_ACTIVE_WINDOW(ScreenInfo *scr)
 static void
 Rcv_NET_ACTIVE_WINDOW(ScreenInfo *scr, XClientMessageEvent *event)
 {
-    TwmWindow *twin = NULL;
     Window active = event->window;
     enum _NET_SOURCE source = (int) event->data.l[0];
     Time timestamp = (Time) event->data.l[1];
@@ -1643,7 +1724,8 @@ Rcv_NET_ACTIVE_WINDOW(ScreenInfo *scr, XClientMessageEvent *event)
 	break;
     default:
 #ifdef DEBUG_EWMH
-	fprintf(stderr, "Received _NET_ACTIVE_WINDOW message with invalid source %d\n", source);
+	fprintf(stderr, "Received _NET_ACTIVE_WINDOW message with invalid source %d\n",
+		source);
 	fflush(stderr);
 #endif
 	return;
@@ -1670,6 +1752,10 @@ Rcv_NET_ACTIVE_WINDOW(ScreenInfo *scr, XClientMessageEvent *event)
 static void
 Set_NET_WORKAREA(Window root, struct NetGeometry *workarea, int workareas)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, root, _XA_NET_WORKAREA, XA_CARDINAL, 32, PropModeReplace,
 		    (unsigned char *) workarea, workareas * 4);
 }
@@ -1690,6 +1776,10 @@ Upd_NET_WORKAREA(ScreenInfo *scr)
     struct NetGeometry *workarea = NULL;
     int workareas = 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     TwmGetWorkareas(scr, &workarea, &workareas);
     if (!scr->ewmh.props._NET_WORKAREA
 	|| cmp_geo_list(scr->ewmh.workarea, scr->ewmh.workareas, workarea,
@@ -1732,6 +1822,10 @@ Set_NET_SUPPORTING_WM_CHECK(Window root, Window window)
 {
     long data = (long) window;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, window, _XA_NET_SUPPORTING_WM_CHECK, XA_WINDOW, 32,
 		    PropModeReplace, (unsigned char *) &data, 1);
     XChangeProperty(dpy, root, _XA_NET_SUPPORTING_WM_CHECK, XA_WINDOW, 32,
@@ -1753,6 +1847,10 @@ Upd_NET_SUPPORTING_WM_CHECK(ScreenInfo *scr)
 {
     Window check = TwmNetManager(scr);
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     if (!scr->ewmh.props._NET_SUPPORTING_WM_CHECK || scr->ewmh.check != check) {
 	Set_NET_SUPPORTING_WM_CHECK(TwmNetRoot(scr), check);
 	scr->ewmh.props._NET_SUPPORTING_WM_CHECK = 1;
@@ -1786,6 +1884,10 @@ Set_NET_VIRTUAL_ROOTS(Window root, Window *windows, int count)
     long *data = NULL;
     int i;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     if (count > 0 && (data = calloc(count, sizeof(long))) == NULL)
 	count = 0;
     for (i = 0; i < count; i++)
@@ -1810,6 +1912,10 @@ Upd_NET_VIRTUAL_ROOTS(ScreenInfo *scr)
     Window *vroots = NULL;
     int count = 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     TwmGetVirtualRoots(scr, &vroots, &count);
     if (!scr->ewmh.props._NET_VIRTUAL_ROOTS
 	|| cmp_window_list(scr->ewmh.vroots, vroots) != 0) {
@@ -1841,6 +1947,10 @@ Del_NET_VIRTUAL_ROOTS(ScreenInfo *scr)
 static void
 Set_NET_DESKTOP_LAYOUT(Window root, struct NetLayout *layout)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, root, _XA_NET_DESKTOP_LAYOUT, XA_CARDINAL, 32, PropModeReplace,
 		    (unsigned char *) layout, 4);
 }
@@ -1853,6 +1963,10 @@ Get_NET_DESKTOP_LAYOUT(Window root, struct NetLayout *layout)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, root, _XA_NET_DESKTOP_LAYOUT, 0L, 4L, False, XA_CARDINAL,
 			   &actual_type, &actual_format, &nitems, &bytes_after,
@@ -1889,6 +2003,10 @@ Get_NET_DESKTOP_LAYOUT(Window root, struct NetLayout *layout)
 void
 Upd_NET_DESKTOP_LAYOUT(ScreenInfo *scr)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     if (scr->ewmh.layout_sn.window != None) {
 	struct NetLayout layout = {
 	    _NET_WM_ORIENTATION_HORZ, 1, 1,
@@ -1934,11 +2052,16 @@ static void
 Ret_NET_DESKTOP_LAYOUT(ScreenInfo *scr)
 {
     Bool present;
+
     struct NetLayout layout = {
 	_NET_WM_ORIENTATION_HORZ, 1, 1,
 	_NET_WM_STARTING_CORNER_TOPLEFT
     };
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     /* ignore our own changes */
     if (scr->ewmh.layout_sn.window != None)
 	return;
@@ -1987,6 +2110,7 @@ Ini_NET_DESKTOP_LAYOUT_Sn(ScreenInfo *scr)
     XSync(dpy, False);
     XUngrabServer(dpy);
 }
+
 /*
  * A new manager has announced itself as owning the _NET_DESKTOP_LAYOUT_Sn
  * selection.
@@ -2046,6 +2170,10 @@ Set_NET_SHOWING_DESKTOP(Window root, Bool showing)
 {
     long data = showing ? 1 : 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, root, _XA_NET_SHOWING_DESKTOP, XA_CARDINAL, 32, PropModeReplace,
 		    (unsigned char *) &data, 1);
 }
@@ -2062,6 +2190,10 @@ Get_NET_SHOWING_DESKTOP(Window root, Bool *flag)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, root, _XA_NET_SHOWING_DESKTOP, 0L, 1L, False, XA_CARDINAL,
 			   &actual_type, &actual_format, &nitems, &bytes_after,
@@ -2088,6 +2220,10 @@ Upd_NET_SHOWING_DESKTOP(ScreenInfo *scr)
 {
     Bool showing = False;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     TwmGetShowingDesktop(scr, &showing);
     if (!scr->ewmh.props._NET_SHOWING_DESKTOP || scr->ewmh.showing != showing) {
 	Set_NET_SHOWING_DESKTOP(TwmNetRoot(scr), showing);
@@ -2147,31 +2283,49 @@ static void
 Set_WM_CLASS(Window window, XClassHint *class)
 {
     XTextProperty text = { NULL, };
+    char *list[3] = { class->res_name, class->res_class, NULL };
 
-    Xutf8TextListToTextProperty(dpy, (char **) class, 2, XStdICCTextStyle, &text);
-    XSetTextProperty(dpy, window, &text, XA_WM_CLASS);
-    XFree(text.value);
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
+    if (list[0] == NULL)
+	list[0] = "";
+    if (list[1] == NULL)
+	list[1] = "";
+    if (XmbTextListToTextProperty(dpy, list, 2, XStdICCTextStyle, &text) == Success) {
+	XSetTextProperty(dpy, window, &text, XA_WM_CLASS);
+	if (text.value != NULL)
+	    XFree(text.value);
+    }
 }
 
 static Bool
 Get_WM_CLASS(Window window, XClassHint *class)
 {
     XTextProperty text = { NULL, };
-    int status, count = 0;
+    int count = 0;
     char **list = NULL;
 
-    status = XGetTextProperty(dpy, window, &text, XA_WM_CLASS);
-    if (status == Success && text.nitems > 0) {
-	XTextPropertyToStringList(&text, &list, &count);
-	if (count >= 1)
-	    class->res_name = strdup(list[0]);
-	if (count >= 2)
-	    class->res_class = strdup(list[1]);
-	XFreeStringList(list);
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
+    if (XGetTextProperty(dpy, window, &text, XA_WM_CLASS) && text.nitems > 0) {
+	if (XmbTextPropertyToTextList(dpy, &text, &list, &count) == Success) {
+	    if (count > 0) {
+		if (count >= 1)
+		    class->res_name = strdup(list[0]);
+		if (count >= 2)
+		    class->res_class = strdup(list[1]);
+		XFreeStringList(list);
+		XFree(text.value);
+		return True;
+	    }
+	    XFreeStringList(list);
+	}
 	XFree(text.value);
-	return True;
     }
-    XFree(text.value);
     return False;
 }
 
@@ -2217,6 +2371,10 @@ static const Atom *NetWmProtocols[] = {
 static Bool
 Get_NET_WM_PROTOCOLS(Window window, unsigned *protocols)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     return Get_NET_WM_atoms(window, _XA_WM_PROTOCOLS, NetWmProtocols, protocols);
 }
 
@@ -2257,35 +2415,51 @@ Ini_NET_WM_PROTOCOLS(TwmWindow *twin)
 static void
 Set_WM_CLIENT_MACHINE(Window window, char *machine)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     if (machine != NULL) {
 	XTextProperty text = { NULL, };
+	char *list[2] = { machine, NULL };
 
-	Xutf8TextListToTextProperty(dpy, &machine, 1, XStdICCTextStyle, &text);
-	XSetTextProperty(dpy, window, &text, XA_WM_CLIENT_MACHINE);
-	XFree(text.value);
-    } else
+	if (XmbTextListToTextProperty(dpy, list, 1, XStdICCTextStyle, &text) == Success) {
+	    XSetTextProperty(dpy, window, &text, XA_WM_CLIENT_MACHINE);
+	    if (text.value != NULL)
+		XFree(text.value);
+	}
+    } else {
+#ifdef DEBUG_EWMH
+	fprintf(stderr, "ERROR: no client machine!\n");
+	fflush(stderr);
+#endif
 	XDeleteProperty(dpy, window, XA_WM_CLIENT_MACHINE);
+    }
 }
 
 static Bool
 Get_WM_CLIENT_MACHINE(Window window, char **machine)
 {
     XTextProperty text = { NULL, };
-    int status, count = 0;
+    int count = 0;
     char **list = NULL;
 
-    status = XGetTextProperty(dpy, window, &text, XA_WM_CLIENT_MACHINE);
-    if (status == Success && text.nitems > 0) {
-	XTextPropertyToStringList(&text, &list, &count);
-	if (count > 0) {
-	    free(*machine);
-	    *machine = strdup(list[0]);
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
+    if (XGetTextProperty(dpy, window, &text, XA_WM_CLIENT_MACHINE) && text.nitems > 0) {
+	if (XmbTextPropertyToTextList(dpy, &text, &list, &count) == Success) {
+	    if (count > 0) {
+		*machine = strdup(list[0]);
+		XFreeStringList(list);
+		XFree(text.value);
+		return True;
+	    }
+	    XFreeStringList(list);
 	}
-	XFreeStringList(list);
 	XFree(text.value);
-	return True;
     }
-    XFree(text.value);
     return False;
 }
 
@@ -2303,6 +2477,10 @@ Upd_WM_CLIENT_MACHINE(ScreenInfo *scr, TwmWindow *twin)
 {
     char *machine = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     TwmGetWMClientMachine(scr, twin, &machine);
     if (machine != NULL) {
 	if (!twin->ewmh.props.WM_CLIENT_MACHINE
@@ -2361,28 +2539,46 @@ Ini_WM_CLIENT_MACHINE(ScreenInfo *scr, TwmWindow *twin)
 static void
 Set_WM_COMMAND(Window window, char **command, int count)
 {
-    XTextProperty text = { NULL, };
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
+    if (command != NULL && count > 0) {
+	XTextProperty text = { NULL, };
 
-    Xutf8TextListToTextProperty(dpy, command, count, XStdICCTextStyle, &text);
-    XSetTextProperty(dpy, window, &text, XA_WM_COMMAND);
-    XFree(text.value);
+	if (XmbTextListToTextProperty(dpy, command, count, XStdICCTextStyle, &text) ==
+	    Success) {
+	    XSetTextProperty(dpy, window, &text, XA_WM_COMMAND);
+	    if (text.value != NULL)
+		XFree(text.value);
+	}
+    } else {
+#ifdef DEBUG_EWMH
+	fprintf(stderr, "ERROR: no command!\n");
+	fflush(stderr);
+#endif
+	XDeleteProperty(dpy, window, XA_WM_COMMAND);
+    }
 }
 
 static Bool
 Get_WM_COMMAND(Window window, char ***command, int *count)
 {
     XTextProperty text = { NULL, };
-    int status;
 
-    status = XGetTextProperty(dpy, window, &text, XA_WM_COMMAND);
-    if (status == Success && text.nitems > 0) {
-	XTextPropertyToStringList(&text, command, count);
-	if (*count > 0)
-	    return True;
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
+    if (XGetTextProperty(dpy, window, &text, XA_WM_COMMAND) && text.nitems > 0) {
+	if (XmbTextPropertyToTextList(dpy, &text, command, count) == Success) {
+	    if (*count > 0) {
+		XFree(text.value);
+		return True;
+	    }
+	}
 	XFree(text.value);
-	return True;
     }
-    XFree(text.value);
     return False;
 }
 
@@ -2397,7 +2593,7 @@ Ini_WM_COMMAND(ScreenInfo *scr, TwmWindow *twin)
 	EwmhSequence *seq;
 
 	if ((seq = twin->ewmh.sequence) != NULL
-		&& (seq->field.command == NULL || seq->field.command[0] == '\0')) {
+	    && (seq->field.command == NULL || seq->field.command[0] == '\0')) {
 	    free(seq->field.command);
 	    seq->field.command = make_command_from_argv(command);
 	    Chg_NET_STARTUP_INFO(scr, seq);
@@ -2424,40 +2620,63 @@ Ini_WM_COMMAND(ScreenInfo *scr, TwmWindow *twin)
 static void
 Set_NET_WM_NAME(Window window, char *name)
 {
-    XTextProperty text = { NULL, };
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
+    if (name != NULL) {
+	XTextProperty text = { NULL, };
+	char *list[2] = { name, NULL };
 
-    Xutf8TextListToTextProperty(dpy, &name, 1, XUTF8StringStyle, &text);
-    XSetTextProperty(dpy, window, &text, _XA_NET_WM_NAME);
-    XFree(text.value);
+	if (XmbTextListToTextProperty(dpy, list, 1, XUTF8StringStyle, &text) == Success) {
+	    XSetTextProperty(dpy, window, &text, _XA_NET_WM_NAME);
+	    if (text.value != NULL)
+		XFree(text.value);
+	}
+    } else {
+#ifdef DEBUG_EWMH
+	fprintf(stderr, "ERROR: no name!\n");
+	fflush(stderr);
+#endif
+	XDeleteProperty(dpy, window, _XA_NET_WM_NAME);
+    }
 }
 
 static Bool
 Get_NET_WM_NAME(Window window, char **name)
 {
     XTextProperty text = { NULL, };
-    int status, count = 0;
+    int count = 0;
     char **list = NULL;
 
-    status = XGetTextProperty(dpy, window, &text, _XA_NET_WM_NAME);
-    if (status == Success && text.nitems > 0) {
-	XTextPropertyToStringList(&text, &list, &count);
-	if (count > 0) {
-	    free(*name);
-	    *name = strdup(list[0]);
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
+    if (XGetTextProperty(dpy, window, &text, _XA_NET_WM_NAME) && text.nitems > 0) {
+	if (XmbTextPropertyToTextList(dpy, &text, &list, &count) == Success) {
+	    if (count > 0) {
+		*name = strdup(list[0]);
+		XFreeStringList(list);
+		XFree(text.value);
+		return True;
+	    }
+	    XFreeStringList(list);
 	}
-	XFreeStringList(list);
-	return True;
+	XFree(text.value);
     }
     /* when no _NET_WM_NAME go after WM_NAME */
-    status = XGetTextProperty(dpy, window, &text, XA_WM_NAME);
-    if (status == Success && text.nitems > 0) {
-	XTextPropertyToStringList(&text, &list, &count);
-	if (count > 0) {
-	    free(*name);
-	    *name = strdup(list[0]);
+    if (XGetTextProperty(dpy, window, &text, XA_WM_NAME) && text.nitems > 0) {
+	if (XmbTextPropertyToTextList(dpy, &text, &list, &count) == Success) {
+	    if (count > 0) {
+		*name = strdup(list[0]);
+		XFreeStringList(list);
+		XFree(text.value);
+		return True;
+	    }
+	    XFreeStringList(list);
 	}
-	XFreeStringList(list);
-	return True;
+	XFree(text.value);
     }
     return False;
 }
@@ -2483,8 +2702,18 @@ Ret_NET_WM_NAME(ScreenInfo *scr, TwmWindow *twin)
     Bool present;
     char *name = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if ((present = Get_NET_WM_NAME(twin->w, &name)))
 	TwmSetWMName(scr, twin, name);
+    else {
+#ifdef DEBUG_EWMH
+	fprintf(stderr, "ERROR: no _NET_WM_NAME property on window 0x%08lx\n", twin->w);
+	fflush(stderr);
+#endif
+    }
     twin->ewmh.props._NET_WM_NAME = present;
     free(twin->ewmh.name);
     twin->ewmh.name = name;
@@ -2508,13 +2737,24 @@ Ret_NET_WM_NAME(ScreenInfo *scr, TwmWindow *twin)
 static void
 Set_NET_WM_VISIBLE_NAME(Window window, char *name)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     if (name != NULL) {
 	XTextProperty text = { NULL, };
+	char *list[2] = { name, NULL };
 
-	Xutf8TextListToTextProperty(dpy, &name, 1, XUTF8StringStyle, &text);
-	XSetTextProperty(dpy, window, &text, _XA_NET_WM_VISIBLE_NAME);
-	XFree(text.value);
+	if (XmbTextListToTextProperty(dpy, list, 1, XUTF8StringStyle, &text) == Success) {
+	    XSetTextProperty(dpy, window, &text, _XA_NET_WM_VISIBLE_NAME);
+	    if (text.value != NULL)
+		XFree(text.value);
+	}
     } else {
+#ifdef DEBUG_EWMH
+	fprintf(stderr, "ERROR: no visible name!\n");
+	fflush(stderr);
+#endif
 	XDeleteProperty(dpy, window, _XA_NET_WM_VISIBLE_NAME);
     }
 }
@@ -2541,15 +2781,22 @@ Upd_NET_WM_VISIBLE_NAME(TwmWindow *twin)
 {
     char *visible_name = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     TwmGetWMVisibleName(twin, &visible_name);
-    if (!twin->ewmh.props._NET_WM_VISIBLE_NAME
-	|| strcmp_null(visible_name, twin->ewmh.visible_name) != 0) {
-	Set_NET_WM_VISIBLE_NAME(twin->w, visible_name);
-	twin->ewmh.props._NET_WM_VISIBLE_NAME = 1;
-	free(twin->ewmh.visible_name);
-	twin->ewmh.visible_name = visible_name;
-    } else if (visible_name != NULL)
+    if (visible_name != NULL) {
+	if (!twin->ewmh.props._NET_WM_VISIBLE_NAME
+	    || strcmp_null(visible_name, twin->ewmh.visible_name) != 0) {
+	    Set_NET_WM_VISIBLE_NAME(twin->w, visible_name);
+	    twin->ewmh.props._NET_WM_VISIBLE_NAME = 1;
+	    free(twin->ewmh.visible_name);
+	    twin->ewmh.visible_name = visible_name;
+	    visible_name = NULL;
+	}
 	free(visible_name);
+    }
 }
 
 /** @} */
@@ -2564,40 +2811,63 @@ Upd_NET_WM_VISIBLE_NAME(TwmWindow *twin)
 static void
 Set_NET_WM_ICON_NAME(Window window, char *name)
 {
-    XTextProperty text = { NULL, };
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
+    if (name != NULL) {
+	XTextProperty text = { NULL, };
+	char *list[2] = { name, NULL };
 
-    Xutf8TextListToTextProperty(dpy, &name, 1, XUTF8StringStyle, &text);
-    XSetTextProperty(dpy, window, &text, _XA_NET_WM_ICON_NAME);
-    XFree(text.value);
+	if (XmbTextListToTextProperty(dpy, list, 1, XUTF8StringStyle, &text) == Success) {
+	    XSetTextProperty(dpy, window, &text, _XA_NET_WM_ICON_NAME);
+	    if (text.value != NULL)
+		XFree(text.value);
+	}
+    } else {
+#ifdef DEBUG_EWMH
+	fprintf(stderr, "ERROR: no icon name!\n");
+	fflush(stderr);
+#endif
+	XDeleteProperty(dpy, window, _XA_NET_WM_ICON_NAME);
+    }
 }
 
 Bool
 Get_NET_WM_ICON_NAME(Window window, char **name)
 {
     XTextProperty text = { NULL, };
-    int status, count;
+    int count;
     char **list = NULL;
 
-    status = XGetTextProperty(dpy, window, &text, _XA_NET_WM_ICON_NAME);
-    if (status == Success && text.nitems > 0) {
-	XTextPropertyToStringList(&text, &list, &count);
-	if (count > 0) {
-	    free(*name);
-	    *name = strdup(list[0]);
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
+    if (XGetTextProperty(dpy, window, &text, _XA_NET_WM_ICON_NAME) && text.nitems > 0) {
+	if (XmbTextPropertyToTextList(dpy, &text, &list, &count) == Success) {
+	    if (count > 0) {
+		*name = strdup(list[0]);
+		XFreeStringList(list);
+		XFree(text.value);
+		return True;
+	    }
+	    XFreeStringList(list);
 	}
-	XFreeStringList(list);
-	return True;
+	XFree(text.value);
     }
     /* when no _NET_WM_ICON_NAME go after WM_ICON_NAME */
-    status = XGetTextProperty(dpy, window, &text, XA_WM_ICON_NAME);
-    if (status == Success && text.nitems > 0) {
-	XTextPropertyToStringList(&text, &list, &count);
-	if (count > 0) {
-	    free(*name);
-	    *name = strdup(list[0]);
+    if (XGetTextProperty(dpy, window, &text, XA_WM_ICON_NAME) && text.nitems > 0) {
+	if (XmbTextPropertyToTextList(dpy, &text, &list, &count) == Success) {
+	    if (count > 0) {
+		*name = strdup(list[0]);
+		XFreeStringList(list);
+		XFree(text.value);
+		return True;
+	    }
+	    XFreeStringList(list);
 	}
-	XFreeStringList(list);
-	return True;
+	XFree(text.value);
     }
     return False;
 }
@@ -2620,6 +2890,10 @@ Ret_NET_WM_ICON_NAME(TwmWindow *twin)
     Bool present;
     char *icon_name = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if ((present = Get_NET_WM_ICON_NAME(twin->w, &icon_name)))
 	TwmSetWMIconName(twin, icon_name);
     twin->ewmh.props._NET_WM_ICON_NAME = present;
@@ -2639,13 +2913,24 @@ Ret_NET_WM_ICON_NAME(TwmWindow *twin)
 static void
 Set_NET_WM_VISIBLE_ICON_NAME(Window window, char *name)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     if (name != NULL) {
 	XTextProperty text = { NULL, };
+	char *list[2] = { name, NULL };
 
-	Xutf8TextListToTextProperty(dpy, &name, 1, XUTF8StringStyle, &text);
-	XSetTextProperty(dpy, window, &text, _XA_NET_WM_VISIBLE_ICON_NAME);
-	XFree(text.value);
+	if (XmbTextListToTextProperty(dpy, list, 1, XUTF8StringStyle, &text) == Success) {
+	    XSetTextProperty(dpy, window, &text, _XA_NET_WM_VISIBLE_ICON_NAME);
+	    if (text.value != NULL)
+		XFree(text.value);
+	}
     } else {
+#ifdef DEBUG_EWMH
+	fprintf(stderr, "ERROR: no visible icon name!\n");
+	fflush(stderr);
+#endif
 	XDeleteProperty(dpy, window, _XA_NET_WM_VISIBLE_ICON_NAME);
     }
 }
@@ -2672,16 +2957,22 @@ Upd_NET_WM_VISIBLE_ICON_NAME(TwmWindow *twin)
 {
     char *visible_icon_name = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     TwmGetWMVisibleIconName(twin, &visible_icon_name);
-    if (!twin->ewmh.props._NET_WM_VISIBLE_ICON_NAME
-	|| strcmp_null(visible_icon_name, twin->ewmh.visible_icon_name) != 0) {
-	Set_NET_WM_VISIBLE_ICON_NAME(twin->w, visible_icon_name);
-	twin->ewmh.props._NET_WM_VISIBLE_ICON_NAME = 1;
-	free(twin->ewmh.visible_icon_name);
-	twin->ewmh.visible_icon_name = visible_icon_name;
-	visible_icon_name = NULL;
+    if (visible_icon_name != NULL) {
+	if (!twin->ewmh.props._NET_WM_VISIBLE_ICON_NAME
+	    || strcmp_null(visible_icon_name, twin->ewmh.visible_icon_name) != 0) {
+	    Set_NET_WM_VISIBLE_ICON_NAME(twin->w, visible_icon_name);
+	    twin->ewmh.props._NET_WM_VISIBLE_ICON_NAME = 1;
+	    free(twin->ewmh.visible_icon_name);
+	    twin->ewmh.visible_icon_name = visible_icon_name;
+	    visible_icon_name = NULL;
+	}
+	free(visible_icon_name);
     }
-    free(visible_icon_name);
 }
 
 /** @} */
@@ -2714,6 +3005,10 @@ Upd_NET_WM_VISIBLE_ICON_NAME(TwmWindow *twin)
 static void
 Set_NET_WM_DESKTOP(Window window, long desktop)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, window, _XA_NET_WM_DESKTOP, XA_CARDINAL, 32, PropModeReplace,
 		    (unsigned char *) &desktop, 1);
 }
@@ -2732,6 +3027,10 @@ Get_NET_WM_DESKTOP(Window window, int *desktop)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_NET_WM_DESKTOP, 0L, 1L, False, XA_CARDINAL,
 			   &actual_type, &actual_format, &nitems, &bytes_after,
@@ -2771,6 +3070,10 @@ Upd_NET_WM_DESKTOP(ScreenInfo *scr, TwmWindow *twin)
 {
     int desktop = 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     TwmGetWMDesktop(scr, twin, &desktop);
     if (!twin->ewmh.props._NET_WM_DESKTOP || desktop != twin->ewmh.desktop) {
 	Set_NET_WM_DESKTOP(twin->w, desktop);
@@ -2802,6 +3105,10 @@ Ret_NET_WM_DESKTOP(ScreenInfo *scr, TwmWindow *twin)
     Bool present;
     int desktop = 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if (!(present = Get_NET_WM_DESKTOP(twin->w, &desktop)))
 	TwmIniWMDesktop(scr, twin, &desktop);
     TwmSetWMDesktop(scr, twin, desktop, 0);
@@ -2943,12 +3250,20 @@ static const Atom *NetWindowTypes[] = {
 static void
 Set_NET_WM_WINDOW_TYPE(Window window, unsigned type)
 {
-    return Set_NET_WM_atoms(window, _XA_NET_WM_WINDOW_TYPE, NetWindowTypes, type);
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
+    Set_NET_WM_atoms(window, _XA_NET_WM_WINDOW_TYPE, NetWindowTypes, type);
 }
 
 static Bool
 Get_NET_WM_WINDOW_TYPE(Window window, unsigned *type)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     return Get_NET_WM_atoms(window, _XA_NET_WM_WINDOW_TYPE, NetWindowTypes, type);
 }
 
@@ -2957,6 +3272,10 @@ Upd_NET_WM_WINDOW_TYPE(TwmWindow *twin)
 {
     unsigned type = 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     TwmGetWMWindowType(twin, &type);
     if (!twin->ewmh.props._NET_WM_WINDOW_TYPE) {
 	Set_NET_WM_WINDOW_TYPE(twin->w, type);
@@ -2983,6 +3302,10 @@ Ret_NET_WM_WINDOW_TYPE(TwmWindow *twin)
     Bool present;
     unsigned type = 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if ((present = Get_NET_WM_WINDOW_TYPE(twin->w, &type)))
 	TwmSetWMWindowType(twin, type);
     twin->ewmh.props._NET_WM_WINDOW_TYPE = present;
@@ -3141,12 +3464,20 @@ static const Atom *NetStates[] = {
 static void
 Set_NET_WM_STATE(Window window, unsigned flags)
 {
-    return Set_NET_WM_atoms(window, _XA_NET_WM_STATE, NetStates, flags);
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
+    Set_NET_WM_atoms(window, _XA_NET_WM_STATE, NetStates, flags);
 }
 
 static Bool
 Get_NET_WM_STATE(Window window, unsigned *flags)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     return Get_NET_WM_atoms(window, _XA_NET_WM_STATE, NetStates, flags);
 }
 
@@ -3161,6 +3492,10 @@ Upd_NET_WM_STATE(TwmWindow *twin)
 {
     unsigned state = 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     TwmGetWMState(twin, &twin->ewmh.state);
     if (!twin->ewmh.props._NET_WM_STATE || twin->ewmh.state != state) {
 	Set_NET_WM_STATE(twin->w, twin->ewmh.state);
@@ -3191,6 +3526,10 @@ Ret_NET_WM_STATE(TwmWindow *twin)
     Bool present;
     unsigned state = 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if ((present = Get_NET_WM_STATE(twin->w, &state)))
 	TwmSetWMState(twin, state);
     twin->ewmh.props._NET_WM_STATE = present;
@@ -3317,7 +3656,11 @@ static const Atom *NetAllowedActions[] = {
 static void
 Set_NET_WM_ALLOWED_ACTIONS(Window window, unsigned allowed)
 {
-    return Set_NET_WM_atoms(window, _XA_NET_WM_ALLOWED_ACTIONS, NetAllowedActions, allowed);
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
+    Set_NET_WM_atoms(window, _XA_NET_WM_ALLOWED_ACTIONS, NetAllowedActions, allowed);
 }
 
 /** @brief Get the allowed actions for a window.
@@ -3327,7 +3670,12 @@ Set_NET_WM_ALLOWED_ACTIONS(Window window, unsigned allowed)
 static Bool
 Get_NET_WM_ALLOWED_ACTIONS(Window window, unsigned *allowed)
 {
-    return Get_NET_WM_atoms(window, _XA_NET_WM_ALLOWED_ACTIONS, NetAllowedActions, allowed);
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
+    return Get_NET_WM_atoms(window, _XA_NET_WM_ALLOWED_ACTIONS, NetAllowedActions,
+			    allowed);
 }
 
 /** @brief Delete the allowed actions from a window.
@@ -3355,6 +3703,10 @@ Upd_NET_WM_ALLOWED_ACTIONS(TwmWindow *twin)
 {
     unsigned allowed = 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     TwmGetWMAllowedActions(twin, &allowed);
     if (!twin->ewmh.props._NET_WM_ALLOWED_ACTIONS || twin->ewmh.allowed != allowed) {
 	Set_NET_WM_ALLOWED_ACTIONS(twin->w, allowed);
@@ -3386,6 +3738,10 @@ Upd_NET_WM_ALLOWED_ACTIONS(TwmWindow *twin)
 static void
 Set_NET_WM_STRUT(Window window, struct NetStrut *strut)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, window, _XA_NET_WM_STRUT, XA_CARDINAL, 32, PropModeReplace,
 		    (unsigned char *) strut, 4);
 }
@@ -3402,6 +3758,10 @@ Get_NET_WM_STRUT(Window window, struct NetStrut *strut)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_NET_WM_STRUT, 0L, 4L, False, XA_CARDINAL,
 			   &actual_type, &actual_format, &nitems, &bytes_after,
@@ -3480,6 +3840,10 @@ Get_NET_WM_STRUT(Window window, struct NetStrut *strut)
 static void
 Set_NET_WM_STRUT_PARTIAL(Window window, struct NetStrut *strut)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, window, _XA_NET_WM_STRUT_PARTIAL, XA_CARDINAL, 32,
 		    PropModeReplace, (unsigned char *) strut, 12);
 }
@@ -3496,6 +3860,10 @@ Get_NET_WM_STRUT_PARTIAL(Window window, struct NetStrut *strut)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_NET_WM_STRUT_PARTIAL, 0L, 12L, False,
 			   XA_CARDINAL, &actual_type, &actual_format, &nitems,
@@ -3538,6 +3906,10 @@ Ret_NET_WM_STRUT_PARTIAL(ScreenInfo *scr, TwmWindow *twin)
     Bool present;
     struct NetStrut strut = { 0, };
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     present = Get_NET_WM_STRUT(twin->w, &strut);
     twin->ewmh.props._NET_WM_STRUT = present;
     present = Get_NET_WM_STRUT_PARTIAL(twin->w, &strut);
@@ -3559,7 +3931,6 @@ Ret_NET_WM_STRUT_PARTIAL(ScreenInfo *scr, TwmWindow *twin)
   *
   * @{ */
 
-
 /** @brief Get the icon geometry for a window.
   * @param window - window from which to fetch
   * @param icon_geometry - where to store the icon geometry
@@ -3572,6 +3943,10 @@ Get_NET_WM_ICON_GEOMETRY(Window window, struct NetGeometry *icon_geometry)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_NET_WM_ICON_GEOMETRY, 0L, 4L, False,
 			   XA_CARDINAL, &actual_type, &actual_format, &nitems,
@@ -3611,6 +3986,10 @@ Ret_NET_WM_ICON_GEOMETRY(TwmWindow *twin)
     Bool present;
     struct NetGeometry icon_geometry = { 0, 0, 0, 0 };
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     present = Get_NET_WM_ICON_GEOMETRY(twin->w, &icon_geometry);
     twin->ewmh.props._NET_WM_ICON_GEOMETRY = present;
     twin->ewmh.icon_geometry = icon_geometry;
@@ -3638,6 +4017,10 @@ Get_NET_WM_ICON(Window window, struct NetIcon *icon)
     unsigned long nitems = 0, bytes_after = 0, n;
     long *prop = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     free(icon->data);
     icon->data = NULL;
     icon->length = 0;
@@ -3699,6 +4082,10 @@ Ret_NET_WM_ICON(TwmWindow *twin)
     Bool present;
     struct NetIcon icon = { NULL, 0 };
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     present = Get_NET_WM_ICON(twin->w, &icon);
     twin->ewmh.props._NET_WM_ICON = present;
     free(twin->ewmh.icon.data);
@@ -3728,6 +4115,10 @@ Set_NET_WM_PID(Window window, pid_t pid)
 {
     long data = (long) pid;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, window, _XA_NET_WM_PID, XA_CARDINAL, 32, PropModeReplace,
 		    (unsigned char *) &data, 1);
 }
@@ -3740,6 +4131,10 @@ Get_NET_WM_PID(Window window, pid_t *pid)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_NET_WM_PID, 0L, 1L, False, XA_CARDINAL,
 			   &actual_type, &actual_format, &nitems, &bytes_after,
@@ -3767,6 +4162,10 @@ Upd_NET_WM_PID(ScreenInfo *scr, TwmWindow *twin)
 {
     pid_t pid = 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     TwmGetWMPid(scr, twin, &pid);
     if (pid != 0) {
 	if (!twin->ewmh.props._NET_WM_PID || twin->ewmh.pid != pid) {
@@ -3827,6 +4226,10 @@ Get_NET_WM_HANDLED_ICONS(Window window)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_NET_WM_HANDLED_ICONS, 0L, 1L, False, None,
 			   &actual_type, &actual_format, &nitems, &bytes_after,
@@ -3855,6 +4258,10 @@ Ret_NET_WM_HANDLED_ICONS(ScreenInfo *scr, TwmWindow *twin)
 {
     Bool present;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     present = Get_NET_WM_HANDLED_ICONS(twin->w);
     twin->ewmh.props._NET_WM_HANDLED_ICONS = present;
     TwmUpdWMHandledIcons(scr);
@@ -3880,6 +4287,10 @@ Set_NET_WM_USER_TIME_WINDOW(Window window, Window time_window)
 {
     long data = time_window;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, window, _XA_NET_WM_USER_TIME_WINDOW, XA_CARDINAL, 32,
 		    PropModeReplace, (unsigned char *) &data, 1);
 }
@@ -3893,6 +4304,10 @@ Get_NET_WM_USER_TIME_WINDOW(Window window, Window *time_window)
     long *prop = NULL;
     Window check;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_NET_WM_USER_TIME_WINDOW, 0L, 1L, False,
 			   XA_WINDOW, &actual_type, &actual_format, &nitems, &bytes_after,
@@ -3991,6 +4406,10 @@ Set_NET_WM_USER_TIME(Window window, Time time)
 {
     long data = time;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, window, _XA_NET_WM_USER_TIME, XA_CARDINAL, 32, PropModeReplace,
 		    (unsigned char *) &data, 1);
 }
@@ -4007,6 +4426,10 @@ Get_NET_WM_USER_TIME(Window window, Time *time)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_NET_WM_USER_TIME, 0L, 1L, False, XA_CARDINAL,
 			   &actual_type, &actual_format, &nitems, &bytes_after,
@@ -4035,6 +4458,10 @@ Upd_NET_WM_USER_TIME(ScreenInfo *scr, TwmWindow *twin)
 {
     Time time = CurrentTime;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     TwmGetWMUserTime(scr, twin, &time);
     if (time != CurrentTime) {
 	if (!twin->ewmh.props._NET_WM_USER_TIME) {
@@ -4061,13 +4488,13 @@ Ini_NET_WM_USER_TIME(ScreenInfo *scr, TwmWindow *twin)
 
 	TwmSetUserTime(time);
 
-	if ((seq = twin->ewmh.sequence) != NULL && seq->field.timestamp == NULL
-	    || seq->numb.timestamp == 0) {
+	if ((seq = twin->ewmh.sequence) != NULL
+	    && (seq->field.timestamp == NULL || seq->numb.timestamp == 0)) {
 	    char *str;
 
 	    if ((str = calloc(32, 1)) == NULL)
 		return;
-	    snprintf(str, 31, "%d", time);
+	    snprintf(str, 31, "%ld", time);
 	    free(seq->field.timestamp);
 	    seq->field.timestamp = str;
 	    seq->numb.timestamp = time;
@@ -4093,6 +4520,10 @@ Ret_NET_WM_USER_TIME(ScreenInfo *scr, TwmWindow *twin)
     Time time = CurrentTime;
     Window window = twin->w;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     TwmGetWMUserTimeWindow(scr, twin, &window);
     if ((present = Get_NET_WM_USER_TIME(window, &time)))
 	TwmSetUserTime(time);
@@ -4112,6 +4543,10 @@ Ret_NET_WM_USER_TIME(ScreenInfo *scr, TwmWindow *twin)
 static void
 Set_NET_FRAME_EXTENTS(Window window, struct NetExtents *extents)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, window, _XA_NET_FRAME_EXTENTS, XA_CARDINAL, 32, PropModeReplace,
 		    (unsigned char *) extents, 4);
     XChangeProperty(dpy, window, _XA_KDE_NET_WM_FRAME_STRUT, XA_CARDINAL, 32,
@@ -4130,6 +4565,10 @@ Upd_NET_FRAME_EXTENTS(TwmWindow *twin)
 {
     struct NetExtents extents = { 0, 0, 0, 0 };
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     TwmGetWMFrameExtents(twin, &extents);
     if (!twin->ewmh.props._NET_FRAME_EXTENTS
 	|| cmp_extents(&twin->ewmh.extents, &extents) != 0) {
@@ -4171,6 +4610,10 @@ Del_NET_FRAME_EXTENTS(TwmWindow *twin)
 static void
 Set_NET_WM_OPAQUE_REGION(Window window)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
 }
 
 /** @} */
@@ -4198,6 +4641,10 @@ Set_NET_WM_BYPASS_COMPOSITOR(Window window, enum _NET_COMPOSITOR_HINT hint)
 {
     long data = (long) hint;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, window, _XA_NET_WM_BYPASS_COMPOSITOR, XA_CARDINAL, 32,
 		    PropModeReplace, (unsigned char *) &data, 1);
 }
@@ -4238,7 +4685,8 @@ Rcv_NET_CLOSE_WINDOW(TwmWindow *twin, XClientMessageEvent *event)
 	break;
     default:
 #ifdef DEBUG_EWMH
-	fprintf(stderr, "Received _NET_CLOSE_WINDOW message with invalid source %d\n", source);
+	fprintf(stderr, "Received _NET_CLOSE_WINDOW message with invalid source %d\n",
+		source);
 	fflush(stderr);
 #endif
 	return;
@@ -4304,13 +4752,16 @@ Rcv_NET_MOVERESIZE_WINDOW(TwmWindow *twin, XClientMessageEvent *event)
 	break;
     case _NET_SOURCE_APPLICATION:
 #ifdef DEBUG_EWMH
-	fprintf(stderr, "Applications should use XConfigureWindow instead of _NET_MOVERESIZE_WINDOW\n");
+	fprintf(stderr,
+		"Applications should use XConfigureWindow instead of _NET_MOVERESIZE_WINDOW\n");
 	fflush(stderr);
 #endif
 	break;
     default:
 #ifdef DEBUG_EWMH
-	fprintf(stderr, "Received _NET_MOVERESIZE_WINDOW message with invalid source %d\n", source);
+	fprintf(stderr,
+		"Received _NET_MOVERESIZE_WINDOW message with invalid source %d\n",
+		source);
 	fflush(stderr);
 #endif
 	return;
@@ -4383,14 +4834,16 @@ Rcv_NET_WM_MOVERESIZE(TwmWindow *twin, XClientMessageEvent *event)
 	break;
     default:
 #ifdef DEBUG_EWMH
-	fprintf(stderr, "Received _NET_WM_MOVERESIZE message with invalid source %d\n", source);
+	fprintf(stderr, "Received _NET_WM_MOVERESIZE message with invalid source %d\n",
+		source);
 	fflush(stderr);
 #endif
 	return;
     }
     if (_NET_WM_MOVERESIZE_first > direction || direction > _NET_WM_MOVERESIZE_last) {
 #ifdef DEBUG_EWMH
-	fprintf(stderr, "Received _NET_WM_MOVERESIZE message with invalid direction %d\n", direction);
+	fprintf(stderr, "Received _NET_WM_MOVERESIZE message with invalid direction %d\n",
+		direction);
 	fflush(stderr);
 #endif
 	return;
@@ -4435,7 +4888,8 @@ Rcv_NET_RESTACK_WINDOW(TwmWindow *twin, XClientMessageEvent *event)
 	break;
     case _NET_SOURCE_APPLICATION:
 #ifdef DEBUG_EWMH
-	fprintf(stderr, "Applications should use XConfigureWindow instead of _NET_RESTACK_WINDOW\n");
+	fprintf(stderr,
+		"Applications should use XConfigureWindow instead of _NET_RESTACK_WINDOW\n");
 	fflush(stderr);
 #endif
 	break;
@@ -4643,6 +5097,10 @@ Get_NET_WM_SYNC_REQUEST_COUNTER(Window window, struct NetCounter *counter)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_NET_WM_SYNC_REQUEST_COUNTER, 0L, 2L, False,
 			   XA_CARDINAL, &actual_type, &actual_format, &nitems,
@@ -4664,6 +5122,10 @@ Ret_NET_WM_SYNC_REQUEST_COUNTER(TwmWindow *twin)
     Bool present;
     struct NetCounter counter = { 0, 0 };
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if ((present = Get_NET_WM_SYNC_REQUEST_COUNTER(twin->w, &counter)))
 	TwmSetWMSyncRequestCounter(twin, &counter);
     twin->ewmh.props._NET_WM_SYNC_REQUEST_COUNTER = present;
@@ -4688,6 +5150,10 @@ Ret_NET_WM_SYNC_REQUEST_COUNTER(TwmWindow *twin)
 static void
 Set_NET_WM_FULLSCREEN_MONITORS(Window window, struct NetMonitors *monitors)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, window, _XA_NET_WM_FULLSCREEN_MONITORS, XA_CARDINAL, 32,
 		    PropModeReplace, (unsigned char *) monitors, 4);
 }
@@ -4700,6 +5166,10 @@ Get_NET_WM_FULLSCREEN_MONITORS(Window window, struct NetMonitors *monitors)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_NET_WM_FULLSCREEN_MONITORS, 0L, 4L, False,
 			   XA_CARDINAL, &actual_type, &actual_format, &nitems,
@@ -4709,7 +5179,7 @@ Get_NET_WM_FULLSCREEN_MONITORS(Window window, struct NetMonitors *monitors)
 	    XFree(prop);
 	return False;
     }
-    *monitors = *(struct NetMonitors *)prop;
+    *monitors = *(struct NetMonitors *) prop;
     XFree(prop);
     return True;
 
@@ -4731,6 +5201,10 @@ Upd_NET_WM_FULLSCREEN_MONITORS(ScreenInfo *scr, TwmWindow *twin)
 {
     struct NetMonitors monitors = { 0, 0, 0, 0 };
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     TwmGetWMFullscreenMonitors(scr, twin, &monitors);
     if (!twin->ewmh.props._NET_WM_FULLSCREEN_MONITORS
 	|| cmp_mons(&twin->ewmh.monitors, &monitors) != 0) {
@@ -4757,6 +5231,10 @@ Ret_NET_WM_FULLSCREEN_MONITORS(ScreenInfo *scr, TwmWindow *twin)
     Bool present;
     struct NetMonitors monitors = { 0, 0, 0, 0 };
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if (!(present = Get_NET_WM_FULLSCREEN_MONITORS(twin->w, &monitors)))
 	TwmIniWMFullscreenMonitors(scr, twin, &monitors);
     TwmSetWMFullscreenMonitors(scr, twin, &monitors);
@@ -4864,6 +5342,10 @@ Set_NET_WM_WINDOW_OPACITY(Window window, unsigned char opacity)
 {
     long data = (long) opacity;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     /* TODO: set error handler */
     XChangeProperty(dpy, window, _XA_NET_WM_WINDOW_OPACITY, XA_CARDINAL, 32,
 		    PropModeReplace, (unsigned char *) &data, 1);
@@ -4908,11 +5390,26 @@ Set_NET_WM_WINDOW_OPACITY(Window window, unsigned char opacity)
 static void
 Set_NET_STARTUP_ID(Window window, char *startup_id)
 {
-    XTextProperty text = { NULL, };
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
+    if (startup_id != NULL) {
+	XTextProperty text = { NULL, };
+	char *list[2] = { startup_id, NULL };
 
-    Xutf8TextListToTextProperty(dpy, &startup_id, 1, XUTF8StringStyle, &text);
-    XSetTextProperty(dpy, window, &text, _XA_NET_STARTUP_ID);
-    XFree(text.value);
+	if (XmbTextListToTextProperty(dpy, list, 1, XUTF8StringStyle, &text) == Success) {
+	    XSetTextProperty(dpy, window, &text, _XA_NET_STARTUP_ID);
+	    if (text.value != NULL)
+		XFree(text.value);
+	}
+    } else {
+#ifdef DEBUG_EWMH
+	fprintf(stderr, "ERROR: no startup id!\n");
+	fflush(stderr);
+#endif
+	XDeleteProperty(dpy, window, _XA_NET_STARTUP_ID);
+    }
 }
 
 /** @brief Get the startup notification identifier.
@@ -4929,6 +5426,10 @@ Get_NET_STARTUP_ID(Window window, char **startup_id)
     long *prop = NULL;
     char **list = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_WM_CLIENT_LEADER, 0L, 1L, False, XA_WINDOW,
 			   &actual_type, &actual_format, &nitems, &bytes_after,
@@ -4941,17 +5442,18 @@ Get_NET_STARTUP_ID(Window window, char **startup_id)
 	    XFree(prop);
     }
 
-    status = XGetTextProperty(dpy, window, &text, _XA_NET_STARTUP_ID);
-    if (status == Success && text.nitems > 0) {
-	XTextPropertyToStringList(&text, &list, &count);
-	if (count > 0) {
-	    free(*startup_id);
-	    *startup_id = strdup(list[0]);
+    if (XGetTextProperty(dpy, window, &text, _XA_NET_STARTUP_ID) && text.nitems > 0) {
+	if (XmbTextPropertyToTextList(dpy, &text, &list, &count) == Success) {
+	    if (count > 0) {
+		*startup_id = strdup(list[0]);
+		XFreeStringList(list);
+		XFree(text.value);
+		return True;
+	    }
+	    XFreeStringList(list);
 	}
-	XFreeStringList(list);
-	return True;
+	XFree(text.value);
     }
-    XFreeStringList(list);
     return False;
 }
 
@@ -5300,6 +5802,10 @@ Seq_NET_STARTUP_ID(ScreenInfo *scr, TwmWindow *twin)
 void
 Upd_NET_STARTUP_ID(ScreenInfo *scr, TwmWindow *twin)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if (!twin->ewmh.props._NET_STARTUP_ID) {
 	char *startup_id = NULL;
 	EwmhSequence *seq;
@@ -5784,6 +6290,10 @@ Upd_NET_STARTUP_INFO(ScreenInfo *scr, TwmWindow *twin, Bool forced)
     Bool changed = False;
     EwmhSequence *seq;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if ((seq = twin->ewmh.sequence) == NULL)
 	return;
 
@@ -5915,6 +6425,10 @@ Set_NET_SYSTEM_TRAY_ORIENTATION(Window root,
 {
     long data = (long) orientation;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, root, _XA_NET_SYSTEM_TRAY_ORIENTATION, XA_CARDINAL, 32,
 		    PropModeReplace, (unsigned char *) &data, 1);
 }
@@ -5951,6 +6465,10 @@ Set_KDE_NET_SYSTEM_TRAY_WINDOWS(Window root, Window *systray, int count)
     int n;
     long windows[count];
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     for (n = 0; n < count; n++)
 	windows[n] = systray[n];
 
@@ -5970,6 +6488,10 @@ Upd_KDE_NET_SYSTEM_TRAY_WINDOWS(ScreenInfo *scr)
     Window *systray = NULL;
     int count = 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     TwmGetKdeSystemTrayWindows(scr, &systray, &count);
     if (!scr->ewmh.props._KDE_NET_SYSTEM_TRAY_WINDOWS
 	|| cmp_window_list(scr->ewmh.systray, systray) != 0) {
@@ -6010,6 +6532,10 @@ Get_KDE_NET_WM_SYSTEM_TRAY_WINDOW_FOR(Window window)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_KDE_NET_WM_SYSTEM_TRAY_WINDOW_FOR, 0L, 1L,
 			   False, AnyPropertyType, &actual_type, &actual_format, &nitems,
@@ -6028,6 +6554,10 @@ Ret_KDE_NET_WM_SYSTEM_TRAY_WINDOW_FOR(TwmWindow *twin)
 {
     Bool present;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if ((present = Get_KDE_NET_WM_SYSTEM_TRAY_WINDOW_FOR(twin->w)))
 	TwmSetWMSystemTrayWindowFor(twin);
     twin->ewmh.props._KDE_NET_WM_SYSTEM_TRAY_WINDOW_FOR = present;
@@ -6052,6 +6582,10 @@ Get_KDE_NET_WM_WINDOW_TYPE_OVERRIDE(Window window)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_KDE_NET_WM_WINDOW_TYPE_OVERRIDE, 0L, 1L,
 			   False, AnyPropertyType, &actual_type, &actual_format, &nitems,
@@ -6070,6 +6604,10 @@ Ret_KDE_NET_WM_WINDOW_TYPE_OVERRIDE(TwmWindow *twin)
 {
     Bool present;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if ((present = Get_KDE_NET_WM_WINDOW_TYPE_OVERRIDE(twin->w)))
 	TwmSetWMWindowTypeOverride(twin);
     twin->ewmh.props._KDE_NET_WM_WINDOW_TYPE_OVERRIDE = present;
@@ -6098,6 +6636,10 @@ Ret_KDE_NET_WM_WINDOW_TYPE_OVERRIDE(TwmWindow *twin)
 static void
 Set_NET_MAXIMIZED_RESTORE(Window window, struct NetRestore *restore)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, window, _XA_NET_MAXIMIZED_RESTORE, XA_CARDINAL, 32,
 		    PropModeReplace, (unsigned char *) restore, 6);
 }
@@ -6110,6 +6652,10 @@ Get_NET_MAXIMIZED_RESTORE(Window window, struct NetRestore *restore)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_NET_MAXIMIZED_RESTORE, 0L, 6L, False,
 			   XA_CARDINAL, &actual_type, &actual_format, &nitems,
@@ -6136,6 +6682,10 @@ Upd_NET_MAXIMIZED_RESTORE(ScreenInfo *scr, TwmWindow *twin)
 {
     struct NetRestore restore = { 0, };
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     TwmGetMaximizedRestore(scr, twin, &restore);
     if (!twin->ewmh.props._NET_MAXIMIZED_RESTORE
 	|| cmp_restore(&twin->ewmh.restore, &restore) != 0) {
@@ -6157,6 +6707,10 @@ Ret_NET_MAXIMIZED_RESTORE(ScreenInfo *scr, TwmWindow *twin)
     Bool present;
     struct NetRestore restore = { 0, };
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if ((present = Get_NET_MAXIMIZED_RESTORE(twin->w, &restore)))
 	TwmSetMaximizedRestore(scr, twin, &restore);
     twin->ewmh.props._NET_MAXIMIZED_RESTORE = present;
@@ -6204,6 +6758,10 @@ Set_NET_PROPERTIES(void)
 static void
 Set_NET_WM_DESKTOP_MASK(Window window, long *mask, int count)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, window, _XA_NET_WM_DESKTOP_MASK, XA_CARDINAL, 32,
 		    PropModeReplace, (unsigned char *) mask, count);
 }
@@ -6221,6 +6779,10 @@ Get_NET_WM_DESKTOP_MASK(Window window, long **mask, int *count)
     unsigned long nitems = 0, bytes_after = 0, len, n;
     long *prop = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_NET_WM_DESKTOP_MASK, 0L, 1L, False,
 			   XA_CARDINAL, &actual_type, &actual_format, &nitems,
@@ -6264,6 +6826,10 @@ Upd_NET_WM_DESKTOP_MASK(ScreenInfo *scr, TwmWindow *twin)
     long *mask = NULL;
     int masks = 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     TwmGetWMDesktopMask(scr, twin, &mask, &masks);
     if (!twin->ewmh.props._NET_WM_DESKTOP_MASK
 	|| cmp_mask_list(twin->ewmh.mask, twin->ewmh.masks, mask, masks) != 0) {
@@ -6302,6 +6868,10 @@ Ret_NET_WM_DESKTOP_MASK(ScreenInfo *scr, TwmWindow *twin)
     long *mask = NULL;
     int masks = 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if ((present = Get_NET_WM_DESKTOP_MASK(twin->w, &mask, &masks)))
 	TwmSetWMDesktopMask(scr, twin, mask, masks);
     twin->ewmh.props._NET_WM_DESKTOP_MASK = present;
@@ -6349,6 +6919,10 @@ Rcv_NET_WM_DESKTOP_MASK(ScreenInfo *scr, TwmWindow *twin, XClientMessageEvent *e
 static void
 Set_NET_VIRTUAL_POS(Window window, struct NetPosition *virtual_pos)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, window, _XA_NET_VIRTUAL_POS, XA_CARDINAL, 32, PropModeReplace,
 		    (unsigned char *) virtual_pos, 2);
 }
@@ -6361,6 +6935,10 @@ Get_NET_VIRTUAL_POS(Window window, struct NetPosition *virtual_pos)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_NET_VIRTUAL_POS, 0L, 2L, False, XA_CARDINAL,
 			   &actual_type, &actual_format, &nitems, &bytes_after,
@@ -6388,6 +6966,10 @@ Upd_NET_VIRTUAL_POS(ScreenInfo *scr, TwmWindow *twin)
 {
     struct NetPosition virtual_pos = { 0, 0 };
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     TwmGetWMVirtualPos(scr, twin, &virtual_pos);
     if (!twin->ewmh.props._NET_VIRTUAL_POS
 	|| cmp_pos(&twin->ewmh.virtual_pos, &virtual_pos) != 0) {
@@ -6414,6 +6996,10 @@ Ret_NET_VIRTUAL_POS(ScreenInfo *scr, TwmWindow *twin)
     Bool present;
     struct NetPosition virtual_pos = { 0, 0 };
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if ((present = Get_NET_VIRTUAL_POS(twin->w, &virtual_pos)))
 	TwmSetWMVirtualPos(scr, twin, &virtual_pos);
     twin->ewmh.props._NET_VIRTUAL_POS = present;
@@ -6503,7 +7089,7 @@ Rcv_NET_SHUTDOWN(ScreenInfo *scr, XClientMessageEvent *event)
 void
 InitEwmh(ScreenInfo *scr)
 {
-    char *cp, *name = Argv[0];
+    char *name = Argv[0];
 
     InternKdeAtoms();
     InternNetAtoms();
@@ -6838,6 +7424,15 @@ HandleNetClientMessage(ScreenInfo *scr, TwmWindow *twin, XEvent *xev)
     XClientMessageEvent *event = &xev->xclient;
     Atom message_type = event->message_type;
 
+#ifdef DEBUG_EWMH
+    char *name;
+
+    if ((name = XGetAtomName(dpy, message_type)) != NULL) {
+	fprintf(stderr, "%s for message_type %s\n", __FUNCTION__, name);
+	fflush(stderr);
+    }
+#endif
+
     if (scr == NULL)
 	return False;
     if (event->format != 32)
@@ -6929,9 +7524,25 @@ HandleNetPropertyNotify(ScreenInfo *scr, TwmWindow *twin, XEvent *xev)
     XPropertyEvent *event = &xev->xproperty;
     Atom atom = event->atom;
 
-    if (scr == NULL)
+#ifdef DEBUG_EWMH
+    char *name;
+
+    if ((name = XGetAtomName(dpy, atom)) != NULL) {
+	fprintf(stderr, "%s for property %s\n", __FUNCTION__, name);
+	fflush(stderr);
+    }
+#endif
+
+    if (scr == NULL) {
+	fprintf(stderr, "ERROR: HandleNetPropertyNotify screen is null!\n");
+	fflush(stderr);
 	return False;
+    }
     if (twin != NULL) {
+#ifdef DEBUG_EWMH
+	fprintf(stderr, "PropertyNotify for window 0x%08lx\n", twin->w);
+	fflush(stderr);
+#endif
 	if (0) {
 	} else if (atom == _XA_NET_WM_NAME || atom == XA_WM_NAME) {
 	    Ret_NET_WM_NAME(scr, twin);
@@ -6944,7 +7555,8 @@ HandleNetPropertyNotify(ScreenInfo *scr, TwmWindow *twin, XEvent *xev)
 	} else if (atom == _XA_NET_WM_ICON_GEOMETRY) {
 	    Ret_NET_WM_ICON_GEOMETRY(twin);
 	} else if (atom == _XA_NET_WM_USER_TIME) {
-	    Ret_NET_WM_USER_TIME(scr, twin);	/* do we really want to do this? */
+	    Ret_NET_WM_USER_TIME(scr, twin);	/* do we really want to do
+						   this? */
 	} else if (atom == _XA_NET_WM_SYNC_REQUEST_COUNTER) {
 	    Ret_NET_WM_SYNC_REQUEST_COUNTER(twin);
 	} else if (atom == _XA_NET_WM_HANDLED_ICONS) {
@@ -6952,6 +7564,10 @@ HandleNetPropertyNotify(ScreenInfo *scr, TwmWindow *twin, XEvent *xev)
 	} else
 	    return False;
     } else {
+#ifdef DEBUG_EWMH
+	fprintf(stderr, "PropertyNotify for root window 0x%08lx\n", TwmNetRoot(scr));
+	fflush(stderr);
+#endif
 	if (0) {
 	} else if (atom == _XA_NET_DESKTOP_NAMES) {
 	    Ret_NET_DESKTOP_NAMES(scr);
@@ -6976,6 +7592,15 @@ HandleNetSelectionClear(ScreenInfo *scr, TwmWindow *twin, XEvent *xev)
     XSelectionClearEvent *event = &xev->xselectionclear;
     Atom atom = event->selection;
 
+#ifdef DEBUG_EWMH
+    char *name;
+
+    if ((name = XGetAtomName(dpy, atom)) != NULL) {
+	fprintf(stderr, "%s for selection %s\n", __FUNCTION__, name);
+	fflush(stderr);
+    }
+#endif
+
     if (scr == NULL)
 	return False;
     if (0) {
@@ -6995,6 +7620,11 @@ HandleNetDestroyNotify(ScreenInfo *scr, TwmWindow *twin, XEvent *xev)
 {
     XDestroyWindowEvent *event = &xev->xdestroywindow;
     Window window = event->window;
+
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
 
     if (scr == NULL)
 	return False;

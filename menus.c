@@ -4153,8 +4153,6 @@ RaiseLower(TwmWindow *tmp_win)
     Window root, parent, *children;
     unsigned int nchildren, n, top, bot;
     short ontop = tmp_win->ontoppriority;
-    XWindowChanges xwc;
-    int xwcm;
 
     if (!XQueryTree(dpy, Scr->Root, &root, &parent, &children, &nchildren))
 	return;
@@ -4226,8 +4224,6 @@ RaiseLowerIcon(Window icon, short ontop)
 {
     Window root, parent, *children;
     unsigned int nchildren, n, top, bot;
-    XWindowChanges xwc;
-    int xwcm;
 
     if (!XQueryTree(dpy, Scr->Root, &root, &parent, &children, &nchildren))
 	return;
@@ -4295,7 +4291,7 @@ void
 LowerWindow(TwmWindow *tmp_win)
 {
     Window root, parent, *children, below = None;
-    unsigned int nchildren, n, bot;
+    unsigned int nchildren, n;
     short ontop = tmp_win->ontoppriority;
     XWindowChanges xwc;
     int xwcm;
@@ -4366,7 +4362,7 @@ void
 LowerIcon(Window icon, short ontop)
 {
     Window root, parent, *children, below = None;
-    unsigned int nchildren, n, bot;
+    unsigned int nchildren, n;
     XWindowChanges xwc;
     int xwcm;
 
@@ -5286,7 +5282,7 @@ void WarpToWindow (TwmWindow *t, int must_raise)
 	unsigned int mask_return;
 
 	if (XQueryPointer(dpy, t->frame, &root_return, &child_return, &root_x_return, &root_y_return, &win_x_return, &win_y_return, &mask_return)) {
-	    fprintf(stderr, "XQueryPointer: root_return=%x, child_return=%x, root_x_return=%d, root_y_return=%d, win_x_return=%d, win_y_return=%d\n", root_return, child_return, root_x_return, root_y_return, win_x_return, win_y_return);
+	    fprintf(stderr, "XQueryPointer: root_return=%lx, child_return=%lx, root_x_return=%d, root_y_return=%d, win_x_return=%d, win_y_return=%d\n", root_return, child_return, root_x_return, root_y_return, win_x_return, win_y_return);
 	}
     }
 #endif

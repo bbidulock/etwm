@@ -232,7 +232,7 @@ TwmWindow *AddWindow(Window w, int iconm, IconMgr *iconp)
     Window vroot;
 
 #ifdef DEBUG
-    fprintf(stderr, "AddWindow: w = 0x%x\n", w);
+    fprintf(stderr, "AddWindow: w = 0x%lx\n", w);
 #endif
 
     if (!captive && RedirectToCaptive (w)) return (NULL);

@@ -410,7 +410,6 @@ void GotoDownWorkSpace (VirtualScreen *vs)
 
 void ShowBackground (VirtualScreen *vs)
 {
-  static int state = 0;
   TwmWindow *twmWin;
 
   if (Scr->showingDesktop) {
@@ -510,13 +509,13 @@ void GotoWorkSpace (VirtualScreen *vs, WorkSpace *ws)
 	for (i = 0; i < number; i++) {
 	    TwmWindow *win = GetTwmWindow(children[i]);
 #ifdef DEBUG
-	    fprintf(stderr, "Child #%d twm %p id %x\n", i, win, children[i]);
+	    fprintf(stderr, "Child #%d twm %p id %lx\n", i, win, children[i]);
 #endif
 	    if (win == NULL)			/* skip unmanaged windows */
 		continue;
 	    if (win->frame != children [i]) {	/* skip icons */
 #ifdef DEBUG
-		fprintf(stderr, "Icon? Child %d: %p, id %x, frame id %x\n",
+		fprintf(stderr, "Icon? Child %d: %p, id %lx, frame id %lx\n",
 			i, win, children[i], win->frame);
 #endif
 		continue;
@@ -533,7 +532,7 @@ void GotoWorkSpace (VirtualScreen *vs, WorkSpace *ws)
 	if (prev && prev->next) {
 	    fprintf(stderr, "Windows left after the last one!\n");
 	    while (prev) {
-		fprintf(stderr, "TwmWindow %p frame %x\n", prev, prev->frame);
+		fprintf(stderr, "TwmWindow %p frame %lx\n", prev, prev->frame);
 		prev = prev->next;
 	    }
 
@@ -988,7 +987,7 @@ void SetupOccupation (TwmWindow *twm_win,
 	    if ((list = Scr->mwmh.list) != NULL)
 		for (n = 0; n < wshints.numWorkspaces; n++)
 		    for (m = 0; *list != None; list++, m++)
-			if (atoms[n] = list[m])
+			if (atoms[n] == list[m])
 			    twm_win->occupation |= (1<<m);
 	}
     }

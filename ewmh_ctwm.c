@@ -66,6 +66,10 @@ TwmGetClientList(ScreenInfo *scr, Window **clients, int *count)
     TwmWindow *twin;
     int number = 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     for (twin = scr->FirstWindow; twin != NULL; twin = twin->next)
 	number++;
     if (*clients != NULL) {
@@ -99,9 +103,13 @@ TwmGetClientListStacking(ScreenInfo *scr, Window **stacking, int *count)
     Window *list = NULL;
     int number = 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     for (vs = scr->vScreenList; vs != NULL; vs = vs->next) {
 	Window root = None, parent = None, *children = NULL, *newlist;
-	int nchildren = 0, n;
+	unsigned int nchildren = 0, n;
 
 	if (XQueryTree(dpy, vs->window, &root, &parent, &children, &nchildren) == 0
 	    || nchildren == 0)
@@ -131,6 +139,10 @@ TwmGetClientListStacking(ScreenInfo *scr, Window **stacking, int *count)
 void
 TwmGetNumberOfDesktops(ScreenInfo *scr, int *number)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     *number = scr->workSpaceManagerActive ? scr->workSpaceMgr.count : 1;
 }
 
@@ -146,6 +158,10 @@ TwmSetNumberOfDesktops(ScreenInfo *scr, int number)
 {
     int old_number = 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     TwmGetNumberOfDesktops(scr, &old_number);
     if (number == old_number)
 	return;
@@ -163,6 +179,10 @@ TwmSetNumberOfDesktops(ScreenInfo *scr, int number)
 void
 TwmGetDesktopGeometry(ScreenInfo *scr, struct NetSize *geometry)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     geometry->width = scr->rootw;
     geometry->height = scr->rooth;
 }
@@ -176,6 +196,10 @@ TwmGetDesktopGeometry(ScreenInfo *scr, struct NetSize *geometry)
 void
 TwmSetDesktopGeometry(ScreenInfo *scr, struct NetSize *geometry)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     (void) scr;
     (void) geometry;
 }
@@ -195,6 +219,10 @@ TwmSetDesktopGeometry(ScreenInfo *scr, struct NetSize *geometry)
 void
 TwmGetDesktopViewport(ScreenInfo *scr, int desktop, struct NetPosition *viewport)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     (void) scr;
     (void) desktop;
     viewport->x = 0;
@@ -216,6 +244,10 @@ TwmGetDesktopViewports(ScreenInfo *scr, struct NetPosition **viewport, int *view
     int desktops = 1, n;
     struct NetPosition *list = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     TwmGetNumberOfDesktops(scr, &desktops);
     if (desktops < 1)
 	return;
@@ -242,6 +274,10 @@ TwmGetDesktopViewports(ScreenInfo *scr, struct NetPosition **viewport, int *view
 void
 TwmSetDesktopViewport(ScreenInfo *scr, int desktop, struct NetPosition *viewport)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     (void) scr;
     (void) desktop;
     (void) viewport;
@@ -278,6 +314,10 @@ TwmGetCurrentDesktop(ScreenInfo *scr, int *current)
     VirtualScreen *vs;
     WorkSpace *ws;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     if (!scr->workSpaceManagerActive) {
 	*current = 0;
 	return;
@@ -322,6 +362,10 @@ TwmSetCurrentDesktop(ScreenInfo *scr, int current, Time timestamp)
     int old_current = 0, number = 0;
     VirtualScreen *vs;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     if (!scr->workSpaceManagerActive)
 	return;
 
@@ -352,6 +396,10 @@ TwmGetDesktopNames(ScreenInfo *scr, char ***names, int *count)
     int number = 0, n = 0;
     char **list = NULL, *name;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     /* There are no desktop names unless the workspace manager is active.  CTWM 
        reverts to TWM behaviour otherwise. */
     if (!scr->workSpaceManagerActive)
@@ -387,6 +435,10 @@ TwmSetDesktopNames(ScreenInfo *scr, char **names, int count)
     struct WorkSpace *ws = NULL;
     int n, number = 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     if (!scr->workSpaceManagerActive)
 	return;
 
@@ -417,7 +469,11 @@ TwmSetDesktopNames(ScreenInfo *scr, char **names, int count)
 void
 TwmGetActiveWindow(ScreenInfo *scr, Window *window)
 {
-    *window = scr->Focus != NULL ? scr->Focus->w : None;
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
+    *window = (scr->Focus != NULL) ? scr->Focus->w : None;
 }
 
 extern void SetFocus(TwmWindow *twin, Time timestamp);
@@ -439,6 +495,10 @@ TwmSetActiveWindow(ScreenInfo *scr, Window window, Window active, Time timestamp
 {
     TwmWindow *twin;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     if (window == None)
 	return;
     if ((twin = TwmFindWindow(scr, window)) != NULL)
@@ -459,6 +519,10 @@ TwmGetWorkarea(ScreenInfo *scr, int desktop, struct NetGeometry *workarea)
     TwmWindow *twin;
     int top = 0, bottom = 0, left = 0, right = 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     workarea->x = workarea->y = 0;
     workarea->width = scr->rootw;
     workarea->height = scr->rooth;
@@ -493,6 +557,10 @@ TwmGetWorkareas(ScreenInfo *scr, struct NetGeometry **workarea, int *workareas)
     int desktops = 1, n;
     struct NetGeometry *list = NULL;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     TwmGetNumberOfDesktops(scr, &desktops);
     if (desktops < 1)
 	return;
@@ -522,6 +590,10 @@ TwmGetVirtualRoots(ScreenInfo *scr, Window **vroot, int *vroots)
     VirtualScreen *vs;
     Window root = TwmNetRoot(scr);
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     for (vs = scr->vScreenList; vs != NULL; vs = vs->next)
 	if (vs->window != None && vs->window != root)
 	    number++;
@@ -549,6 +621,10 @@ TwmGetVirtualRoots(ScreenInfo *scr, Window **vroot, int *vroots)
 void
 TwmGetDesktopLayout(ScreenInfo *scr, struct NetLayout *layout)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     if (scr->workSpaceManagerActive) {
 	layout->columns = scr->workSpaceMgr.columns;
 	layout->rows = scr->workSpaceMgr.lines;
@@ -574,6 +650,10 @@ TwmGetDesktopLayout(ScreenInfo *scr, struct NetLayout *layout)
 void
 TwmSetDesktopLayout(ScreenInfo *scr, struct NetLayout *layout)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     (void) scr;
     (void) layout;
 }
@@ -587,6 +667,10 @@ extern int showingBackground;
 void
 TwmGetShowingDesktop(ScreenInfo *scr, Bool *showing)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     *showing = scr->showingDesktop;
 }
 
@@ -597,6 +681,10 @@ TwmGetShowingDesktop(ScreenInfo *scr, Bool *showing)
 void
 TwmSetShowingDesktop(ScreenInfo *scr, Bool showing)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     if (scr->showingDesktop == showing)
 	return;
     ShowBackground(scr->currentvs);
@@ -625,6 +713,10 @@ TwmCloseWindow(TwmWindow *twin, Time timestamp, enum _NET_SOURCE source)
     unsigned char *prop;
     int kill = 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, twin->w, _XA_WM_PROTOCOLS, 0L, 32L, False, XA_ATOM,
 			   &actual_type, &actual_format, &nitems, &bytes_after, &prop);
@@ -668,6 +760,10 @@ TwmMoveResizeWindow(TwmWindow *twin, unsigned gravity, unsigned mask,
     struct NetGeometry g;
     int bw, gravx = 0, gravy = 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     /* Calculate the size of the frame and client window from the request. */
     g.x = twin->frame_x;
     g.y = twin->frame_y;
@@ -685,17 +781,28 @@ TwmMoveResizeWindow(TwmWindow *twin, unsigned gravity, unsigned mask,
 	static struct {
 	    int x, y;
 	} gravity_offsets[11] = {
-	    {0, 0},		/* ForgetGravity */
-	    {-1, -1},		/* NorthWestGravity */
-	    {0, -1},		/* NorthGravity */
-	    {1, -1},		/* NorthEastGravity */
-	    {-1, 0},		/* WestGravity */
-	    {0, 0},		/* CenterGravity */
-	    {1, 0},		/* EastGravity */
-	    {-1, 1},		/* SouthWestGravity */
-	    {0, 1},		/* SouthGravity */
-	    {1, 1},		/* SouthEastGravity */
-	    {0, 0},		/* StaticGravity */
+	    {
+	    0, 0},		/* ForgetGravity */
+	    {
+	    -1, -1},		/* NorthWestGravity */
+	    {
+	    0, -1},		/* NorthGravity */
+	    {
+	    1, -1},		/* NorthEastGravity */
+	    {
+	    -1, 0},		/* WestGravity */
+	    {
+	    0, 0},		/* CenterGravity */
+	    {
+	    1, 0},		/* EastGravity */
+	    {
+	    -1, 1},		/* SouthWestGravity */
+	    {
+	    0, 1},		/* SouthGravity */
+	    {
+	    1, 1},		/* SouthEastGravity */
+	    {
+	    0, 0},		/* StaticGravity */
 	};
 	if (gravity > ForgetGravity && gravity <= StaticGravity) {
 	    gravx = gravity_offsets[gravity].x;
@@ -733,6 +840,9 @@ extern int Cancel;
 extern int ResizeOrigX;
 extern int ResizeOrigY;
 extern XEvent Event;
+extern void StartResize(XEvent *evp, TwmWindow *tmp_win, Bool fromtitlebar,
+			Bool from3dborder);
+extern Bool DispatchEvent2(void);
 
 /** @brief Initiate move or resize on TWM window
   * @param twin - TWM window to initiate move or resize
@@ -746,6 +856,10 @@ void
 TwmStartMoveResize(TwmWindow *twin, int x_root, int y_root,
 		   enum _NET_WM_MOVERESIZE direction, int button, enum _NET_SOURCE source)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     switch (source) {
     case _NET_SOURCE_UNSPECIFIED:
     case _NET_SOURCE_APPLICATION:
@@ -870,6 +984,10 @@ void
 TwmRestackWindow(TwmWindow *twin, unsigned mask, XWindowChanges *changes,
 		 enum _NET_SOURCE source)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if ((mask & CWStackMode) && twin->stackmode) {
 	TwmWindow *otherwin;
 
@@ -909,6 +1027,10 @@ TwmGetWMClientMachine(ScreenInfo *scr, TwmWindow *twin, char **machine)
 {
     EwmhSequence *seq;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if ((seq = twin->ewmh.sequence) == NULL)
 	return;
     if (seq->field.hostname == NULL)
@@ -923,6 +1045,10 @@ TwmGetWMClientMachine(ScreenInfo *scr, TwmWindow *twin, char **machine)
 void
 TwmEstFrameExtents(Window window, struct NetExtents *extents)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     extents->left = extents->right = extents->top = extents->bottom = 0;
 
     /* TODO: go through the perambulations to determine whether we would apply
@@ -935,6 +1061,7 @@ extern void free_window_names(TwmWindow *twin, Bool nukefull, Bool nukename,
 			      Bool nukeicon);
 
 extern void RedoIcon(void);
+extern void SetupWindow(TwmWindow *tmp_win, int x, int y, int w, int h, int bw);
 
 extern char *NoName;
 
@@ -942,19 +1069,32 @@ void
 TwmSetWMName(ScreenInfo *scr, TwmWindow *twin, char *name)
 {
     XRectangle inc_rect, logical_rect;
+    char *copy;
 
-    if (name == NULL)
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
+    if (name == NULL) {
+	fprintf(stderr, "ERROR: %s (%s:%d) name is null\n",__FUNCTION__,__FILE__,__LINE__);
+	fflush(stderr);
 	return;
+    }
+    if ((copy = strdup(name)) == NULL) {
+	fprintf(stderr, "ERROR: %s (%s:%d) could not allocate copy\n",__FUNCTION__,__FILE__,__LINE__);
+	fflush(stderr);
+	return;
+    }
 #ifdef CLAUDE
-    if (strstr(name, " - Mozilla"))
-	*strstr(name, " - Mozilla") = '\0';
+    if (strstr(copy, " - Mozilla"))
+	*strstr(copy, " - Mozilla") = '\0';
 #endif				/* CLAUDE */
     free_window_names(twin, True, True, False);
 
-    twin->full_name = name;
-    twin->name = name;
+    twin->full_name = copy;
+    twin->name = copy;
     twin->nameChanged = 1;
-    Xutf8TextExtents(scr->TitleBarFont.font_set, name, strlen(name), &inc_rect,
+    Xutf8TextExtents(scr->TitleBarFont.font_set, copy, strlen(copy), &inc_rect,
 		     &logical_rect);
     twin->name_width = logical_rect.width;
     SetupWindow(twin, twin->frame_x, twin->frame_y, twin->frame_width, twin->frame_height,
@@ -964,7 +1104,7 @@ TwmSetWMName(ScreenInfo *scr, TwmWindow *twin, char *name)
     if (scr->AutoOccupy)
 	WmgrRedoOccupation(twin);
     if (twin->icon_name == NoName) {
-	twin->icon_name = name;
+	twin->icon_name = copy;
 	RedoIcon();
     }
 }
@@ -985,6 +1125,10 @@ TwmSetWMName(ScreenInfo *scr, TwmWindow *twin, char *name)
 void
 TwmGetWMVisibleName(TwmWindow *twin, char **name)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if (twin->ewmh.name != NULL)
 	*name = strdup(twin->ewmh.name);
     else
@@ -994,20 +1138,30 @@ TwmGetWMVisibleName(TwmWindow *twin, char **name)
 void
 TwmSetWMIconName(TwmWindow *twin, char *name)
 {
+    char *copy;
+    int redo_icon;
+
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if (name == NULL)
+	return;
+    if ((copy = strdup(name)) == NULL)
 	return;
 #ifdef CLAUDE
     {
-	char *moz = strstr(prop, " - Mozilla");
+	char *moz = strstr(copy, " - Mozilla");
 
 	if (moz)
 	    *moz = '\0';
     }
 #endif
+    redo_icon = strcmp(twin->icon_name, copy);
     free_window_names(twin, False, False, True);
-    twin->icon_name = name;
+    twin->icon_name = copy;
 
-    if (strcmp(twin->icon_name, name))
+    if (redo_icon)
 	RedoIcon();
 }
 
@@ -1027,6 +1181,10 @@ TwmSetWMIconName(TwmWindow *twin, char *name)
 void
 TwmGetWMVisibleIconName(TwmWindow *twin, char **name)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if (twin->ewmh.icon_name != NULL)
 	*name = strdup(twin->ewmh.icon_name);
     else if (twin->ewmh.name != NULL)
@@ -1049,6 +1207,10 @@ extern int fullOccupation;
 void
 TwmGetWMDesktop(ScreenInfo *scr, TwmWindow *twin, int *desktop)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if (twin->occupation == fullOccupation)
 	*desktop = -1;
     else {
@@ -1084,6 +1246,10 @@ TwmIniWMDesktop(ScreenInfo *scr, TwmWindow *twin, int *desktop)
 {
     EwmhSequence *seq;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if ((seq = twin->ewmh.sequence) != NULL && seq->field.desktop != NULL)
 	*desktop = seq->numb.desktop;
     else
@@ -1102,6 +1268,10 @@ TwmSetWMDesktop(ScreenInfo *scr, TwmWindow *twin, int desktop, enum _NET_SOURCE 
 {
     int number = 1;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if ((twin = TwmCanChangeDesktop(twin)) == NULL)
 	return;
 
@@ -1130,6 +1300,10 @@ TwmSetWMDesktop(ScreenInfo *scr, TwmWindow *twin, int desktop, enum _NET_SOURCE 
 void
 TwmGetWMWindowType(TwmWindow *twin, unsigned *type)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if (twin->transient)
 	*type = _NET_WM_WINDOW_TYPE_NORMAL;
     else
@@ -1143,17 +1317,16 @@ TwmGetWMWindowType(TwmWindow *twin, unsigned *type)
 void
 TwmSetWMWindowType(TwmWindow *twin, unsigned type)
 {
-    unsigned m, j, result;
+    unsigned m, j;
     union WindowLists *list = &twin->list;
     union WindowFunctions *func = &twin->func;
     union WindowDecorations *decor = &twin->decor;
     short *layer = &twin->ontoppriority;
-    
-    unsigned old_lists = list->lists;
-    unsigned old_decor = decor->decorations;
-    unsigned old_funcs = func->functions;
-    short old_layer = *layer;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if (twin->ewmh.props._KDE_NET_WM_WINDOW_TYPE_OVERRIDE) {
 	func->functions = 0;
 	decor->decorations = 0;
@@ -1249,6 +1422,10 @@ TwmGetWMState(TwmWindow *twin, unsigned *flags)
 {
     unsigned state = twin->ewmh.state;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if (twin->squeezed)
 	state |= _NET_WM_STATE_SHADED;
     else
@@ -1315,6 +1492,8 @@ TwmGetWMState(TwmWindow *twin, unsigned *flags)
      _NET_WM_STATE_MAXIMUS_LEFT | \
      _NET_WM_STATE_MAXIMUS_RIGHT)
 
+extern void fullzoom(TwmWindow *tmp_win, int flag);
+
 /** @brief Set the window state.
   * @param twin - TWM window
   * @parma state - state to set
@@ -1325,8 +1504,12 @@ TwmGetWMState(TwmWindow *twin, unsigned *flags)
 void
 TwmSetWMState(TwmWindow *twin, unsigned state)
 {
-    unsigned m, j, result;
+    unsigned m, j;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     /* handle aliases */
     if (state & _NET_WM_STATE_STAYS_AT_BOTTOM) {
 	state &= ~_NET_WM_STATE_STAYS_AT_BOTTOM;
@@ -1464,6 +1647,10 @@ TwmChgWMState(ScreenInfo *scr, TwmWindow *twin, int action1, int action2, unsign
     int current = 0;
     TwmWindow *tmp_win;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     tmp_win = TwmCanChangeDesktop(twin);
 
     /* sanity checks */
@@ -1759,6 +1946,10 @@ TwmChgWMState(ScreenInfo *scr, TwmWindow *twin, int action1, int action2, unsign
 void
 TwmGetWMAllowedActions(TwmWindow *twin, unsigned *allowed)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     *allowed = 0;
     if (twin->func.function.move)
 	*allowed |= _NET_WM_ACTION_MOVE;
@@ -1808,10 +1999,13 @@ TwmGetWMPid(ScreenInfo *scr, TwmWindow *twin, pid_t *pid)
 {
     EwmhSequence *seq;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if ((seq = twin->ewmh.sequence) != NULL && seq->field.pid != NULL)
 	*pid = seq->numb.pid;
 }
-
 
 /** @brief Set the pid for a window.
   * @param scr - screen
@@ -1827,6 +2021,10 @@ TwmSetWMPid(ScreenInfo *scr, TwmWindow *twin, pid_t pid)
 {
     EwmhSequence *seq;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if (pid <= 0)
 	return;
     if ((seq = twin->ewmh.sequence) != NULL
@@ -1854,6 +2052,10 @@ TwmUpdWMHandledIcons(ScreenInfo *scr)
     TwmWindow *twin;
     Bool handled = False;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     scr->ewmh.handled_icons = False;
 
     for (twin = scr->FirstWindow; twin != NULL; twin = twin->next) {
@@ -1922,6 +2124,10 @@ TwmGetWMUserTimeWindow(ScreenInfo *scr, TwmWindow *twin, Window *time_window)
 {
     Window window = twin->w;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if (twin->ewmh.props._NET_WM_USER_TIME_WINDOW && twin->ewmh.user_time_window != None)
 	window = twin->ewmh.user_time_window;
     *time_window = window;
@@ -1939,6 +2145,10 @@ TwmGetWMUserTimeWindow(ScreenInfo *scr, TwmWindow *twin, Window *time_window)
 void
 TwmSetWMUserTimeWindow(ScreenInfo *scr, TwmWindow *twin, Window time_window)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if (time_window != None) {
 	XSelectInput(dpy, time_window, PropertyChangeMask);
 	XSaveContext(dpy, time_window, TwmContext, (XPointer) twin);
@@ -1957,6 +2167,10 @@ TwmSetWMUserTimeWindow(ScreenInfo *scr, TwmWindow *twin, Window time_window)
 void
 TwmDelWMUserTimeWindow(ScreenInfo *scr, TwmWindow *twin, Window time_window)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if (time_window != None) {
 	XSelectInput(dpy, time_window, 0);
 	XDeleteContext(dpy, time_window, TwmContext);
@@ -2010,9 +2224,12 @@ TwmGetWMUserTime(ScreenInfo *scr, TwmWindow *twin, Time *time)
 {
     EwmhSequence *seq;
 
-    if ((seq = twin->ewmh.sequence) != NULL &&
-	    seq->field.timestamp != NULL &&
-	    seq->numb.timestamp != 0) {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
+    if ((seq = twin->ewmh.sequence) != NULL && seq->field.timestamp != NULL
+	&& seq->numb.timestamp != 0) {
 	*time = seq->numb.timestamp;
 	TwmSetUserTime(*time);
     }
@@ -2025,6 +2242,10 @@ TwmGetWMUserTime(ScreenInfo *scr, TwmWindow *twin, Time *time)
 void
 TwmGetWMFrameExtents(TwmWindow *twin, struct NetExtents *extents)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     extents->left = extents->right = extents->bottom = extents->top =
 	twin->frame_bw + twin->frame_bw3D;
     extents->top += twin->title_height;
@@ -2036,6 +2257,10 @@ TwmGetFullscreenMonitors(ScreenInfo *scr, int *monitors)
     VirtualScreen *vs;
     int count = 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
     for (vs = scr->vScreenList; vs != NULL; vs = vs->next)
 	count++;
     *monitors = count;
@@ -2055,6 +2280,10 @@ TwmGetWMFullscreenMonitors(ScreenInfo *scr, TwmWindow *twin, struct NetMonitors 
     int y_min = scr->rooth;
     int y_max = 0;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     for (vs = scr->vScreenList; vs != NULL; vs = vs->next) {
 	if (vs->x < x_min) {
 	    x_min = vs->x;
@@ -2088,6 +2317,10 @@ TwmIniWMFullscreenMonitors(ScreenInfo *scr, TwmWindow *twin, struct NetMonitors 
     int monitor = 0;
     int number = 1;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     TwmGetFullscreenMonitors(scr, &number);
 
     if ((vs = scr->currentvs) != NULL)
@@ -2117,6 +2350,10 @@ TwmSetWMFullscreenMonitors(ScreenInfo *scr, TwmWindow *twin, struct NetMonitors 
     int x_min, x_max, y_min, y_max;
     VirtualScreen *vs;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     for (vs = scr->vScreenList; vs != NULL; vs = vs->next)
 	if (vs->monitor == monitors->left)
 	    break;
@@ -2153,8 +2390,13 @@ void
 TwmGetGroupLeader(TwmWindow *twin, Window *leader)
 {
     Window window = None;
+
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if (twin->wmhints != NULL && (window = twin->wmhints->window_group) != None
-	    && window != twin->w)
+	&& window != twin->w)
 	*leader = window;
 }
 
@@ -2169,6 +2411,10 @@ TwmSetStartupId(ScreenInfo *scr, TwmWindow *twin, char *startup_id)
     EwmhSequence *seq;
     Bool force = False;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if ((seq = twin->ewmh.sequence) != NULL) {
 	/* sequence already assigned */
 	if (strcmp(startup_id, seq->field.id) != 0) {
@@ -2237,6 +2483,10 @@ TwmGetWMDesktopMask(ScreenInfo *scr, TwmWindow *twin, long **mask, int *masks)
 {
     long *list;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if ((list = calloc(1, sizeof(long))) == NULL)
 	return;
     list[0] = (long) (unsigned) twin->occupation;
@@ -2255,6 +2505,10 @@ TwmSetWMDesktopMask(ScreenInfo *scr, TwmWindow *twin, long *mask, int masks)
 {
     unsigned occupation;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if ((twin = TwmCanChangeDesktop(twin)) == NULL)
 	return;
 
@@ -2284,6 +2538,10 @@ TwmChgWMDesktopMask(ScreenInfo *scr, TwmWindow *twin, unsigned index, unsigned m
 {
     unsigned occupation;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if ((twin = TwmCanChangeDesktop(twin)) == NULL)
 	return;
 
@@ -2307,6 +2565,10 @@ TwmGetWMVirtualPos(ScreenInfo *scr, TwmWindow *twin, struct NetPosition *virtual
 {
     VirtualScreen *vs;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if ((vs = twin->old_parent_vs) != NULL) {
 	virtual_pos->x = vs->x + twin->frame_x;
 	virtual_pos->y = vs->y + twin->frame_y;
@@ -2319,22 +2581,38 @@ TwmGetWMVirtualPos(ScreenInfo *scr, TwmWindow *twin, struct NetPosition *virtual
 void
 TwmSetWMVirtualPos(ScreenInfo *scr, TwmWindow *twin, struct NetPosition *virtual_pos)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     /* we don't actually change the position of the window */
 }
 
 void
 TwmSetWMSyncRequestCounter(TwmWindow *twin, struct NetCounter *counter)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
 }
 
 void
 TwmGotWMPing(TwmWindow *twin, Time timestamp, Window client)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
 }
 
 void
 TwmGetKdeSystemTrayWindows(ScreenInfo *scr, Window **systray, int *count)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
+    fflush(stderr);
+#endif
 }
 
 void
@@ -2342,6 +2620,10 @@ TwmGetMaximizedRestore(ScreenInfo *scr, TwmWindow *twin, struct NetRestore *rest
 {
     VirtualScreen *vs;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     if (twin->zoomed == ZOOM_NONE) {
 	restore->x = twin->frame_x;
 	restore->y = twin->frame_y;
@@ -2368,6 +2650,10 @@ TwmSetMaximizedRestore(ScreenInfo *scr, TwmWindow *twin, struct NetRestore *rest
 {
     VirtualScreen *vs;
 
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     vs = findIfVScreenOf(restore->vx, restore->vy);
     if (vs != NULL)
 	twin->old_parent_vs = vs;
@@ -2390,11 +2676,19 @@ TwmSetMaximizedRestore(ScreenInfo *scr, TwmWindow *twin, struct NetRestore *rest
 void
 TwmSetWMSystemTrayWindowFor(TwmWindow *twin)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
 }
 
 void
 TwmSetWMWindowTypeOverride(TwmWindow *twin)
 {
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
     twin->func.functions = 0U;
     twin->decor.decorations = 0U;
 }

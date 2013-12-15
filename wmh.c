@@ -324,6 +324,10 @@ Set_WIN_SUPPORTING_WM_CHECK(Window root, Window window)
 {
     long data = window;
 
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, window, _XA_WIN_SUPPORTING_WM_CHECK, XA_CARDINAL, 32,
 		    PropModeReplace, (unsigned char *) &data, 1);
     XChangeProperty(dpy, root, _XA_WIN_SUPPORTING_WM_CHECK, XA_CARDINAL, 32,
@@ -449,6 +453,11 @@ Set_WIN_PROTOCOLS(Window root)
 	_XA_SM_CLIENT_ID
 #endif
     };
+
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, root, _XA_WIN_PROTOCOLS, XA_ATOM, 32, PropModeReplace,
 		    (unsigned char *) data, sizeof(data) / sizeof(long));
 }
@@ -495,6 +504,10 @@ Set_WIN_CLIENT_LIST(Window root, Window *windows, int count)
     long *data = NULL;
     int i;
 
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     if (count > 0 && (data = calloc(count, sizeof(long))) == NULL)
 	count = 0;
     for (i = 0; i < count; i++)
@@ -570,6 +583,10 @@ Del_WIN_CLIENT_LIST(ScreenInfo *scr)
 static void
 Set_WIN_WORKSPACE_COUNT(Window root, long count)
 {
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, root, _XA_WIN_WORKSPACE_COUNT, XA_CARDINAL, 32, PropModeReplace,
 		    (unsigned char *) &count, 1);
 }
@@ -585,6 +602,10 @@ Get_WIN_WORKSPACE_COUNT(Window root, int *count)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s from root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, root, _XA_WIN_WORKSPACE_COUNT, 0L, 1L, False, XA_CARDINAL,
 			   &actual_type, &actual_format, &nitems, &bytes_after,
@@ -677,6 +698,10 @@ Del_WIN_WORKSPACE_COUNT(ScreenInfo *scr)
 static void
 Set_WIN_WORKSPACE(Window window, long workspace)
 {
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, window, _XA_WIN_WORKSPACE, XA_CARDINAL, 32, PropModeReplace,
 		    (unsigned char *) &workspace, 1);
 }
@@ -695,6 +720,10 @@ Get_WIN_WORKSPACE(Window window, int *workspace)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s from window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_WIN_WORKSPACE, 0L, 1L, False, XA_CARDINAL,
 			   &actual_type, &actual_format, &nitems, &bytes_after,
@@ -824,6 +853,10 @@ Set_WIN_WORKSPACE_NAMES(Window root, char **names, int count)
 {
     XTextProperty text = { NULL, };
 
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     if (XStringListToTextProperty(names, count, &text) == Success) {
 	XSetTextProperty(dpy, root, &text, _XA_WIN_WORKSPACE_NAMES);
 	XFree(text.value);
@@ -841,13 +874,16 @@ Get_WIN_WORKSPACE_NAMES(Window root, char ***names, int *count)
 {
     XTextProperty text = { NULL, };
 
-    if (XGetTextProperty(dpy, root, &text, _XA_WIN_WORKSPACE_NAMES) == Success) {
-	if (XTextPropertyToStringList(&text, names, count) != 0) {
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s from root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
+    if (XGetTextProperty(dpy, root, &text, _XA_WIN_WORKSPACE_NAMES) && text.nitems > 0) {
+	if (XmbTextPropertyToTextList(dpy, &text, names, count) == Success) {
 	    XFree(text.value);
 	    return True;
 	}
-	if (text.value != NULL)
-	    XFree(text.value);
+	XFree(text.value);
     }
     return False;
 }
@@ -956,6 +992,10 @@ Del_WIN_WORKSPACE_NAMES(ScreenInfo *scr)
 static void
 Set_WIN_LAYER(Window window, long layer)
 {
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, window, _XA_WIN_STATE, XA_CARDINAL, 32, PropModeReplace,
 		    (unsigned char *) &layer, 1);
 }
@@ -968,6 +1008,10 @@ Get_WIN_LAYER(Window window, unsigned *layer)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s from window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_WIN_LAYER, 0L, 1L, False, XA_CARDINAL,
 			   &actual_type, &actual_format, &nitems, &bytes_after,
@@ -1086,6 +1130,10 @@ Rcv_WIN_LAYER(TwmWindow *twin, XClientMessageEvent *event)
 static void
 Set_WIN_STATE(Window window, long state)
 {
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, window, _XA_WIN_STATE, XA_CARDINAL, 32, PropModeReplace,
 		    (unsigned char *) &state, 1);
 }
@@ -1098,6 +1146,10 @@ Get_WIN_STATE(Window window, unsigned *state)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s from window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_WIN_STATE, 0L, 1L, False, XA_CARDINAL,
 			   &actual_type, &actual_format, &nitems, &bytes_after,
@@ -1265,6 +1317,10 @@ Get_WIN_EXPANDED_SIZE(Window window, struct WinGeometry *geom)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s from window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_WIN_EXPANDED_SIZE, 0L, 4L, False, XA_CARDINAL,
 			   &actual_type, &actual_format, &nitems, &bytes_after,
@@ -1352,6 +1408,10 @@ Get_WIN_HINTS(Window window, unsigned *hints)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s from window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_WIN_HINTS, 0L, 1L, False, XA_CARDINAL,
 			   &actual_type, &actual_format, &nitems, &bytes_after,
@@ -1449,6 +1509,10 @@ Set_WIN_DESKTOP_BUTTON_PROXY(Window root, Window window)
 {
     long data = window;
 
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, window, _XA_WIN_DESKTOP_BUTTON_PROXY, XA_CARDINAL, 32,
 		    PropModeReplace, (unsigned char *) &data, 1);
     XChangeProperty(dpy, root, _XA_WIN_DESKTOP_BUTTON_PROXY, XA_CARDINAL, 32,
@@ -1508,6 +1572,10 @@ Snd_WIN_DESKTOP_BUTTON_PROXY(ScreenInfo *scr, XEvent *event)
 static void
 Set_WIN_AREA_COUNT(Window root, struct WinLayout *layout)
 {
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, root, _XA_WIN_AREA_COUNT, XA_CARDINAL, 32, PropModeReplace,
 		    (unsigned char *) layout, 2);
 }
@@ -1520,6 +1588,10 @@ Get_WIN_AREA_COUNT(Window root, struct WinLayout *layout)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s from root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, root, _XA_WIN_AREA_COUNT, 0L, 2L, False, XA_CARDINAL,
 			   &actual_type, &actual_format, &nitems, &bytes_after,
@@ -1605,6 +1677,10 @@ Del_WIN_AREA_COUNT(ScreenInfo *scr)
 static void
 Set_WIN_AREA(Window root, struct WinArea *area)
 {
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, root, _XA_WIN_AREA, XA_CARDINAL, 32, PropModeReplace,
 		    (unsigned char *) area, 2);
 }
@@ -1617,6 +1693,10 @@ Get_WIN_AREA(Window root, struct WinArea *area)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s from root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, root, _XA_WIN_AREA, 0L, 2L, False, XA_CARDINAL,
 			   &actual_type, &actual_format, &nitems, &bytes_after,
@@ -1711,6 +1791,10 @@ Get_WIN_APP_STATE(Window window, unsigned *state)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s from window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_WIN_APP_STATE, 0L, 1L, False, XA_CARDINAL,
 			   &actual_type, &actual_format, &nitems, &bytes_after,
@@ -1791,6 +1875,10 @@ Get_WIN_ICONS(Window window, long **data)
     unsigned long nitems = 0, bytes_after = 0, len;
     long *prop = NULL;
 
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s from window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     if (*data != NULL) {
 	XFree(*data);
 	*data = NULL;
@@ -1876,6 +1964,10 @@ Del_WIN_ICONS(TwmWindow *twin)
 static void
 Set_WIN_WORKAREA(Window root, struct WinWorkarea *area)
 {
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, root);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, root, _XA_WIN_WORKAREA, XA_CARDINAL, 32, PropModeReplace,
 		    (unsigned char *) area, 4);
 }
@@ -1929,6 +2021,10 @@ Del_WIN_WORKAREA(ScreenInfo *scr)
 static void
 Set_WIN_WORKSPACES(Window window, long *mask, int count)
 {
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, window, _XA_WIN_WORKSPACES, XA_CARDINAL, 32,
 		    PropModeReplace, (unsigned char *) mask, count);
 }
@@ -1946,6 +2042,10 @@ Get_WIN_WORKSPACES(Window window, long **mask, int *count)
     unsigned long nitems = 0, bytes_after = 0, len, n;
     long *prop = NULL;
 
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s from window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_WIN_WORKSPACES, 0L, 1L, False,
 			   XA_CARDINAL, &actual_type, &actual_format, &nitems,
@@ -2090,6 +2190,10 @@ Get_WIN_CLIENT_MOVING(Window window, Bool *moving)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s from window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_WIN_CLIENT_MOVING, 0L, 1L, False, XA_CARDINAL,
 			   &actual_type, &actual_format, &nitems, &bytes_after,
@@ -2144,6 +2248,10 @@ Ret_WIN_CLIENT_MOVING(TwmWindow *twin)
 static void
 Set_WIN_MAXIMIZED_GEOMETRY(Window window, struct WinGeometry *maximized)
 {
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     XChangeProperty(dpy, window, _XA_WIN_MAXIMIZED_GEOMETRY, XA_CARDINAL, 32,
 		    PropModeReplace, (unsigned char *) maximized, 4);
 }
@@ -2156,6 +2264,10 @@ Get_WIN_MAXIMIZED_GEOMETRY(Window window, struct WinGeometry *maximized)
     unsigned long nitems = 0, bytes_after = 0;
     long *prop = NULL;
 
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s from window 0x%08lx\n", __FUNCTION__, window);
+    fflush(stderr);
+#endif
     status =
 	XGetWindowProperty(dpy, window, _XA_WIN_MAXIMIZED_GEOMETRY, 0L, 4L, False,
 			   XA_CARDINAL, &actual_type, &actual_format, &nitems,
@@ -2242,6 +2354,10 @@ Set__SWM_VROOT(Window *windows, int count)
     for (i = 0; i < count; i++) {
 	long data = windows[i];
 
+#ifdef DEBUG_WMH
+    fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, windows[i]);
+    fflush(stderr);
+#endif
 	XChangeProperty(dpy, data, _XA__SWM_VROOT, XA_WINDOW, 32, PropModeReplace,
 			(unsigned char *) &data, 1);
     }
