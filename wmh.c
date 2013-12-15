@@ -749,6 +749,18 @@ Ini_WIN_WORKSPACE_root(ScreenInfo *scr)
     scr->wmh.workspace = workspace;
 }
 
+static void
+Ini_WIN_WORKSPACE(ScreenInfo *scr, TwmWindow *twin)
+{
+    Bool present;
+    int workspace = -2;
+
+    if ((present = Get_WIN_WORKSPACE(twin->w, &workspace)))
+	TwmIniWinWorkspace(scr, twin, workspace);
+    twin->wmh.props._WIN_WORKSPACE = present;
+    twin->wmh.workspace = workspace;
+}
+
 /** @brief Retrieve the workspace for window or root.
   * @param twin - TWM window or NULL for root
   *
@@ -759,16 +771,13 @@ Ini_WIN_WORKSPACE_root(ScreenInfo *scr)
 static void
 Ret_WIN_WORKSPACE(ScreenInfo *scr, TwmWindow *twin)
 {
+    Bool present;
     int workspace = -2;
 
-    if (Get_WIN_WORKSPACE(twin->w, &workspace)) {
+    if ((present = Get_WIN_WORKSPACE(twin->w, &workspace)))
 	TwmSetWinWorkspace(scr, twin, workspace);
-	twin->wmh.props._WIN_WORKSPACE = 1;
-	twin->wmh.workspace = workspace;
-    } else {
-	twin->wmh.props._WIN_WORKSPACE = 0;
-	twin->wmh.workspace = workspace;
-    }
+    twin->wmh.props._WIN_WORKSPACE = present;
+    twin->wmh.workspace = workspace;
     Upd_WIN_WORKSPACE(scr, twin);
 }
 
@@ -989,6 +998,18 @@ Upd_WIN_LAYER(TwmWindow *twin)
     }
 }
 
+static void
+Ini_WIN_LAYER(TwmWindow *twin)
+{
+    Bool present;
+    unsigned layer = 0;
+
+    if ((present = Get_WIN_LAYER(twin->w, &layer)))
+	TwmIniWinLayer(twin, layer);
+    twin->wmh.props._WIN_LAYER = present;
+    twin->wmh.layer = layer;
+}
+
 /*
  * Called when the manged window is first added (i.e. when it is mapped) to
  * retrieve or set the _WIN_LAYER.
@@ -996,16 +1017,13 @@ Upd_WIN_LAYER(TwmWindow *twin)
 static void
 Ret_WIN_LAYER(TwmWindow *twin)
 {
+    Bool present;
     unsigned layer = 0;
 
-    if (Get_WIN_LAYER(twin->w, &layer)) {
+    if ((present = Get_WIN_LAYER(twin->w, &layer)))
 	TwmSetWinLayer(twin, layer);
-	twin->wmh.props._WIN_LAYER = 1;
-	twin->wmh.layer = layer;
-    } else {
-	twin->wmh.props._WIN_LAYER = 0;
-	twin->wmh.layer = 0;
-    }
+    twin->wmh.props._WIN_LAYER = present;
+    twin->wmh.layer = layer;
     Upd_WIN_LAYER(twin);
 }
 
@@ -1110,6 +1128,18 @@ Upd_WIN_STATE(ScreenInfo *scr, TwmWindow *twin)
     }
 }
 
+static void
+Ini_WIN_STATE(ScreenInfo *scr, TwmWindow *twin)
+{
+    Bool present;
+    unsigned state = 0;
+
+    if ((present = Get_WIN_STATE(twin->w, &state)))
+	TwmIniWinState(scr, twin, state);
+    twin->wmh.props._WIN_STATE = present;
+    twin->wmh.state = state;
+}
+
 /*
  * Called when the managed window is first added (i.e. when it is mapped) to
  * retrieve or set the _WIN_STATE.
@@ -1117,16 +1147,13 @@ Upd_WIN_STATE(ScreenInfo *scr, TwmWindow *twin)
 static void
 Ret_WIN_STATE(ScreenInfo *scr, TwmWindow *twin)
 {
+    Bool present;
     unsigned state = 0;
 
-    if (Get_WIN_STATE(twin->w, &state)) {
+    if ((present = Get_WIN_STATE(twin->w, &state)))
 	TwmSetWinState(scr, twin, -1U, state);
-	twin->wmh.props._WIN_STATE = 1;
-	twin->wmh.state = state;
-    } else {
-	twin->wmh.props._WIN_STATE = 0;
-	twin->wmh.state = 0;
-    }
+    twin->wmh.props._WIN_STATE = present;
+    twin->wmh.state = state;
     Upd_WIN_STATE(scr, twin);
 }
 
@@ -1255,6 +1282,17 @@ Get_WIN_EXPANDED_SIZE(Window window, struct WinGeometry *geom)
     return True;
 }
 
+static void
+Ini_WIN_EXPANDED_SIZE(TwmWindow *twin)
+{
+    Bool present;
+    struct WinGeometry expanded = { 0, 0, -1, -1 };
+
+    present = Get_WIN_EXPANDED_SIZE(twin->w, &expanded);
+    twin->wmh.props._WIN_EXPANDED_SIZE = present;
+    twin->wmh.expanded = expanded;
+}
+
 /*
  * Called by the TWM when adding a new managed window to retrieve the expanded
  * size of the window (when set by the client).  Called internally when the
@@ -1263,17 +1301,13 @@ Get_WIN_EXPANDED_SIZE(Window window, struct WinGeometry *geom)
 static void
 Ret_WIN_EXPANDED_SIZE(TwmWindow *twin)
 {
-    struct WinGeometry expanded = { 0, };
+    Bool present;
+    struct WinGeometry expanded = { 0, 0, -1, -1 };
 
-    if (Get_WIN_EXPANDED_SIZE(twin->w, &expanded)) {
+    if ((present = Get_WIN_EXPANDED_SIZE(twin->w, &expanded)))
 	TwmSetExpandedSize(twin, &expanded);
-	twin->wmh.props._WIN_EXPANDED_SIZE = 1;
-	twin->wmh.expanded = expanded;
-    } else {
-	TwmDelExpandedSize(twin, &expanded);
-	twin->wmh.props._WIN_EXPANDED_SIZE = 0;
-	twin->wmh.expanded = expanded;
-    }
+    twin->wmh.props._WIN_EXPANDED_SIZE = present;
+    twin->wmh.expanded = expanded;
 }
 
 static void
@@ -1332,6 +1366,18 @@ Get_WIN_HINTS(Window window, unsigned *hints)
     return True;
 }
 
+static void
+Ini_WIN_HINTS(TwmWindow *twin)
+{
+    Bool present;
+    unsigned hints = 0;
+
+    if ((present = Get_WIN_HINTS(twin->w, &hints)))
+	TwmIniWinHints(twin, hints);
+    twin->wmh.props._WIN_HINTS = present;
+    twin->wmh.hints = hints;
+}
+
 /*
  * Called when the manged window is first added (i.e. when it is mapped) to
  * retrieve the _WIN_HINTS.  Called internally whenever the _WIN_HINTS property
@@ -1340,17 +1386,13 @@ Get_WIN_HINTS(Window window, unsigned *hints)
 static void
 Ret_WIN_HINTS(TwmWindow *twin)
 {
+    Bool present;
     unsigned hints = 0;
 
-    if (Get_WIN_HINTS(twin->w, &hints)) {
+    if ((present = Get_WIN_HINTS(twin->w, &hints)))
 	TwmSetWinHints(twin, hints);
-	twin->wmh.props._WIN_HINTS = 1;
-	twin->wmh.hints = hints;
-    } else {
-	TwmDelWinHints(twin, &hints);
-	twin->wmh.props._WIN_HINTS = 0;
-	twin->wmh.hints = 0;
-    }
+    twin->wmh.props._WIN_HINTS = present;
+    twin->wmh.hints = hints;
 }
 
 static void
@@ -1683,19 +1725,27 @@ Get_WIN_APP_STATE(Window window, unsigned *state)
 }
 
 static void
-Ret_WIN_APP_STATE(TwmWindow *twin)
+Ini_WIN_APP_STATE(TwmWindow *twin)
 {
+    Bool present;
     unsigned app_state = 0;
 
-    if (Get_WIN_APP_STATE(twin->w, &app_state)) {
+    if ((present = Get_WIN_APP_STATE(twin->w, &app_state)))
+	TwmIniWinAppState(twin, app_state);
+    twin->wmh.props._WIN_APP_STATE = present;
+    twin->wmh.app_state = app_state;
+}
+
+static void
+Ret_WIN_APP_STATE(TwmWindow *twin)
+{
+    Bool present;
+    unsigned app_state = 0;
+
+    if ((present = Get_WIN_APP_STATE(twin->w, &app_state)))
 	TwmSetWinAppState(twin, app_state);
-	twin->wmh.props._WIN_APP_STATE = 1;
-	twin->wmh.app_state = app_state;
-    } else {
-	TwmDelWinAppState(twin, &app_state);
-	twin->wmh.props._WIN_APP_STATE = 0;
-	twin->wmh.app_state = 0;
-    }
+    twin->wmh.props._WIN_APP_STATE = present;
+    twin->wmh.app_state = app_state;
 }
 
 static void
@@ -1773,22 +1823,31 @@ Get_WIN_ICONS(Window window, long **data)
 }
 
 static void
-Ret_WIN_ICONS(TwmWindow *twin)
+Ini_WIN_ICONS(TwmWindow *twin)
 {
+    Bool present;
     long *icons = NULL;
 
-    if (Get_WIN_ICONS(twin->w, &icons)) {
+    if ((present = Get_WIN_ICONS(twin->w, &icons)))
+	TwmIniWinIcons(twin, icons);
+    twin->wmh.props._WIN_ICONS = 1;
+    if (twin->wmh.icons != NULL)
+	XFree(twin->wmh.icons);
+    twin->wmh.icons = icons;
+}
+
+static void
+Ret_WIN_ICONS(TwmWindow *twin)
+{
+    Bool present;
+    long *icons = NULL;
+
+    if ((present = Get_WIN_ICONS(twin->w, &icons)))
 	TwmSetWinIcons(twin, icons);
-	twin->wmh.props._WIN_ICONS = 1;
-	if (twin->wmh.icons != NULL)
-	    XFree(twin->wmh.icons);
-	twin->wmh.icons = icons;
-    } else {
-	twin->wmh.props._WIN_ICONS = 0;
-	if (twin->wmh.icons != NULL)
-	    XFree(twin->wmh.icons);
-	twin->wmh.icons = NULL;
-    }
+    twin->wmh.props._WIN_ICONS = 1;
+    if (twin->wmh.icons != NULL)
+	XFree(twin->wmh.icons);
+    twin->wmh.icons = icons;
 }
 
 static void
@@ -1940,6 +1999,21 @@ Upd_WIN_WORKSPACES(ScreenInfo *scr, TwmWindow *twin)
     }
 }
 
+static void
+Ini_WIN_WORKSPACES(ScreenInfo *scr, TwmWindow *twin)
+{
+    Bool present;
+    long *mask = NULL;
+    int masks = 0;
+
+    if ((present = Get_WIN_WORKSPACES(twin->w, &mask, &masks)))
+	TwmIniWMWorkspaces(scr, twin, mask, masks);
+    twin->wmh.props._WIN_WORKSPACES = present;
+    free(twin->wmh.mask);
+    twin->wmh.mask = mask;
+    twin->wmh.masks = masks;
+}
+
 /** @brief Retrieve the workspace mask for a window.
   * @param twin - TWM window
   *
@@ -1949,21 +2023,16 @@ Upd_WIN_WORKSPACES(ScreenInfo *scr, TwmWindow *twin)
 static void
 Ret_WIN_WORKSPACES(ScreenInfo *scr, TwmWindow *twin)
 {
+    Bool present;
     long *mask = NULL;
     int masks = 0;
 
-    if (Get_WIN_WORKSPACES(twin->w, &mask, &masks)) {
+    if ((present = Get_WIN_WORKSPACES(twin->w, &mask, &masks)))
 	TwmSetWMWorkspaces(scr, twin, mask, masks);
-	twin->wmh.props._WIN_WORKSPACES = 1;
-	free(twin->wmh.mask);
-	twin->wmh.mask = mask;
-	twin->wmh.masks = masks;
-    } else {
-	twin->wmh.props._WIN_WORKSPACES = 0;
-	free(twin->wmh.mask);
-	twin->wmh.mask = NULL;
-	twin->wmh.masks = 0;
-    }
+    twin->wmh.props._WIN_WORKSPACES = present;
+    free(twin->wmh.mask);
+    twin->wmh.mask = mask;
+    twin->wmh.masks = masks;
     Upd_WIN_WORKSPACES(scr, twin);
 }
 
@@ -2038,19 +2107,32 @@ Get_WIN_CLIENT_MOVING(Window window, Bool *moving)
 }
 
 static void
-Ret_WIN_CLIENT_MOVING(TwmWindow *twin)
+Ini_WIN_CLIENT_MOVING(TwmWindow *twin)
 {
+    Bool present;
     Bool moving = False;
 
-    if (Get_WIN_CLIENT_MOVING(twin->w, &moving)) {
-	TwmSetMoving(twin, moving);
-	twin->wmh.props._WIN_CLIENT_MOVING = 1;
-	twin->wmh.moving = moving;
-    } else {
-	TwmSetMoving(twin, False);
-	twin->wmh.props._WIN_CLIENT_MOVING = 0;
-	twin->wmh.moving = False;
+    if ((present = Get_WIN_CLIENT_MOVING(twin->w, &moving))) {
+	if (moving) {
+	    XDeleteProperty(dpy, twin->w, _XA_WIN_CLIENT_MOVING);
+	    present = False;
+	    moving = False;
+	}
     }
+    twin->wmh.props._WIN_CLIENT_MOVING = present;
+    twin->wmh.moving = moving;
+}
+
+static void
+Ret_WIN_CLIENT_MOVING(TwmWindow *twin)
+{
+    Bool present;
+    Bool moving = False;
+
+    if ((present = Get_WIN_CLIENT_MOVING(twin->w, &moving)))
+	TwmSetMoving(twin, moving);
+    twin->wmh.props._WIN_CLIENT_MOVING = present;
+    twin->wmh.moving = moving;
 }
 
 /** @} */
@@ -2102,21 +2184,26 @@ Upd_WIN_MAXIMIZED_GEOMETRY(ScreenInfo *scr, TwmWindow *twin)
 }
 
 static void
-Ret_WIN_MAXIMIZED_GEOMETRY(ScreenInfo *scr, TwmWindow *twin)
+Ini_WIN_MAXIMIZED_GEOMETRY(ScreenInfo *scr, TwmWindow *twin)
 {
+    Bool present;
     struct WinGeometry maximized = { 0, 0, scr->rootw, scr->rooth };
 
-    if (Get_WIN_MAXIMIZED_GEOMETRY(twin->w, &maximized)) {
+    present = Get_WIN_MAXIMIZED_GEOMETRY(twin->w, &maximized);
+    twin->wmh.props._WIN_MAXIMIZED_GEOMETRY = present;
+    twin->wmh.maximized = maximized;
+}
+
+static void
+Ret_WIN_MAXIMIZED_GEOMETRY(ScreenInfo *scr, TwmWindow *twin)
+{
+    Bool present;
+    struct WinGeometry maximized = { 0, 0, scr->rootw, scr->rooth };
+
+    if ((present = Get_WIN_MAXIMIZED_GEOMETRY(twin->w, &maximized)))
 	TwmSetMaximizedGeometry(scr, twin, &maximized);
-	twin->wmh.props._WIN_MAXIMIZED_GEOMETRY = 1;
-	twin->wmh.maximized = maximized;
-    } else {
-	twin->wmh.props._WIN_MAXIMIZED_GEOMETRY = 0;
-	twin->wmh.maximized.x = 0;
-	twin->wmh.maximized.y = 0;
-	twin->wmh.maximized.width = scr->rootw;
-	twin->wmh.maximized.height = scr->rooth;
-    }
+    twin->wmh.props._WIN_MAXIMIZED_GEOMETRY = present;
+    twin->wmh.maximized = maximized;
     Upd_WIN_MAXIMIZED_GEOMETRY(scr, twin);
 }
 
@@ -2360,16 +2447,16 @@ void
 AddWindowWmh(ScreenInfo *scr, TwmWindow *twin)
 {
     /* Get or set application window properties */
-    Ret_WIN_LAYER(twin);
-    Ret_WIN_STATE(scr, twin);
-    Ret_WIN_WORKSPACE(scr, twin);
-    Ret_WIN_EXPANDED_SIZE(twin);
-    Ret_WIN_HINTS(twin);
-    Ret_WIN_APP_STATE(twin);
-    Ret_WIN_ICONS(twin);
-    // Ret_WIN_WORKSPACES(twin);
-    Ret_WIN_CLIENT_MOVING(twin);
-    Ret_WIN_MAXIMIZED_GEOMETRY(scr, twin);
+    Ini_WIN_LAYER(twin);
+    Ini_WIN_STATE(scr, twin);
+    Ini_WIN_WORKSPACE(scr, twin);
+    Ini_WIN_EXPANDED_SIZE(twin);
+    Ini_WIN_HINTS(twin);
+    Ini_WIN_APP_STATE(twin);
+    Ini_WIN_ICONS(twin);
+    Ini_WIN_WORKSPACES(scr, twin);
+    Ini_WIN_CLIENT_MOVING(twin);
+    Ini_WIN_MAXIMIZED_GEOMETRY(scr, twin);
     // Ret_WIN_RESIZE(twin);
     // Ret_WIN_FOCUS(twin);
 
@@ -2390,6 +2477,8 @@ UpdWindowWmh(ScreenInfo *scr, TwmWindow *twin)
     Upd_WIN_WORKSPACES(scr, twin);
     // Upd_WIN_CLIENT_MOVING(twin);
     // Upd_WIN_MAXIMIZED_GEOMETRY(twin);
+
+    Upd_WIN_CLIENT_LIST(scr);
 }
 
 /** @brief Withdraw a window in the WMH sense.

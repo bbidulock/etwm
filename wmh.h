@@ -281,6 +281,7 @@ void TwmGetWorkspace(ScreenInfo *scr, int *workspace);
 void TwmSetWorkspace(ScreenInfo *scr, int workspace);
 void TwmGetWinWorkspace(ScreenInfo *scr, TwmWindow *twin, int *workspace);
 void TwmSetWinWorkspace(ScreenInfo *scr, TwmWindow *twin, int workspace);
+void TwmIniWinWorkspace(ScreenInfo *scr, TwmWindow *twin, int workspace);
 
 /* _WIN_WORKSPACE_NAMES */
 void TwmGetWorkspaceNames(ScreenInfo *scr, char ***names, int *count);
@@ -289,18 +290,19 @@ void TwmSetWorkspaceNames(ScreenInfo *scr, char **names, int count);
 /* _WIN_LAYER */
 void TwmGetWinLayer(TwmWindow *twin, unsigned *layer);
 void TwmSetWinLayer(TwmWindow *twin, unsigned layer);
+void TwmIniWinLayer(TwmWindow *twin, unsigned layer);
 
 /* _WIN_STATE */
 void TwmGetWinState(ScreenInfo *scr, TwmWindow *twin, unsigned *state);
 void TwmSetWinState(ScreenInfo *scr, TwmWindow *twin, unsigned mask, unsigned state);
+void TwmIniWinState(ScreenInfo *scr, TwmWindow *twin, unsigned state);
 
 /* _WIN_EXPANDED_SIZE */
 void TwmSetExpandedSize(TwmWindow *twin, struct WinGeometry *expanded);
-void TwmDelExpandedSize(TwmWindow *twin, struct WinGeometry *expanded);
 
 /* _WIN_HINTS */
 void TwmSetWinHints(TwmWindow *twin, unsigned hints);
-void TwmDelWinHints(TwmWindow *twin, unsigned *hints);
+void TwmIniWinHints(TwmWindow *twin, unsigned hints);
 
 /* _WIN_AREA_COUNT */
 void TwmGetWinAreaCount(ScreenInfo *scr, struct WinLayout *count);
@@ -312,10 +314,11 @@ void TwmSetWinArea(ScreenInfo *scr, struct WinArea *area);
 
 /* _WIN_APP_STATE */
 void TwmSetWinAppState(TwmWindow *twin, unsigned app_state);
-void TwmDelWinAppState(TwmWindow *twin, unsigned *app_state);
+void TwmIniWinAppState(TwmWindow *twin, unsigned app_state);
 
 /* _WIN_ICONS */
 void TwmSetWinIcons(TwmWindow *twin, long *icons);
+void TwmIniWinIcons(TwmWindow *twin, long *icons);
 
 /* _WIN_WORKAREA */
 void TwmGetWinWorkarea(ScreenInfo *scr, struct WinWorkarea *workarea);
@@ -323,6 +326,7 @@ void TwmGetWinWorkarea(ScreenInfo *scr, struct WinWorkarea *workarea);
 /* _WIN_WORKSPACES */
 void TwmGetWMWorkspaces(ScreenInfo *scr, TwmWindow *twin, long **mask, int *masks);
 void TwmSetWMWorkspaces(ScreenInfo *scr, TwmWindow *twin, long *mask, int masks);
+void TwmIniWMWorkspaces(ScreenInfo *scr, TwmWindow *twin, long *mask, int masks);
 void TwmChgWMWorkspaces(ScreenInfo *scr, TwmWindow *twin, unsigned index, unsigned mask);
 
 /* _WIN_CLIENT_MOVING */

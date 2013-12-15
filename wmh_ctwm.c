@@ -33,7 +33,7 @@ TwmWinManager(ScreenInfo *scr)
 extern int CanChangeOccupation(TwmWindow **twm_winp);
 
 static TwmWindow *
-TwmCanChangeWorkspace(TwmWindow *twin)
+TwmWinCanChangeWorkspace(TwmWindow *twin)
 {
     if (!CanChangeOccupation(&twin))
 	return (NULL);
@@ -255,6 +255,31 @@ TwmGetWinLayer(TwmWindow *twin, unsigned *layer)
     *layer = twin->ontoppriority / 2;
 }
 
+void
+TwmIniWinLayer(TwmWindow *twin, unsigned layer)
+{
+    switch (layer) {
+    case WIN_LAYER_DESKTOP:
+    case 1:
+    case WIN_LAYER_BELOW:
+    case 3:
+    case WIN_LAYER_NORMAL:
+    case 5:
+    case WIN_LAYER_ONTOP:
+    case 7:
+    case WIN_LAYER_DOCK:
+    case 9:
+    case WIN_LAYER_ABOVE_DOCK:
+    case 11:
+    case WIN_LAYER_MENU:
+	twin->ontoppriority = layer * 2;
+	break;
+    default:
+	twin->ontoppriority = WIN_LAYER_MENU;
+	break;
+    }
+}
+
 /** @brief Set the layer for a window.
   * @param twin - the TWM window
   * @param layer - the layer for the window
@@ -383,6 +408,12 @@ TwmGetWinState(ScreenInfo *scr, TwmWindow *twin, unsigned *state)
     *state = flags;
 }
 
+void
+TwmIniWinState(ScreenInfo *scr, TwmWindow *twin, unsigned state)
+{
+    /* FIXME */
+}
+
 extern void fullzoom(TwmWindow *tmp_win, int flag);
 
 /** @brief Set the window state.
@@ -397,7 +428,7 @@ TwmSetWinState(ScreenInfo *scr, TwmWindow *twin, unsigned mask, unsigned state)
     int current = 0;
     TwmWindow *tmp_win;
 
-    tmp_win = TwmCanChangeWorkspace(twin);
+    tmp_win = TwmWinCanChangeWorkspace(twin);
 
     TwmGetWorkspace(scr, &current);
 
@@ -545,6 +576,18 @@ TwmGetWinWorkspace(ScreenInfo *scr, TwmWindow *twin, int *workspace)
     }
 }
 
+void
+TwmIniWinWorkspace(ScreenInfo *scr, TwmWindow *twin, int workspace)
+{
+    int count = 0;
+
+    TwmGetWorkspaceCount(scr, &count);
+    
+    if (workspace < 0 || workspace >= count)
+	return;
+    twin->occupation |= (1<<workspace);
+}
+
 /** @brief Set the workspace of a window.
   * @param twin - the TWM window
   * @parma workspace - the workspace for the window.
@@ -556,7 +599,7 @@ TwmSetWinWorkspace(ScreenInfo *scr, TwmWindow *twin, int workspace)
 {
     int count = 0;
 
-    if ((twin = TwmCanChangeWorkspace(twin)) == NULL)
+    if ((twin = TwmWinCanChangeWorkspace(twin)) == NULL)
 	return;
 
     TwmGetWorkspaceCount(scr, &count);
@@ -579,16 +622,10 @@ TwmSetExpandedSize(TwmWindow *twin, struct WinGeometry *expanded)
     /* TODO: actually do something with this */
 }
 
-/** @brief Delete the expanded size of a window.
-  * @param twin - the TWM window
-  * @parma expanded - the expanded size deleted
-  */
 void
-TwmDelExpandedSize(TwmWindow *twin, struct WinGeometry *expanded)
+TwmIniWinHints(TwmWindow *twin, unsigned hints)
 {
-    (void) twin;
-    expanded->x = expanded->y = 0;
-    expanded->width = expanded->height = -1;
+    /* FIXME */
 }
 
 /** @brief Set the window hints.
@@ -653,17 +690,6 @@ TwmSetWinHints(TwmWindow *twin, unsigned hints)
     }
 }
 
-/** @brief Delete the window hints.
-  * @param twin - the TWM window
-  * @param hints - the hints deleted
-  */
-void
-TwmDelWinHints(TwmWindow *twin, unsigned *hints)
-{
-    (void) twin;
-    *hints = 0;
-}
-
 /** @brief Get the area count.
   * @param count - where to return the count.
   *
@@ -717,6 +743,12 @@ TwmSetWinArea(ScreenInfo *scr, struct WinArea *area)
     (void) area;
 }
 
+void
+TwmIniWinAppState(TwmWindow *twin, unsigned app_state)
+{
+    /* TODO: do something with the state */
+}
+
 /** @brief Set the application state of a window.
   * @param twin - the TWM window
   * @param app_state - the application state to set.
@@ -724,19 +756,15 @@ TwmSetWinArea(ScreenInfo *scr, struct WinArea *area)
 void
 TwmSetWinAppState(TwmWindow *twin, unsigned app_state)
 {
-    twin->wmh.app_state = app_state;
     /* TODO: do something with the state */
 }
 
-/** @brief Delete the application state of a window.
-  * @param twin - the TWM window
-  * @param app_state - the application state being deleted.
-  */
 void
-TwmDelWinAppState(TwmWindow *twin, unsigned *app_state)
+TwmIniWinIcons(TwmWindow *twin, long *icons)
 {
     (void) twin;
-    *app_state = 0;
+    (void) icons;
+    /* TODO: do something with the icons */
 }
 
 /** @brief Set the window icons.
@@ -794,6 +822,14 @@ TwmGetWMWorkspaces(ScreenInfo *scr, TwmWindow *twin, long **mask, int *masks)
     *masks = 1;
 }
 
+void
+TwmIniWMWorkspaces(ScreenInfo *scr, TwmWindow *twin, long *mask, int masks)
+{
+    if (masks < 1 || mask == NULL)
+	return;
+    twin->occupation |= (unsigned) mask[0];
+}
+
 /** @brief Set the workspace mask for a window.
   * @param scr- screen
   * @param twin - TWM window
@@ -805,7 +841,7 @@ TwmSetWMWorkspaces(ScreenInfo *scr, TwmWindow *twin, long *mask, int masks)
 {
     unsigned occupation;
 
-    if ((twin = TwmCanChangeWorkspace(twin)) == NULL)
+    if ((twin = TwmWinCanChangeWorkspace(twin)) == NULL)
 	return;
 
     if (masks < 1 || mask == NULL)
@@ -831,7 +867,7 @@ TwmChgWMWorkspaces(ScreenInfo *scr, TwmWindow *twin, unsigned index, unsigned ma
 {
     unsigned occupation;
 
-    if ((twin = TwmCanChangeWorkspace(twin)) == NULL)
+    if ((twin = TwmWinCanChangeWorkspace(twin)) == NULL)
 	return;
 
     if (index != 0)
@@ -864,6 +900,8 @@ TwmSetMoving(TwmWindow *twin, Bool moving)
 void
 TwmGetMaximizedGeometry(ScreenInfo *scr, TwmWindow *twin, struct WinGeometry *maximized)
 {
+    /* FIXME: get the maximized geometry from the work area for the desktop on
+       which the window exists */
 }
 
 /** @brief Set maximized geometry for a client.

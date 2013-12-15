@@ -30,11 +30,29 @@ TwmMwmManager(ScreenInfo *scr)
     return scr->ManagerWindow;
 }
 
+Window
+TwmMwmInfo(ScreenInfo *scr)
+{
+    if (scr->mwmh.info.wm_window != None)
+	return scr->mwmh.info.wm_window;
+    return scr->ManagerWindow;
+}
+
+extern int CanChangeOccupation(TwmWindow **twm_winp);
+
+static TwmWindow *
+TwmMwmCanChangeWorkspace(TwmWindow *twin)
+{
+    if (!CanChangeOccupation(&twin))
+	return (NULL);
+    return (twin);
+}
+
 void
 TwmGetMwmInfo(ScreenInfo *scr, MwmInfo *info)
 {
     info->flags = MWM_STARTUP_CUSTOM;
-    info->wm_window = TwmMwmManager(scr);
+    info->wm_window = TwmMwmInfo(scr);
 }
 
 void
@@ -53,25 +71,23 @@ TwmGetMwmHints(ScreenInfo *scr, TwmWindow *twin, MwmHints *hints)
     hints->status = 0;
 }
 
-/** @brief Set the motif hints for a window.
+/** @brief Initialize the motif hints for a window.
   * @param scr - screen
   * @param twin - TWM window
   * @param hints - the hints to set
   *
-  * Note that this function is called whether the property exists on the client
-  * window or not.  The hints structure will be set to all zeros when the
-  * property does not exits.
+  * Called to initialize a newly managed window with an existing _MOTIF_WM_HINTS
+  * property.  This will set the functions and decorations bits in the window.
   *
-  * The values return here wind up being set against twin->mwmh.hints regardless
-  * of whether the property exists on the window or not.  The function bits
-  * basically decide whether to allow various actions on the window and whether
-  * to enable specific titlebar icons.   The bit settings here are basically the
-  * same as NET_WM_ACTION_RESIZE, _NET_WM_ACTION_MOVE, _NET_WM_ACTION_MINIMIZE,
-  * _NET_WM_ACTION_FULLSCREEN, _NET_WM_ACTION_MAXIMIZE_HORZ,
-  * _NET_WM_ACTION_MAXIMIZE_VERT, _NET_WM_ACTION_CLOSE.
+  * The function bits basically decide whether to allow various actions on the
+  * window and whether to enable specific titlebar icons.   The bit settings
+  * here are basically the same as NET_WM_ACTION_RESIZE, _NET_WM_ACTION_MOVE,
+  * _NET_WM_ACTION_MINIMIZE, _NET_WM_ACTION_FULLSCREEN,
+  * _NET_WM_ACTION_MAXIMIZE_HORZ, _NET_WM_ACTION_MAXIMIZE_VERT,
+  * _NET_WM_ACTION_CLOSE.
   */
 void
-TwmSetMwmHints(ScreenInfo *scr, TwmWindow *twin, MwmHints *hints)
+TwmIniMwmHints(ScreenInfo *scr, TwmWindow *twin, MwmHints *hints)
 {
     if (hints->flags & MWM_HINTS_FUNCTIONS) {
 	twin->func.function.resize =
@@ -125,30 +141,45 @@ TwmSetMwmHints(ScreenInfo *scr, TwmWindow *twin, MwmHints *hints)
 	    (hints->decorations & (MWM_DECOR_ALL | MWM_DECOR_MAXIMUS)) ? 1 : 0;
 
     }
+    /* FIXME: handle tearoff menus */
 }
 
-/** @brief Set the desktop hints for a window.
+/** @brief Set the motif hints for a window.
+  * @param scr - screen
+  * @param twin - TWM window
+  * @param hints - the hints to set
+  */
+void
+TwmSetMwmHints(ScreenInfo *scr, TwmWindow *twin, MwmHints *hints)
+{
+}
+
+/** @brief Initialize the desktop hints for a window.
   * @param twin - TWM window
   * @param hints - the hints to set
   *
-  * Note that this function is called whether the property exists on the client
-  * window or not.  The hints structure will be set to all zeroes when the
-  * property does not exist.
-  *
-  * The values returned here wind up being set agaist twin->mwmh.dthints
-  * regardless of whether the property exists on the window or not.  The
-  * function bits basically decide whether we are allowed to change the
+  * The function bits basically decide whether we are allowed to change the
   * workspaces that the window occupies or not.  This is basically the same as
   * _NET_WM_ACTION_CHANGE_DESKTOP.
   */
 void
-TwmSetDtWmHints(TwmWindow *twin, struct DtWmHints *hints)
+TwmIniDtWmHints(TwmWindow *twin, DtWmHints *hints)
 {
     if (hints->flags & DTWM_HINTS_FUNCTIONS) {
 	twin->func.function.change_desktop =
 	    (hints->functions & (DTWM_FUNCTION_ALL | DTWM_FUNCTION_OCCUPY_WS)) ? 1 : 0;
     }
     /* TODO: handle behavior bits */
+}
+
+/** @brief Set the desktop hints for a window.
+  * @param twin - TWM window
+  * @param hints - the hints to set
+  */
+void
+TwmSetDtWmHints(TwmWindow *twin, DtWmHints *hints)
+{
+    /* FIXME */
 }
 
 void
@@ -176,6 +207,66 @@ workspace_atom(WorkSpace *ws)
 }
 
 extern int fullOccupation;
+
+/** @brief Initialize the workspaces for a window.
+  * @param scr - screen
+  * @param twin - TWM window
+  * @param wshints - DTWM workspace hints
+  *
+  * This function is called when initially managing a top-level window and it
+  * contains a _DT_WORKSPACE_HINTS property.  Note that this only sets the
+  * twin->occupation variable and does not actually change the workspace.
+  */
+void
+TwmIniWorkspaceHints(ScreenInfo *scr, TwmWindow *twin, DtWmWorkspaceHints *wshints)
+{
+    WorkSpace *ws;
+    long n;
+
+    if (wshints->flags & DT_WORKSPACE_HINTS_WSFLAGS)
+	if (wshints->wsflags & DT_WORKSPACE_FLAGS_OCCUPY_ALL)
+	    twin->occupation |= fullOccupation;
+
+    if (wshints->flags & DT_WORKSPACE_HINTS_WORKSPACES)
+	for (n = 0; n < wshints->numWorkspaces; n++)
+	    for (ws = scr->workSpaceMgr.workSpaceList; ws != NULL; ws = ws->next)
+		if (ws->atom == wshints->workspaces[n])
+		    twin->occupation |= (1 << ws->number);
+}
+
+/** @brief Set the workspaces for a window.
+  * @param scr - screen
+  * @param twin - TWM window
+  * @param wshints - DTWM workspace hints
+  *
+  * This function is called whenever the _DT_WORKSPACE_HINTS property is updated
+  * on a managed top-level window.  This changes the occupation of the window.
+  */
+void
+TwmSetWorkspaceHints(ScreenInfo *scr, TwmWindow *twin, DtWmWorkspaceHints *wshints)
+{
+    WorkSpace *ws;
+    long n;
+    unsigned occupation = 0;
+
+    if ((twin = TwmMwmCanChangeWorkspace(twin)) == NULL)
+	return;
+
+    if (wshints->flags & DT_WORKSPACE_HINTS_WSFLAGS)
+	if (wshints->wsflags & DT_WORKSPACE_FLAGS_OCCUPY_ALL)
+	    occupation |= fullOccupation;
+
+    if (wshints->flags & DT_WORKSPACE_HINTS_WORKSPACES)
+	for (n = 0; n < wshints->numWorkspaces; n++)
+	    for (ws = scr->workSpaceMgr.workSpaceList; ws != NULL; ws = ws->next)
+		if (ws->atom == wshints->workspaces[n])
+		    occupation |= (1 << ws->number);
+
+    if (occupation == fullOccupation)
+	OccupyAll(twin);
+    else
+	ChangeOccupation(twin, occupation);
+}
 
 /** @brief Get the presence workspace atoms for a window.
   * @param scr - screen

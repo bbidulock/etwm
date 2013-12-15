@@ -2176,7 +2176,7 @@ Get_WM_CLASS(Window window, XClassHint *class)
 }
 
 static void
-Ret_WM_CLASS(TwmWindow *twin)
+Ini_WM_CLASS(TwmWindow *twin)
 {
     Bool present;
     XClassHint class = { NULL, NULL };
@@ -2227,7 +2227,7 @@ Get_NET_WM_PROTOCOLS(Window window, unsigned *protocols)
   * window.
   */
 static void
-Ret_NET_WM_PROTOCOLS(TwmWindow *twin)
+Ini_NET_WM_PROTOCOLS(TwmWindow *twin)
 {
     Bool present;
     unsigned protocols = 0;
@@ -2293,7 +2293,7 @@ Get_WM_CLIENT_MACHINE(Window window, char **machine)
   * @param twin - TWM window
   *
   * Should be called when first managing a window and a startup notification
-  * sequence has been assigned (after calling Ret_WM_CLIENT_MACHINE).  Note that
+  * sequence has been assigned (after calling Ini_WM_CLIENT_MACHINE).  Note that
   * this function will only set the property when the property is not already
   * set.  This assist clients that neglect to set the ICCCM property when a
   * compliant XDG startup notification launcher is present.
@@ -2324,13 +2324,21 @@ Upd_WM_CLIENT_MACHINE(ScreenInfo *scr, TwmWindow *twin)
   * retrieve or set the client machine for a window.
   */
 static void
-Ret_WM_CLIENT_MACHINE(ScreenInfo *scr, TwmWindow *twin)
+Ini_WM_CLIENT_MACHINE(ScreenInfo *scr, TwmWindow *twin)
 {
     Bool present;
     char *machine = NULL;
 
-    if ((present = Get_WM_CLIENT_MACHINE(twin->w, &machine)))
-	TwmSetWMClientMachine(scr, twin, machine);
+    if ((present = Get_WM_CLIENT_MACHINE(twin->w, &machine))) {
+	EwmhSequence *seq;
+
+	if ((seq = twin->ewmh.sequence) != NULL
+	    && (seq->field.hostname == NULL || seq->field.hostname[0] == '\0')) {
+	    free(seq->field.hostname);
+	    seq->field.hostname = strdup(machine);
+	    Chg_NET_STARTUP_INFO(scr, seq);
+	}
+    }
     twin->ewmh.props.WM_CLIENT_MACHINE = present;
     free(twin->ewmh.machine);
     twin->ewmh.machine = machine;
@@ -2379,14 +2387,22 @@ Get_WM_COMMAND(Window window, char ***command, int *count)
 }
 
 static void
-Ret_WM_COMMAND(ScreenInfo *scr, TwmWindow *twin)
+Ini_WM_COMMAND(ScreenInfo *scr, TwmWindow *twin)
 {
     Bool present;
     char **command = NULL;
     int count = 0;
 
-    if ((present = Get_WM_COMMAND(twin->w, &command, &count)))
-	TwmSetWMCommand(scr, twin, command, count);
+    if ((present = Get_WM_COMMAND(twin->w, &command, &count))) {
+	EwmhSequence *seq;
+
+	if ((seq = twin->ewmh.sequence) != NULL
+		&& (seq->field.command == NULL || seq->field.command[0] == '\0')) {
+	    free(seq->field.command);
+	    seq->field.command = make_command_from_argv(command);
+	    Chg_NET_STARTUP_INFO(scr, seq);
+	}
+    }
     twin->ewmh.props.WM_COMMAND = present;
     if (twin->ewmh.command != NULL)
 	XFreeStringList(twin->ewmh.command);
@@ -2444,6 +2460,18 @@ Get_NET_WM_NAME(Window window, char **name)
 	return True;
     }
     return False;
+}
+
+static void
+Ini_NET_WM_NAME(TwmWindow *twin)
+{
+    Bool present;
+    char *name = NULL;
+
+    present = Get_NET_WM_NAME(twin->w, &name);
+    twin->ewmh.props._NET_WM_NAME = present;
+    free(twin->ewmh.name);
+    twin->ewmh.name = name;
 }
 
 /** @brief Retrieve the window name.
@@ -2572,6 +2600,18 @@ Get_NET_WM_ICON_NAME(Window window, char **name)
 	return True;
     }
     return False;
+}
+
+static void
+Ini_NET_WM_ICON_NAME(TwmWindow *twin)
+{
+    Bool present;
+    char *icon_name = NULL;
+
+    present = Get_NET_WM_ICON_NAME(twin->w, &icon_name);
+    twin->ewmh.props._NET_WM_ICON_NAME = present;
+    free(twin->ewmh.icon_name);
+    twin->ewmh.icon_name = icon_name;
 }
 
 static void
@@ -2737,6 +2777,17 @@ Upd_NET_WM_DESKTOP(ScreenInfo *scr, TwmWindow *twin)
 	twin->ewmh.props._NET_WM_DESKTOP = 1;
 	twin->ewmh.desktop = desktop;
     }
+}
+
+static void
+Ini_NET_WM_DESKTOP(ScreenInfo *scr, TwmWindow *twin)
+{
+    Bool present;
+    int desktop = 0;
+
+    present = Get_NET_WM_DESKTOP(twin->w, &desktop);
+    twin->ewmh.props._NET_WM_DESKTOP = present;
+    twin->ewmh.desktop = desktop;
 }
 
 /** @brief Retreive the desktop for a window.
@@ -2912,6 +2963,18 @@ Upd_NET_WM_WINDOW_TYPE(TwmWindow *twin)
 	twin->ewmh.props._NET_WM_WINDOW_TYPE = 1;
 	twin->ewmh.type = type;
     }
+}
+
+static void
+Ini_NET_WM_WINDOW_TYPE(TwmWindow *twin)
+{
+    Bool present;
+    unsigned type = 0;
+
+    if ((present = Get_NET_WM_WINDOW_TYPE(twin->w, &type)))
+	TwmSetWMWindowType(twin, type);
+    twin->ewmh.props._NET_WM_WINDOW_TYPE = present;
+    twin->ewmh.type = type;
 }
 
 static void
@@ -3104,6 +3167,17 @@ Upd_NET_WM_STATE(TwmWindow *twin)
 	twin->ewmh.props._NET_WM_STATE = 1;
 	twin->ewmh.state = state;
     }
+}
+
+static void
+Ini_NET_WM_STATE(TwmWindow *twin)
+{
+    Bool present;
+    unsigned state = 0;
+
+    present = Get_NET_WM_STATE(twin->w, &state);
+    twin->ewmh.props._NET_WM_STATE = present;
+    twin->ewmh.state = state;
 }
 
 /** @brief Retrieve the window state.
@@ -3438,6 +3512,19 @@ Get_NET_WM_STRUT_PARTIAL(Window window, struct NetStrut *strut)
     return True;
 }
 
+static void
+Ini_NET_WM_STRUT_PARTIAL(ScreenInfo *scr, TwmWindow *twin)
+{
+    Bool present;
+    struct NetStrut strut = { 0, };
+
+    present = Get_NET_WM_STRUT(twin->w, &strut);
+    twin->ewmh.props._NET_WM_STRUT = present;
+    present = Get_NET_WM_STRUT_PARTIAL(twin->w, &strut);
+    twin->ewmh.props._NET_WM_STRUT_PARTIAL = present;
+    twin->ewmh.strut = strut;
+}
+
 /** @brief Retreive the (partial) strut for a window.
   * @param scr - screen
   * @param twin - TWM window
@@ -3499,6 +3586,17 @@ Get_NET_WM_ICON_GEOMETRY(Window window, struct NetGeometry *icon_geometry)
     return True;
 }
 
+static void
+Ini_NET_WM_ICON_GEOMETRY(TwmWindow *twin)
+{
+    Bool present;
+    struct NetGeometry icon_geometry = { 0, 0, 0, 0 };
+
+    present = Get_NET_WM_ICON_GEOMETRY(twin->w, &icon_geometry);
+    twin->ewmh.props._NET_WM_ICON_GEOMETRY = present;
+    twin->ewmh.icon_geometry = icon_geometry;
+}
+
 /** @brief Retreive icon geometry.
   * @param twin - TWM window
   *
@@ -3507,7 +3605,7 @@ Get_NET_WM_ICON_GEOMETRY(Window window, struct NetGeometry *icon_geometry)
   * changes.  When performing zoom animations, TWM should check the presence of
   * this property and use it as the destination of the animation when present.
   */
-void
+static void
 Ret_NET_WM_ICON_GEOMETRY(TwmWindow *twin)
 {
     Bool present;
@@ -3574,6 +3672,18 @@ Get_NET_WM_ICON(Window window, struct NetIcon *icon)
     return True;
 }
 
+static void
+Ini_NET_WM_ICON(TwmWindow *twin)
+{
+    Bool present;
+    struct NetIcon icon = { NULL, 0 };
+
+    present = Get_NET_WM_ICON(twin->w, &icon);
+    twin->ewmh.props._NET_WM_ICON = present;
+    free(twin->ewmh.icon.data);
+    twin->ewmh.icon = icon;
+}
+
 /** @brief Reterieve the icon for a window.
   * @param twin - TWM window
   *
@@ -3589,8 +3699,7 @@ Ret_NET_WM_ICON(TwmWindow *twin)
     Bool present;
     struct NetIcon icon = { NULL, 0 };
 
-    if ((present = Get_NET_WM_ICON(twin->w, &icon)))
-	TwmSetWMIcon(twin, &icon);
+    present = Get_NET_WM_ICON(twin->w, &icon);
     twin->ewmh.props._NET_WM_ICON = present;
     free(twin->ewmh.icon.data);
     twin->ewmh.icon = icon;
@@ -3649,7 +3758,7 @@ Get_NET_WM_PID(Window window, pid_t *pid)
   * @param twin - TWM window
   *
   * Should be called when mapping a window and a startup notification sequence
-  * has been assigned (after calling Ret_NET_WM_PID()).  When there is a startup
+  * has been assigned (after calling Ini_NET_WM_PID()).  When there is a startup
   * notification sequence associated with the window with a PID= field, we set
   * that when there is no property.
   */
@@ -3674,13 +3783,27 @@ Upd_NET_WM_PID(ScreenInfo *scr, TwmWindow *twin)
   * This function should be called when a window is first managed.
   */
 static void
-Ret_NET_WM_PID(ScreenInfo *scr, TwmWindow *twin)
+Ini_NET_WM_PID(ScreenInfo *scr, TwmWindow *twin)
 {
     Bool present;
     pid_t pid = 0;
 
-    if ((present = Get_NET_WM_PID(twin->w, &pid)))
-	TwmSetWMPid(scr, twin, pid);
+    if ((present = Get_NET_WM_PID(twin->w, &pid))) {
+	EwmhSequence *seq;
+
+	if ((seq = twin->ewmh.sequence) != NULL
+	    && (seq->field.pid == NULL || seq->numb.pid == 0)) {
+	    char *str;
+
+	    if ((str = calloc(32, 1)) == NULL)
+		return;
+	    snprintf(str, 31, "%d", pid);
+	    free(seq->field.pid);
+	    seq->field.pid = str;
+	    seq->numb.pid = pid;
+	    Chg_NET_STARTUP_INFO(scr, seq);
+	}
+    }
     twin->ewmh.props._NET_WM_PID = present;
     twin->ewmh.pid = pid;
     Upd_NET_WM_PID(scr, twin);
@@ -3715,6 +3838,16 @@ Get_NET_WM_HANDLED_ICONS(Window window)
     }
     XFree(prop);
     return True;
+}
+
+static void
+Ini_NET_WM_HANDLED_ICONS(ScreenInfo *scr, TwmWindow *twin)
+{
+    Bool present;
+
+    present = Get_NET_WM_HANDLED_ICONS(twin->w);
+    twin->ewmh.props._NET_WM_HANDLED_ICONS = present;
+    TwmUpdWMHandledIcons(scr);
 }
 
 static void
@@ -3791,7 +3924,7 @@ Get_NET_WM_USER_TIME_WINDOW(Window window, Window *time_window)
 }
 
 static void
-Ret_NET_WM_USER_TIME_WINDOW(ScreenInfo *scr, TwmWindow *twin)
+Ini_NET_WM_USER_TIME_WINDOW(ScreenInfo *scr, TwmWindow *twin)
 {
     Bool present;
     Window time_window = None;
@@ -3892,7 +4025,7 @@ Get_NET_WM_USER_TIME(Window window, Time *time)
   * @param twin - TWM window
   *
   * Should be called when mapping a window and a startup notification sequence
-  * has been assigned (after calling Ret_NET_WM_USER_TIME()).  When there is a
+  * has been assigned (after calling Ini_NET_WM_USER_TIME()).  When there is a
   * startup notification sequence associated with the window with a TIMESTAMP=
   * field (or a timestamp embedded in the ID= field), we set that when there is
   * no property.
@@ -3915,6 +4048,37 @@ Upd_NET_WM_USER_TIME(ScreenInfo *scr, TwmWindow *twin)
     }
 }
 
+static void
+Ini_NET_WM_USER_TIME(ScreenInfo *scr, TwmWindow *twin)
+{
+    Bool present;
+    Time time = CurrentTime;
+    Window window = twin->w;
+
+    TwmGetWMUserTimeWindow(scr, twin, &window);
+    if ((present = Get_NET_WM_USER_TIME(window, &time))) {
+	EwmhSequence *seq;
+
+	TwmSetUserTime(time);
+
+	if ((seq = twin->ewmh.sequence) != NULL && seq->field.timestamp == NULL
+	    || seq->numb.timestamp == 0) {
+	    char *str;
+
+	    if ((str = calloc(32, 1)) == NULL)
+		return;
+	    snprintf(str, 31, "%d", time);
+	    free(seq->field.timestamp);
+	    seq->field.timestamp = str;
+	    seq->numb.timestamp = time;
+	    Chg_NET_STARTUP_INFO(scr, seq);
+	}
+    }
+    twin->ewmh.props._NET_WM_USER_TIME = present;
+    twin->ewmh.user_time = time;
+    Upd_NET_WM_USER_TIME(scr, twin);
+}
+
 /** @brief Retrieve the user time.
   * @param twin - TWM window
   *
@@ -3931,10 +4095,9 @@ Ret_NET_WM_USER_TIME(ScreenInfo *scr, TwmWindow *twin)
 
     TwmGetWMUserTimeWindow(scr, twin, &window);
     if ((present = Get_NET_WM_USER_TIME(window, &time)))
-	TwmSetWMUserTime(scr, twin, time);
+	TwmSetUserTime(time);
     twin->ewmh.props._NET_WM_USER_TIME = present;
     twin->ewmh.user_time = time;
-    Upd_NET_WM_USER_TIME(scr, twin);
 }
 
 /** @} */
@@ -4578,6 +4741,17 @@ Upd_NET_WM_FULLSCREEN_MONITORS(ScreenInfo *scr, TwmWindow *twin)
 }
 
 static void
+Ini_NET_WM_FULLSCREEN_MONITORS(ScreenInfo *scr, TwmWindow *twin)
+{
+    Bool present;
+    struct NetMonitors monitors = { 0, 0, 0, 0 };
+
+    present = Get_NET_WM_FULLSCREEN_MONITORS(twin->w, &monitors);
+    twin->ewmh.props._NET_WM_FULLSCREEN_MONITORS = present;
+    twin->ewmh.monitors = monitors;
+}
+
+static void
 Ret_NET_WM_FULLSCREEN_MONITORS(ScreenInfo *scr, TwmWindow *twin)
 {
     Bool present;
@@ -5102,12 +5276,12 @@ Seq_NET_STARTUP_ID(ScreenInfo *scr, TwmWindow *twin)
 	return (seq);
 
     /* ensure that these were called before searching */
-    Ret_WM_CLASS(twin);
-    Ret_WM_CLIENT_MACHINE(scr, twin);
-    Ret_WM_COMMAND(scr, twin);
-    Ret_NET_WM_PID(scr, twin);
-    Ret_NET_WM_USER_TIME_WINDOW(scr, twin);
-    Ret_NET_WM_USER_TIME(scr, twin);
+    // Ini_WM_CLASS(twin);
+    // Ini_WM_CLIENT_MACHINE(scr, twin);
+    // Ini_WM_COMMAND(scr, twin);
+    // Ini_NET_WM_PID(scr, twin);
+    // Ini_NET_WM_USER_TIME_WINDOW(scr, twin);
+    // Ini_NET_WM_USER_TIME(scr, twin);
 
     if ((seq = find_seq(scr, twin)) != NULL) {
 	Bool force = False;
@@ -5138,11 +5312,11 @@ Upd_NET_STARTUP_ID(ScreenInfo *scr, TwmWindow *twin)
 	    twin->ewmh.startup_id = startup_id;
 
 	    /* update these from sequence if not done already or otherwise set */
-	    Upd_NET_WM_FULLSCREEN_MONITORS(scr, twin);
-	    Upd_NET_WM_DESKTOP(scr, twin);
-	    Upd_NET_WM_USER_TIME(scr, twin);
-	    Upd_WM_CLIENT_MACHINE(scr, twin);
-	    Upd_NET_WM_PID(scr, twin);
+	    // Upd_NET_WM_FULLSCREEN_MONITORS(scr, twin);
+	    // Upd_NET_WM_DESKTOP(scr, twin);
+	    // Upd_NET_WM_USER_TIME(scr, twin);
+	    // Upd_WM_CLIENT_MACHINE(scr, twin);
+	    // Upd_NET_WM_PID(scr, twin);
 	}
     }
 }
@@ -5155,7 +5329,7 @@ Upd_NET_STARTUP_ID(ScreenInfo *scr, TwmWindow *twin)
   * itself, and then any group leader window that is associated with the window.
   */
 static void
-Ret_NET_STARTUP_ID(ScreenInfo *scr, TwmWindow *twin)
+Ini_NET_STARTUP_ID(ScreenInfo *scr, TwmWindow *twin)
 {
     Bool present;
     char *startup_id = NULL;
@@ -6101,6 +6275,20 @@ Upd_NET_WM_DESKTOP_MASK(ScreenInfo *scr, TwmWindow *twin)
     }
 }
 
+static void
+Ini_NET_WM_DESKTOP_MASK(ScreenInfo *scr, TwmWindow *twin)
+{
+    Bool present;
+    long *mask = NULL;
+    int masks = 0;
+
+    present = Get_NET_WM_DESKTOP_MASK(twin->w, &mask, &masks);
+    twin->ewmh.props._NET_WM_DESKTOP_MASK = present;
+    free(twin->ewmh.mask);
+    twin->ewmh.mask = mask;
+    twin->ewmh.masks = masks;
+}
+
 /** @brief Retrieve the desktop mask for a window.
   * @param twin - TWM window
   *
@@ -6207,6 +6395,17 @@ Upd_NET_VIRTUAL_POS(ScreenInfo *scr, TwmWindow *twin)
 	twin->ewmh.props._NET_VIRTUAL_POS = 1;
 	twin->ewmh.virtual_pos = virtual_pos;
     }
+}
+
+static void
+Ini_NET_VIRTUAL_POS(ScreenInfo *scr, TwmWindow *twin)
+{
+    Bool present;
+    struct NetPosition virtual_pos = { 0, 0 };
+
+    present = Get_NET_VIRTUAL_POS(twin->w, &virtual_pos);
+    twin->ewmh.props._NET_VIRTUAL_POS = present;
+    twin->ewmh.virtual_pos = virtual_pos;
 }
 
 static void
@@ -6513,38 +6712,34 @@ AddWindowEwmh(ScreenInfo *scr, TwmWindow *twin)
     if (scr->ewmh.handled_icons)
 	twin->iconify_by_unmapping = TRUE;
 
-    Ret_WM_CLASS(twin);
-    Ret_NET_WM_PROTOCOLS(twin);
-    Ret_WM_CLIENT_MACHINE(scr, twin);
-    Ret_WM_COMMAND(scr, twin);
-    Ret_NET_WM_PID(scr, twin);
-    Ret_NET_WM_USER_TIME_WINDOW(scr, twin);
-    Ret_NET_WM_USER_TIME(scr, twin);
-    Ret_NET_STARTUP_ID(scr, twin);
+    Ini_WM_CLASS(twin);
+    Ini_NET_WM_PROTOCOLS(twin);
+    Ini_WM_CLIENT_MACHINE(scr, twin);
+    Ini_WM_COMMAND(scr, twin);
+    Ini_NET_WM_PID(scr, twin);
+    Ini_NET_WM_USER_TIME_WINDOW(scr, twin);
+    Ini_NET_WM_USER_TIME(scr, twin);
+    Ini_NET_STARTUP_ID(scr, twin);
 
-    Ret_NET_WM_DESKTOP(scr, twin);
-    Ret_NET_WM_DESKTOP_MASK(scr, twin);
+    Ini_NET_WM_DESKTOP(scr, twin);
+    Ini_NET_WM_DESKTOP_MASK(scr, twin);
 
-    Ret_NET_WM_NAME(twin);
-    Upd_NET_WM_VISIBLE_NAME(twin);
-    Ret_NET_WM_ICON_NAME(twin);
-    Upd_NET_WM_VISIBLE_ICON_NAME(twin);
-    Ret_NET_WM_WINDOW_TYPE(twin);
-    Ret_NET_WM_STATE(twin);
-    Upd_NET_WM_ALLOWED_ACTIONS(twin);
-    Ret_NET_WM_STRUT_PARTIAL(scr, twin);
-    Ret_NET_WM_ICON_GEOMETRY(twin);
-    Ret_NET_WM_ICON(twin);
-    Ret_NET_WM_HANDLED_ICONS(scr, twin);
-    Upd_NET_FRAME_EXTENTS(twin);
+    Ini_NET_WM_NAME(twin);
+    Ini_NET_WM_ICON_NAME(twin);
+    Ini_NET_WM_WINDOW_TYPE(twin);
+    Ini_NET_WM_STATE(twin);
+    Ini_NET_WM_STRUT_PARTIAL(scr, twin);
+    Ini_NET_WM_ICON_GEOMETRY(twin);
+    Ini_NET_WM_ICON(twin);
+    Ini_NET_WM_HANDLED_ICONS(scr, twin);
     // Ret_NET_WM_OPAQUE_REGION(twin);
     // Ret_NET_WM_BYPASS_COMPOSITOR(twin);
-    Ret_NET_WM_FULLSCREEN_MONITORS(scr, twin);
+    Ini_NET_WM_FULLSCREEN_MONITORS(scr, twin);
     // Ret_NET_WM_WINDOW_OPACITY(twin);
-    Ret_NET_VIRTUAL_POS(scr, twin);
+    Ini_NET_VIRTUAL_POS(scr, twin);
 
-    Upd_NET_CLIENT_LIST(scr);
-    Upd_NET_CLIENT_LIST_STACKING(scr);
+    // Upd_NET_CLIENT_LIST(scr);
+    // Upd_NET_CLIENT_LIST_STACKING(scr);
 }
 
 /** @brief Update a window in the EWMH sense.
@@ -6555,7 +6750,7 @@ AddWindowEwmh(ScreenInfo *scr, TwmWindow *twin)
   * nor whether a change has actually occured.
   */
 void
-UpdateWindowEwmh(ScreenInfo *scr, TwmWindow *twin)
+UpdWindowEwmh(ScreenInfo *scr, TwmWindow *twin)
 {
     Upd_NET_WM_VISIBLE_NAME(twin);
     Upd_NET_WM_VISIBLE_ICON_NAME(twin);

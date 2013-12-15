@@ -272,6 +272,16 @@ TwmWindow *AddWindow(Window w, int iconm, IconMgr *iconp)
     FetchWmProtocols (tmp_win);
     FetchWmColormapWindows (tmp_win);
 
+#ifdef EWMH
+    AddWindowEwmh(Scr, tmp_win);
+#endif				/* EWMH */
+#ifdef WMH
+    AddWindowWmh(Scr, tmp_win);
+#endif				/* WMH */
+#ifdef MWMH
+    AddWindowMwmh(Scr, tmp_win);
+#endif				/* MWMH */
+
     if (GetWindowConfig (tmp_win,
 	&saved_x, &saved_y, &saved_width, &saved_height,
 	&restore_iconified, &restore_icon_info_present,

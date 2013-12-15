@@ -632,7 +632,7 @@ void UpdateEwmh(ScreenInfo *scr);
 void TermEwmh(ScreenInfo *scr);
 
 void AddWindowEwmh(ScreenInfo *scr, TwmWindow *twin);
-void UpdateWindowEwmh(ScreenInfo *scr, TwmWindow *twin);
+void UpdWindowEwmh(ScreenInfo *scr, TwmWindow *twin);
 void DelWindowEwmh(ScreenInfo *scr, TwmWindow *twin);
 
 /* Event handlers */
@@ -681,8 +681,6 @@ void TwmStartMoveResize(TwmWindow *twin, int x_root, int y_root,
 void TwmRestackWindow(TwmWindow *twin, unsigned mask, XWindowChanges *changes,
 		      enum _NET_SOURCE source);
 void TwmGetWMClientMachine(ScreenInfo *scr, TwmWindow *twin, char **machine);
-void TwmSetWMClientMachine(ScreenInfo *scr, TwmWindow *twin, char *machine);
-void TwmSetWMCommand(ScreenInfo *scr, TwmWindow *twin, char **command, int count);
 void TwmEstFrameExtents(Window window, struct NetExtents *extents);
 void TwmSetWMName(TwmWindow *twin, char *name);
 void TwmGetWMVisibleName(TwmWindow *twin, char **name);
@@ -700,14 +698,11 @@ void TwmChgWMState(ScreenInfo *scr, TwmWindow *twin, int action1, int action2,
 		   unsigned action, unsigned source);
 void TwmGetWMAllowedActions(TwmWindow *twin, unsigned *flags);
 void TwmGetWMPid(ScreenInfo *scr, TwmWindow *twin, pid_t *pid);
-void TwmSetWMPid(ScreenInfo *scr, TwmWindow *twin, pid_t pid);
-void TwmSetWMIcon(TwmWindow *twin, struct NetIcon *icon);
 void TwmUpdWMHandledIcons(ScreenInfo *scr);
 void TwmGetWMUserTimeWindow(ScreenInfo *scr, TwmWindow *twin, Window *time_window);
 void TwmSetWMUserTimeWindow(ScreenInfo *scr, TwmWindow *twin, Window time_window);
 void TwmDelWMUserTimeWindow(ScreenInfo *scr, TwmWindow *twin, Window time_window);
 void TwmGetWMUserTime(ScreenInfo *scr, TwmWindow *twin, Time *time);
-void TwmSetWMUserTime(ScreenInfo *scr, TwmWindow *twin, Time time);
 void TwmSetUserTime(Time time);
 void TwmGetUserTime(Time *time);
 void TwmGetWMFrameExtents(TwmWindow *twin, struct NetExtents *extents);

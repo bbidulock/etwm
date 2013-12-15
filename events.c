@@ -2444,13 +2444,13 @@ void HandleMapRequest(void)
 	GnomeAddClientWindow (Tmp_win); /* add the new window to the gnome client list */
 #endif /* GNOME */
 #ifdef EWMH
-	AddWindowEwmh(Scr, Tmp_win);
+	UpdWindowEwmh(Scr, Tmp_win);
 #endif				/* EWMH */
 #ifdef WMH
-	AddWindowWmh(Scr, Tmp_win);
+	UpdWindowWmh(Scr, Tmp_win);
 #endif				/* WMH */
 #ifdef MWMH
-	AddWindowMwmh(Scr, Tmp_win);
+	UpdWindowMwmh(Scr, Tmp_win);
 #endif				/* MWMH */
     }
     else

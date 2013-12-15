@@ -916,51 +916,6 @@ TwmGetWMClientMachine(ScreenInfo *scr, TwmWindow *twin, char **machine)
     *machine = strdup(seq->field.hostname);
 }
 
-/** @brief Set the client machine for a window.
-  * @param scr - screen
-  * @param twin - TWM window
-  * @param machine - machine to set
-  *
-  * This sets the specified hostname in the HOSTNAME= field of the associated
-  * startup notification sequence, if any, and sends a startup notification
-  * change message when there has been a change.
-  */
-void
-TwmSetWMClientMachine(ScreenInfo *scr, TwmWindow *twin, char *machine)
-{
-    EwmhSequence *seq;
-
-    if (machine == NULL)
-	return;
-    if ((seq = twin->ewmh.sequence) != NULL
-	&& (seq->field.hostname == NULL || seq->field.hostname[0] == '\0')) {
-	free(seq->field.hostname);
-	seq->field.hostname = strdup(machine);
-	Chg_NET_STARTUP_INFO(scr, seq);
-    }
-}
-
-/** @brief Set the command for a window.
-  * @param scr - screen
-  * @param twin - TWM window
-  * @param command - argv[]
-  * @param count - argc
-  */
-void
-TwmSetWMCommand(ScreenInfo *scr, TwmWindow *twin, char **command, int count)
-{
-    EwmhSequence *seq;
-
-    if (command == NULL || count == 0)
-	return;
-    if ((seq = twin->ewmh.sequence) != NULL
-	    && (seq->field.command == NULL || seq->field.command[0] == '\0')) {
-	free(seq->field.command);
-	seq->field.command = make_command_from_argv(command);
-	Chg_NET_STARTUP_INFO(scr, seq);
-    }
-}
-
 /** @brief Estimate the frame extents for a window
   * @param window - window to estimate
   * @param extents - where to store the extents
@@ -1806,11 +1761,6 @@ TwmGetWMAllowedActions(TwmWindow *twin, unsigned *allowed)
 	*allowed |= _NET_WM_ACTION_BELOW;
 }
 
-void
-TwmSetWMIcon(TwmWindow *twin, struct NetIcon *icon)
-{
-}
-
 /** @brief Get the pid for a window.
   * @param scr - screen
   * @param twin - TWM window
@@ -2032,36 +1982,6 @@ TwmGetWMUserTime(ScreenInfo *scr, TwmWindow *twin, Time *time)
 	    seq->numb.timestamp != 0) {
 	*time = seq->numb.timestamp;
 	TwmSetUserTime(*time);
-    }
-}
-
-/** @brief Set the user time for a window.
-  * @param scr - screen
-  * @param twin - TWM window
-  * @param time - user time to set
-  *
-  * This sets the specified process id valud in the TIMESTAMP= field of the
-  * associated startup notification sequence, if any, and sends a notification
-  * change message when possible.
-  */
-void
-TwmSetWMUserTime(ScreenInfo *scr, TwmWindow *twin, Time time)
-{
-    EwmhSequence *seq;
-
-    TwmSetUserTime(time);
-
-    if ((seq = twin->ewmh.sequence) != NULL && seq->field.timestamp == NULL
-	|| seq->numb.timestamp == 0) {
-	char *str;
-
-	if ((str = calloc(32, 1)) == NULL)
-	    return;
-	snprintf(str, 31, "%d", time);
-	free(seq->field.timestamp);
-	seq->field.timestamp = str;
-	seq->numb.timestamp = time;
-	Chg_NET_STARTUP_INFO(scr, seq);
     }
 }
 

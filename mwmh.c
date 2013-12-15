@@ -371,12 +371,22 @@ Upd_DT_WORKSPACE_LIST(ScreenInfo *scr)
 
     TwmGetWorkspaceList(scr, &list, &count);
     if (!scr->mwmh.props._DT_WORKSPACE_LIST || cmp_atom_list(scr->mwmh.list, list) != 0) {
-	Set_DT_WORKSPACE_LIST(TwmMwmManager(scr), list, count);
+	Set_DT_WORKSPACE_LIST(TwmMwmInfo(scr), list, count);
 	scr->mwmh.props._DT_WORKSPACE_LIST = 1;
 	free(scr->mwmh.list);
 	scr->mwmh.list = list;
     }
 }
+
+static void
+Del_DT_WORKSPACE_LIST(ScreenInfo *scr)
+{
+    XDeleteProperty(dpy, TwmMwmInfo(scr), _XA_DT_WORKSPACE_LIST);
+    scr->mwmh.props._DT_WORKSPACE_LIST = 0;
+    free(scr->mwmh.list);
+    scr->mwmh.list = NULL;
+}
+
 
 /** @} */
 
@@ -444,10 +454,18 @@ Upd_DT_WORKSPACE_CURRENT(ScreenInfo *scr)
 
     TwmGetWorkspaceCurrent(scr, &current);
     if (!scr->mwmh.props._DT_WORKSPACE_CURRENT || scr->mwmh.current != current) { 
-	Set_DT_WORKSPACE_CURRENT(TwmMwmManager(scr), current);
+	Set_DT_WORKSPACE_CURRENT(TwmMwmInfo(scr), current);
 	scr->mwmh.props._DT_WORKSPACE_CURRENT = 1;
 	scr->mwmh.current = current;
     }
+}
+
+static void
+Del_DT_WORKSPACE_CURRENT(ScreenInfo *scr)
+{
+    XDeleteProperty(dpy, TwmMwmInfo(scr), _XA_DT_WORKSPACE_CURRENT);
+    scr->mwmh.props._DT_WORKSPACE_CURRENT = 0;
+    scr->mwmh.current = None;
 }
 
 
@@ -463,6 +481,17 @@ Upd_DT_WORKSPACE_CURRENT(ScreenInfo *scr)
   * property is placed on the mwm window.
   *
   * The window manager sets this property.
+  *
+  * The property contains:
+  *
+  * %s    title of the workspace
+  * %d    color set
+  * 0x%lx backdrop background
+  * 0x%lx backdrop foreground
+  * 0x%lx backdrop name atom
+  * %d    number of backdrop windows
+  * 0x%lx backdrop window
+  * 0x%lx backdrop window ... for number of backdrop windows
   *
   * @{ */
 
@@ -490,6 +519,16 @@ Upd_DT_WORKSPACE_CURRENT(ScreenInfo *scr)
   * is "f.change_backdrop /usr/share/images/penguins/penguin.jpg 800003f".
   *
   * @{ */
+
+
+static void
+Del_DT_WM_REQUEST(ScreenInfo *scr)
+{
+    XDeleteProperty(dpy, TwmMwmInfo(scr), _XA_DT_WM_REQUEST);
+    Scr->mwmh.props._DT_WM_REQUEST = 0;
+    free(Scr->mwmh.request);
+    Scr->mwmh.request = NULL;
+}
 
 /** @} */
 
@@ -540,17 +579,25 @@ Get_MWM_WM_PROTOCOLS(Window window, unsigned *protocols)
 }
 
 static void
-Ret_MWM_WM_PROTOCOLS(TwmWindow *twin)
+Ini_MWM_WM_PROTOCOLS(TwmWindow *twin)
 {
+    Bool present;
     unsigned protocols = 0;
 
-    if (Get_MWM_WM_PROTOCOLS(twin->w, &protocols)) {
-	twin->mwmh.props.WM_PROTOCOLS = 1;
-	twin->mwmh.protocols = protocols;
-    } else {
-	twin->mwmh.props.WM_PROTOCOLS = 0;
-	twin->mwmh.protocols = protocols;
-    }
+    present = Get_MWM_WM_PROTOCOLS(twin->w, &protocols);
+    twin->mwmh.props.WM_PROTOCOLS = present;
+    twin->mwmh.protocols = protocols;
+}
+
+static void
+Ret_MWM_WM_PROTOCOLS(TwmWindow *twin)
+{
+    Bool present;
+    unsigned protocols = 0;
+
+    present = Get_MWM_WM_PROTOCOLS(twin->w, &protocols);
+    twin->mwmh.props.WM_PROTOCOLS = present;
+    twin->mwmh.protocols = protocols;
 }
 
 /** @} */
@@ -685,6 +732,18 @@ Upd_MOTIF_WM_HINTS(ScreenInfo *scr, TwmWindow *twin)
     }
 }
 
+static void
+Ini_MOTIF_WM_HINTS(ScreenInfo *scr, TwmWindow *twin)
+{
+    Bool present;
+    MwmHints hints = { 0, 0, 0, 0, 0 };
+
+    if ((present = Get_MOTIF_WM_HINTS(twin->w, &hints)))
+	TwmIniMwmHints(scr, twin, &hints);
+    twin->mwmh.props._MOTIF_WM_HINTS = present;
+    twin->mwmh.hints = hints;
+}
+
 /** @brief Retrieve or set the hints for a window.
   * @param scr- screen
   * @param twin - TWM window
@@ -695,17 +754,13 @@ Upd_MOTIF_WM_HINTS(ScreenInfo *scr, TwmWindow *twin)
 static void
 Ret_MOTIF_WM_HINTS(ScreenInfo *scr, TwmWindow *twin)
 {
+    Bool present;
     MwmHints hints = { 0, 0, 0, 0, 0 };
 
-    if (Get_MOTIF_WM_HINTS(twin->w, &hints)) {
+    if ((present = Get_MOTIF_WM_HINTS(twin->w, &hints)))
 	TwmSetMwmHints(scr, twin, &hints);
-	twin->mwmh.props._MOTIF_WM_HINTS = 1;
-	twin->mwmh.hints = hints;
-    } else {
-	TwmSetMwmHints(scr, twin, &hints);
-	twin->mwmh.props._MOTIF_WM_HINTS = 0;
-	twin->mwmh.hints = hints;
-    }
+    twin->mwmh.props._MOTIF_WM_HINTS = present;
+    twin->mwmh.hints = hints;
     Upd_MOTIF_WM_HINTS(scr, twin);
 }
 
@@ -825,7 +880,7 @@ Snd_MOTIF_WM_OFFSET(ScreenInfo *scr, TwmWindow *twin)
   * @{ */
 
 static void
-Set_DT_WORKSPACE_HINTS(Window window, struct DtWmWorkspaceHints *hints)
+Set_DT_WORKSPACE_HINTS(Window window, DtWmWorkspaceHints *hints)
 {
     int n;
     int len =
@@ -847,7 +902,7 @@ Set_DT_WORKSPACE_HINTS(Window window, struct DtWmWorkspaceHints *hints)
 }
 
 static Bool
-Get_DT_WORKSPACE_HINTS(Window window, struct DtWmWorkspaceHints *hints)
+Get_DT_WORKSPACE_HINTS(Window window, DtWmWorkspaceHints *hints)
 {
     Atom actual_type = None;
     int status, actual_format = 0, n;
@@ -887,8 +942,29 @@ Upd_DT_WORKSPACE_HINTS(ScreenInfo *scr, TwmWindow *twin)
 }
 
 void
+Ini_DT_WORKSPACE_HINTS(ScreenInfo *scr, TwmWindow *twin)
+{
+    Bool present;
+    DtWmWorkspaceHints wshints = { 0, 0, 0, 0, NULL };
+
+    if ((present = Get_DT_WORKSPACE_HINTS(twin->w, &wshints)))
+	TwmIniWorkspaceHints(scr, twin, &wshints);
+    twin->mwmh.props._DT_WORKSPACE_HINTS = present;
+    free(twin->mwmh.wshints.workspaces);
+    twin->mwmh.wshints = wshints;
+}
+
+void
 Ret_DT_WORKSPACE_HINTS(ScreenInfo *scr, TwmWindow *twin)
 {
+    Bool present;
+    DtWmWorkspaceHints wshints = { 0, 0, 0, 0, NULL };
+
+    if ((present = Get_DT_WORKSPACE_HINTS(twin->w, &wshints)))
+	TwmSetWorkspaceHints(scr, twin, &wshints);
+    twin->mwmh.props._DT_WORKSPACE_HINTS = present;
+    free(twin->mwmh.wshints.workspaces);
+    twin->mwmh.wshints = wshints;
 }
 
 /** @} */
@@ -941,6 +1017,15 @@ Upd_DT_WORKSPACE_PRESENCE(ScreenInfo *scr, TwmWindow *twin)
 	free(presence);
 }
 
+void
+Del_DT_WORKSPACE_PRESENCE(TwmWindow *twin)
+{
+    XDeleteProperty(dpy, twin->w, _XA_DT_WORKSPACE_PRESENCE);
+    twin->mwmh.props._DT_WORKSPACE_PRESENCE = 0;
+    free(twin->mwmh.presence);
+    twin->mwmh.presence = NULL;
+}
+
 /** @} */
 
 /** @name _DT_WM_HINTS
@@ -959,7 +1044,7 @@ Upd_DT_WORKSPACE_PRESENCE(ScreenInfo *scr, TwmWindow *twin)
   * @param hints - where to store the desktop hints
   */
 static Bool
-Get_DT_WM_HINTS(Window window, struct DtWmHints *hints)
+Get_DT_WM_HINTS(Window window, DtWmHints *hints)
 {
     Atom actual_type = None;
     int status, actual_format = 0;
@@ -975,9 +1060,21 @@ Get_DT_WM_HINTS(Window window, struct DtWmHints *hints)
 	    XFree(prop);
 	return False;
     }
-    *hints = *(struct DtWmHints *) prop;
+    *hints = *(DtWmHints *) prop;
     XFree(prop);
     return True;
+}
+
+static void
+Ini_DT_WM_HINTS(TwmWindow *twin)
+{
+    Bool present;
+    DtWmHints hints = { 0, 0, 0, 0 };
+
+    if ((present = Get_DT_WM_HINTS(twin->w, &hints)))
+	TwmIniDtWmHints(twin, &hints);
+    twin->mwmh.props._MOTIF_WM_HINTS = present;
+    twin->mwmh.dthints = hints;
 }
 
 /** @brief Retrieve the desktop hints for a window.
@@ -989,17 +1086,13 @@ Get_DT_WM_HINTS(Window window, struct DtWmHints *hints)
 static void
 Ret_DT_WM_HINTS(TwmWindow *twin)
 {
-    struct DtWmHints hints = { 0, 0, 0, 0 };
+    Bool present;
+    DtWmHints hints = { 0, 0, 0, 0 };
 
-    if (Get_DT_WM_HINTS(twin->w, &hints)) {
+    if ((present = Get_DT_WM_HINTS(twin->w, &hints)))
 	TwmSetDtWmHints(twin, &hints);
-	twin->mwmh.props._MOTIF_WM_HINTS = 1;
-	twin->mwmh.dthints = hints;
-    } else {
-	TwmSetDtWmHints(twin, &hints);
-	twin->mwmh.props._MOTIF_WM_HINTS = 0;
-	twin->mwmh.dthints = hints;
-    }
+    twin->mwmh.props._MOTIF_WM_HINTS = present;
+    twin->mwmh.dthints = hints;
 }
 
 /** @} */
@@ -1109,13 +1202,37 @@ UpdateMwmh(ScreenInfo *scr)
   *
   * This function is called when TWM prepares to restart, but is not called when
   * TWM shuts down gracefully.  In that case, TermMwmh() is called instead.
+  *
+  * Normally we would update the root window properties in preparation for
+  * restart; however, MWM properties are on an info window that will disappear
+  * so they won't be available after the restart anyhoo.  We could update the
+  * properties on the root window and then point _MOTIF_WM_INFO to the root
+  * window (which is what Lesstif MWM does), but it is not too clean.
   */
 void
 RestartMwmh(ScreenInfo *scr)
 {
-    /* Info window properties */
+    /* switch info window to root window for restart */
+    scr->mwmh.info.wm_window = TwmMwmRoot(scr);
+
+#ifdef DEBUG_MWMH
+    fprintf(stderr, "Updating _DT_WORKSPACE_LIST for restart\n");
+    fflush(stderr);
+#endif
+    scr->mwmh.props._DT_WORKSPACE_LIST = 0;
     Upd_DT_WORKSPACE_LIST(scr);
+#ifdef DEBUG_MWMH
+    fprintf(stderr, "Updating _DT_WORKSPACE_CURRENT for restart\n");
+    fflush(stderr);
+#endif
+    scr->mwmh.props._DT_WORKSPACE_CURRENT = 0;
     Upd_DT_WORKSPACE_CURRENT(scr);
+#ifdef DEBUG_MWMH
+    fprintf(stderr, "Updating _MOTIF_WM_INFO for restart\n");
+    fflush(stderr);
+#endif
+    scr->mwmh.props._MOTIF_WM_INFO = 0;
+    Upd_MOTIF_WM_INFO(scr);
 }
 
 /** @brief Terminate the window manager in the Motif/MWMH sense.
@@ -1126,7 +1243,9 @@ RestartMwmh(ScreenInfo *scr)
 void
 TermMwmh(ScreenInfo *scr)
 {
-    /* Delete reference to info windowfrom root */
+    Del_DT_WORKSPACE_LIST(scr);
+    Del_DT_WORKSPACE_CURRENT(scr);
+    Del_DT_WM_REQUEST(scr);
     Del_MOTIF_WM_INFO(scr);
 }
 
@@ -1146,17 +1265,36 @@ TermMwmh(ScreenInfo *scr)
 void
 AddWindowMwmh(ScreenInfo *scr, TwmWindow *twin)
 {
-    /* retrieve WM_PROTOCOLS */
-    Ret_MWM_WM_PROTOCOLS(twin);
-
-    /* Get or set application window properties */
-    Ret_DT_WM_HINTS(twin);
+#ifdef DEBUG_MWMH
+    fprintf(stderr, "Initializing WM_PROTOCOLS from window 0x%08x.\n", twin->w);
+    fflush(stderr);
+#endif
+    Ini_MWM_WM_PROTOCOLS(twin);
+#ifdef DEBUG_MWMH
+    fprintf(stderr, "Initializing _MOTIF_WM_HINTS from window 0x%08x.\n", twin->w);
+    fflush(stderr);
+#endif
+    Ini_MOTIF_WM_HINTS(scr, twin);
+#ifdef DEBUG_MWMH
+    fprintf(stderr, "Initializing _DT_WM_HINTS from window 0x%08x.\n", twin->w);
+    fflush(stderr);
+#endif
+    Ini_DT_WM_HINTS(twin);
+#ifdef DEBUG_MWMH
+    fprintf(stderr, "Initializing _DT_WORKSPACE_HINTS from window 0x%08x.\n", twin->w);
+    fflush(stderr);
+#endif
+    Ini_DT_WORKSPACE_HINTS(scr, twin);
 }
 
 void
 UpdWindowMwmh(ScreenInfo *scr, TwmWindow *twin)
 {
-    Ret_DT_WM_HINTS(twin);
+#ifdef DEBUG_MWMH
+    fprintf(stderr, "Updating _DT_WORKSPACE_PRESENCE for window 0x%08x.\n", twin->w);
+    fflush(stderr);
+#endif
+    Upd_DT_WORKSPACE_PRESENCE(scr, twin);
 }
 
 /** @brief Withdraw a window in the MWMH sense.
@@ -1172,12 +1310,25 @@ DelWindowMwmh(ScreenInfo *scr, TwmWindow *twin)
 {
     MwmWindow *mwin;
 
+#ifdef DEBUG_MWMH
+    fprintf(stderr, "Deleting _DT_WORKSPACE_PRESENCE from window 0x%08x.\n", twin->w);
+    fflush(stderr);
+#endif
+    Del_DT_WORKSPACE_PRESENCE(twin);
+
     /* free some things */
     mwin = &twin->mwmh;
 
+    free(mwin->bindings);
+    mwin->bindings = NULL;
+    free(mwin->default_bindings);
+    mwin->default_bindings = NULL;
+    free(mwin->menu);
+    mwin->menu = NULL;
     free(mwin->wshints.workspaces);
     mwin->wshints.workspaces = NULL;
-
+    free(mwin->presence);
+    mwin->presence = NULL;
 }
 
 /** @} */
@@ -1229,6 +1380,8 @@ HandleMwmPropertyNotify(ScreenInfo *scr, TwmWindow *twin, XEvent *xev)
 	    Ret_MOTIF_WM_HINTS(scr, twin);
 	} else if (atom == _XA_DT_WM_HINTS) {
 	    Ret_DT_WM_HINTS(twin);
+	} else if (atom == _XA_DT_WORKSPACE_HINTS) {
+	    Ret_DT_WORKSPACE_HINTS(scr, twin);
 	} else
 	    return False;
     } else {

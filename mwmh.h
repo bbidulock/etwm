@@ -258,13 +258,13 @@ typedef struct MwmWindow {
     unsigned desktop;			/* WM_DESKTOP */
     char *bindings;			/* _MOTIF_BINDINGS */
     char *default_bindings;		/* _MOTIF_DEFAULT_BINDINGS */
-    struct MotifWMHints hints;		/* _MOTIF_WM_HINTS */
+    MwmHints hints;			/* _MOTIF_WM_HINTS */
     Bool messages;			/* _MOTIF_WM_MESSAGES */
     Bool offset;			/* _MOTIF_WM_OFFSET */
     char *menu;				/* _MOTIF_WM_MENU */
-    struct DtWmWorkspaceHints wshints;	/* _DT_WORKSPACE_HINTS */
+    DtWmWorkspaceHints wshints;		/* _DT_WORKSPACE_HINTS */
     Atom *presence;			/* _DT_WORKSPACE_PRESENCE */
-    struct DtWmHints dthints;		/* _DT_WM_HINTS */
+    DtWmHints dthints;			/* _DT_WM_HINTS */
 } MwmWindow;
 
 typedef struct MwmScreenBits {
@@ -310,14 +310,26 @@ Bool HandleMwmPropertyNotify(ScreenInfo *scr, TwmWindow *twin, XEvent *xev);
 
 Window TwmMwmRoot(ScreenInfo *scr);
 Window TwmMwmManager(ScreenInfo *scr);
+Window TwmMwmInfo(ScreenInfo *scr);
 
 void TwmGetMwmInfo(ScreenInfo *scr, MwmInfo *info);
+
 void TwmGetMwmHints(ScreenInfo *scr, TwmWindow *twin, MwmHints *hints);
 void TwmSetMwmHints(ScreenInfo *scr, TwmWindow *twin, MwmHints *hints);
-void TwmSetDtWmHints(TwmWindow *twin, struct DtWmHints *hints);
+void TwmIniMwmHints(ScreenInfo *scr, TwmWindow *twin, MwmHints *hints);
+
+void TwmSetDtWmHints(TwmWindow *twin, DtWmHints *hints);
+void TwmIniDtWmHints(TwmWindow *twin, DtWmHints *hints);
+
 void TwmGetMwmOffset(ScreenInfo *scr, TwmWindow *twin, long *gravity, long *bw, long *x_off, long *y_off);
+
+void TwmSetWorkspaceHints(ScreenInfo *scr, TwmWindow *twin, DtWmWorkspaceHints *wshints);
+void TwmIniWorkspaceHints(ScreenInfo *scr, TwmWindow *twin, DtWmWorkspaceHints *wshints);
+
 void TwmGetWorkspacePresence(ScreenInfo *scr, TwmWindow *twin, Atom **presence, int *count);
+
 void TwmGetWorkspaceCurrent(ScreenInfo *scr, Atom *current);
+
 void TwmGetWorkspaceList(ScreenInfo *scr, Atom **list, int *count);
 
 

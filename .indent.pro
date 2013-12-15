@@ -24,6 +24,8 @@
 -ss
 -nhnl
 -nbc
+-TDtWmWorkspaceHints
+-TDtWmHints
 -TWorkSpace
 -TMwmInfo
 -TMwmHints
