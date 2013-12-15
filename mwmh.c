@@ -1067,6 +1067,11 @@ InitMwmh(ScreenInfo *scr)
 {
     InternMwmAtoms();
 
+#ifdef DEBUG_MWMH
+    fprintf(stderr, "Initializing Motif/MWMH support.\n");
+    fflush(stderr);
+#endif
+
 #if 0
     /* Do not do this until all other things are set up in UpdateMwmh() */
     Ini_MOTIF_WM_INFO(scr);
