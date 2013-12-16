@@ -611,7 +611,7 @@ void Upd_NET_WM_VISIBLE_NAME(TwmWindow *twin);
 void Upd_NET_WM_VISIBLE_ICON_NAME(TwmWindow *twin);
 void Upd_NET_WM_DESKTOP(ScreenInfo *scr, TwmWindow *twin);
 void Upd_NET_WM_WINDOW_TYPE(TwmWindow *twin);
-void Upd_NET_WM_STATE(TwmWindow *twin);
+void Upd_NET_WM_STATE(ScreenInfo *scr, TwmWindow *twin);
 void Upd_NET_WM_ALLOWED_ACTIONS(TwmWindow *twin);
 void Upd_NET_WM_PID(ScreenInfo *scr, TwmWindow *twin);
 void Upd_NET_WM_USER_TIME(ScreenInfo *scr, TwmWindow *twin);
@@ -691,9 +691,9 @@ void TwmIniWMDesktop(ScreenInfo *scr, TwmWindow *twin, int *desktop);
 void TwmSetWMDesktop(ScreenInfo *scr, TwmWindow *twin, int desktop,
 		     enum _NET_SOURCE source);
 void TwmGetWMWindowType(TwmWindow *twin, unsigned *type);
-void TwmSetWMWindowType(TwmWindow *twin, unsigned type);
-void TwmGetWMState(TwmWindow *twin, unsigned *flags);
-void TwmSetWMState(TwmWindow *twin, unsigned state);
+void TwmIniWMWindowType(TwmWindow *twin, unsigned type);
+void TwmSetWMWindowType(ScreenInfo *scr, TwmWindow *twin, unsigned type);
+void TwmGetWMState(ScreenInfo *scr, TwmWindow *twin, unsigned *flags);
 void TwmChgWMState(ScreenInfo *scr, TwmWindow *twin, int action1, int action2,
 		   unsigned action, unsigned source);
 void TwmGetWMAllowedActions(TwmWindow *twin, unsigned *flags);
@@ -726,6 +726,7 @@ void TwmGetKdeSystemTrayWindows(ScreenInfo *scr, Window **systray, int *count);
 void TwmGetMaximizedRestore(ScreenInfo *scr, TwmWindow *twin, struct NetRestore *restore);
 void TwmSetMaximizedRestore(ScreenInfo *scr, TwmWindow *twin, struct NetRestore *restore);
 void TwmSetWMSystemTrayWindowFor(TwmWindow *twin);
+void TwmIniWMWindowTypeOverride(TwmWindow *twin);
 void TwmSetWMWindowTypeOverride(TwmWindow *twin);
 
 #endif				/* _EWMH_H_ */

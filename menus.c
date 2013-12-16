@@ -4690,7 +4690,7 @@ void Squeeze (TwmWindow *tmp_win)
     if (tmp_win->squeezed) {
 	tmp_win->squeezed = False;
 #ifdef EWMH
-	Upd_NET_WM_STATE(tmp_win);
+	Upd_NET_WM_STATE(Scr, tmp_win);
 #endif				/* EWMH */
 #ifdef WMH
 	Upd_WIN_STATE(Scr, tmp_win);
@@ -4733,7 +4733,7 @@ void Squeeze (TwmWindow *tmp_win)
 
     tmp_win->squeezed = True;
 #ifdef EWMH
-    Upd_NET_WM_STATE(tmp_win);
+    Upd_NET_WM_STATE(Scr, tmp_win);
 #endif				/* EWMH */
 #ifdef WMH
     Upd_WIN_STATE(Scr, tmp_win);

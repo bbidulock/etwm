@@ -1905,20 +1905,21 @@ void move_to_after (TwmWindow *t, TwmWindow *after)
  */
 void SetFocus (TwmWindow *tmp_win, Time	tim)
 {
+    TwmWindow *old_focus = Scr->Focus;
     Window w = (tmp_win ? tmp_win->w : PointerRoot);
     int f_iconmgr = 0;
 
-    if (Scr->Focus && (Scr->Focus->iconmgr)) f_iconmgr = 1;
+    if (old_focus && (old_focus->iconmgr)) f_iconmgr = 1;
     if (Scr->SloppyFocus && (w == PointerRoot) && (!f_iconmgr)) return;
 
     XSetInputFocus (dpy, w, RevertToPointerRoot, tim);
-    if (Scr->Focus == tmp_win) return;
+    if (old_focus == tmp_win) return;
 
-    if (Scr->Focus) {
-	if (Scr->Focus->AutoSqueeze && !Scr->Focus->squeezed) {
-	    AutoSqueeze (Scr->Focus);
+    if (old_focus) {
+	if (old_focus->AutoSqueeze && !old_focus->squeezed) {
+	    AutoSqueeze (old_focus);
 	}
-	SetFocusVisualAttributes (Scr->Focus, False);
+	SetFocusVisualAttributes (old_focus, False);
     }
     if (tmp_win)    {
 	if (tmp_win->AutoSqueeze && tmp_win->squeezed) {
@@ -1929,6 +1930,8 @@ void SetFocus (TwmWindow *tmp_win, Time	tim)
     Scr->Focus = tmp_win;
 #ifdef EWMH
     Upd_NET_ACTIVE_WINDOW(Scr);
+    if (old_focus)
+	Upd_NET_WM_STATE(Scr, old_focus);
 #endif				/* EWMH */
 #if 0
     /*

@@ -1046,7 +1046,7 @@ static void
 Ini_WIN_LAYER(TwmWindow *twin)
 {
     Bool present;
-    unsigned layer = 0;
+    unsigned layer = WIN_LAYER_NORMAL;
 
     if ((present = Get_WIN_LAYER(twin->w, &layer)))
 	TwmIniWinLayer(twin, layer);
@@ -1059,13 +1059,13 @@ Ini_WIN_LAYER(TwmWindow *twin)
  * retrieve or set the _WIN_LAYER.
  */
 static void
-Ret_WIN_LAYER(TwmWindow *twin)
+Ret_WIN_LAYER(ScreenInfo *scr, TwmWindow *twin)
 {
     Bool present;
     unsigned layer = 0;
 
     if ((present = Get_WIN_LAYER(twin->w, &layer)))
-	TwmSetWinLayer(twin, layer);
+	TwmSetWinLayer(scr, twin, layer);
     twin->wmh.props._WIN_LAYER = present;
     twin->wmh.layer = layer;
     Upd_WIN_LAYER(twin);
@@ -1089,11 +1089,11 @@ Del_WIN_LAYER(TwmWindow *twin)
  * 
  */
 static void
-Rcv_WIN_LAYER(TwmWindow *twin, XClientMessageEvent *event)
+Rcv_WIN_LAYER(ScreenInfo *scr, TwmWindow *twin, XClientMessageEvent *event)
 {
     unsigned layer = event->data.l[0];
 
-    TwmSetWinLayer(twin, layer);
+    TwmSetWinLayer(scr, twin, layer);
     Upd_WIN_LAYER(twin);
 }
 
@@ -2664,7 +2664,7 @@ HandleWinClientMessage(ScreenInfo *scr, TwmWindow *twin, XEvent *xev)
     if (twin != NULL) {
 	if (0) {
 	} else if (message_type == _XA_WIN_LAYER) {
-	    Rcv_WIN_LAYER(twin, event);
+	    Rcv_WIN_LAYER(scr, twin, event);
 	} else if (message_type == _XA_WIN_STATE) {
 	    Rcv_WIN_STATE(scr, twin, event);
 	} else if (message_type == _XA_WIN_WORKSPACE) {

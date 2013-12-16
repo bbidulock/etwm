@@ -1310,94 +1310,227 @@ TwmGetWMWindowType(TwmWindow *twin, unsigned *type)
 	*type = _NET_WM_WINDOW_TYPE_DIALOG;
 }
 
-/** @brief Set the window type.
+/** @brief Initialize the window type.
   * @param twin - TWM window
   * @param type - window type bitmask
+  *
+  * Initializes the window type to the type requested.  only initializes
+  * variables and does not effect the changes.
   */
 void
-TwmSetWMWindowType(TwmWindow *twin, unsigned type)
+TwmIniWMWindowType(TwmWindow *twin, unsigned type)
 {
-    unsigned m, j;
-    union WindowLists *list = &twin->list;
-    union WindowFunctions *func = &twin->func;
-    union WindowDecorations *decor = &twin->decor;
-    short *layer = &twin->ontoppriority;
+    union WindowLists list = twin->list;
+    union WindowFunctions func = twin->func;
+    union WindowDecorations decor = twin->decor;
+    short layer = twin->ontoppriority;
 
 #ifdef DEBUG_EWMH
     fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
     fflush(stderr);
 #endif
-    if (twin->ewmh.props._KDE_NET_WM_WINDOW_TYPE_OVERRIDE) {
-	func->functions = 0;
-	decor->decorations = 0;
-    } else {
-	func->functions = -1U;
-	decor->decorations = -1U;
-    }
-    list->lists = -1U;
-    layer[0] = CTWM_LAYER_NORMAL;
-
     if (type == 0)
 	TwmGetWMWindowType(twin, &type);
+    if (type & _NET_WM_WINDOW_TYPE_DESKTOP) {
+	func.functions = 0;	/* no functions */
+	decor.decorations = 0;	/* no decorations */
+	list.lists = 0;		/* no lists */
+	layer = CTWM_LAYER_DESKTOP;
+    }
+    if (type & _NET_WM_WINDOW_TYPE_DOCK) {
+	func.functions = 0;	/* no functions */
+	decor.decorations = 0;	/* no decorations */
+	list.lists = 0;		/* no lists */
+	layer = CTWM_LAYER_DOCK;
+    }
+    if (type & _NET_WM_WINDOW_TYPE_TOOLBAR) {
+	layer = CTWM_LAYER_NORMAL;
+    }
+    if (type & _NET_WM_WINDOW_TYPE_MENU) {
+	layer = CTWM_LAYER_NORMAL;
+    }
+    if (type & _NET_WM_WINDOW_TYPE_UTILITY) {
+	layer = CTWM_LAYER_NORMAL;
+    }
+    if (type & _NET_WM_WINDOW_TYPE_SPLASH) {
+	func.functions = 0;	/* no functions */
+	decor.decorations = 0;	/* no decorations */
+	list.lists = 0;		/* no lists */
+	layer = CTWM_LAYER_ABOVE_DOCK;
+    }
+    if (type & _NET_WM_WINDOW_TYPE_DIALOG) {
+	layer = CTWM_LAYER_NORMAL;
+    }
+    if (type & _NET_WM_WINDOW_TYPE_DROPDOWN_MENU) {
+	func.functions = 0;	/* no functions */
+	decor.decorations = 0;	/* no decorations */
+	list.lists = 0;		/* no lists */
+	layer = CTWM_LAYER_MENU;
+    }
+    if (type & _NET_WM_WINDOW_TYPE_POPUP_MENU) {
+	func.functions = 0;	/* no functions */
+	decor.decorations = 0;	/* no decorations */
+	list.lists = 0;		/* no lists */
+	layer = CTWM_LAYER_MENU;
+    }
+    if (type & _NET_WM_WINDOW_TYPE_TOOLTIP) {
+	func.functions = 0;	/* no functions */
+	decor.decorations = 0;	/* no decorations */
+	list.lists = 0;		/* no lists */
+	layer = CTWM_LAYER_ABOVE_DOCK;
+    }
+    if (type & _NET_WM_WINDOW_TYPE_NOTIFICATION) {
+	func.functions = 0;	/* no functions */
+	decor.decorations = 0;	/* no decorations */
+	list.lists = 0;		/* no lists */
+	layer = CTWM_LAYER_ABOVE_DOCK;
+    }
+    if (type & _NET_WM_WINDOW_TYPE_COMBO) {
+	func.functions = 0;	/* no functions */
+	decor.decorations = 0;	/* no decorations */
+	list.lists = 0;		/* no lists */
+	layer = CTWM_LAYER_MENU;
+    }
+    if (type & _NET_WM_WINDOW_TYPE_DND) {
+	func.functions = 0;	/* no functions */
+	decor.decorations = 0;	/* no decorations */
+	list.lists = 0;		/* no lists */
+	layer = CTWM_LAYER_MENU;
+    }
+    if (type & _NET_WM_WINDOW_TYPE_NORMAL) {
+	layer = CTWM_LAYER_NORMAL;
+    }
+    twin->func = func;
+    twin->decor = decor;
+    twin->list = list;
+    twin->ontoppriority = twin->initial_layer = layer;
+}
 
-    for (j = 0, m = 1; j < 31; j++, m <<= 1) {
-	if (type & m) {
-	    switch (j) {
-	    case _NET_WM_WINDOW_TYPE_DESKTOP_BIT:
-		func->functions = 0;
-		decor->decorations = 0;
-		list->lists = 0;
-		layer[0] = CTWM_LAYER_DESKTOP;
-		break;
-	    case _NET_WM_WINDOW_TYPE_DOCK_BIT:
-		func->functions = 0;
-		decor->decorations = 0;
-		list->lists = 0;
-		layer[0] = CTWM_LAYER_DOCK;
-		break;
-	    case _NET_WM_WINDOW_TYPE_TOOLBAR_BIT:
-		layer[0] = CTWM_LAYER_NORMAL;
-		break;
-	    case _NET_WM_WINDOW_TYPE_MENU_BIT:
-		layer[0] = CTWM_LAYER_NORMAL;
-		break;
-	    case _NET_WM_WINDOW_TYPE_UTILITY_BIT:
-		layer[0] = CTWM_LAYER_NORMAL;
-		break;
-	    case _NET_WM_WINDOW_TYPE_SPLASH_BIT:
-		func->functions = 0;
-		decor->decorations = 0;
-		list->lists = 0;
-		layer[0] = CTWM_LAYER_ABOVE_DOCK;
-		break;
-	    case _NET_WM_WINDOW_TYPE_DIALOG_BIT:
-		layer[0] = CTWM_LAYER_NORMAL;
-		break;
-	    case _NET_WM_WINDOW_TYPE_DROPDOWN_MENU_BIT:
-		layer[0] = CTWM_LAYER_MENU;
-		break;
-	    case _NET_WM_WINDOW_TYPE_POPUP_MENU_BIT:
-		layer[0] = CTWM_LAYER_MENU;
-		break;
-	    case _NET_WM_WINDOW_TYPE_TOOLTIP_BIT:
-		layer[0] = CTWM_LAYER_ABOVE_DOCK;
-		break;
-	    case _NET_WM_WINDOW_TYPE_NOTIFICATION_BIT:
-		layer[0] = CTWM_LAYER_ABOVE_DOCK;
-		break;
-	    case _NET_WM_WINDOW_TYPE_COMBO_BIT:
-		layer[0] = CTWM_LAYER_MENU;
-		break;
-	    case _NET_WM_WINDOW_TYPE_DND_BIT:
-		layer[0] = CTWM_LAYER_MENU;
-		break;
-	    case _NET_WM_WINDOW_TYPE_NORMAL_BIT:
-		layer[0] = CTWM_LAYER_NORMAL;
-		break;
-	    }
+/** @brief Set the window type.
+  * @param twin - TWM window
+  * @param type - window type bitmask
+  *
+  * Sets the window type and effects the changes necessary to update the window
+  * to the type requested.
+  */
+void
+TwmSetWMWindowType(ScreenInfo *scr, TwmWindow *twin, unsigned type)
+{
+    union WindowLists list = twin->list;
+    union WindowFunctions func = twin->func;
+    union WindowDecorations decor = twin->decor;
+    short layer = twin->ontoppriority;
+
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
+    if (type == 0)
+	TwmGetWMWindowType(twin, &type);
+    if (type & _NET_WM_WINDOW_TYPE_DESKTOP) {
+	func.functions = 0;	/* no functions */
+	decor.decorations = 0;	/* no decorations */
+	list.lists = 0;		/* no lists */
+	layer = CTWM_LAYER_DESKTOP;
+    }
+    if (type & _NET_WM_WINDOW_TYPE_DOCK) {
+	func.functions = 0;	/* no functions */
+	decor.decorations = 0;	/* no decorations */
+	list.lists = 0;		/* no lists */
+	layer = CTWM_LAYER_DOCK;
+    }
+    if (type & _NET_WM_WINDOW_TYPE_TOOLBAR) {
+	layer = CTWM_LAYER_NORMAL;
+    }
+    if (type & _NET_WM_WINDOW_TYPE_MENU) {
+	layer = CTWM_LAYER_NORMAL;
+    }
+    if (type & _NET_WM_WINDOW_TYPE_UTILITY) {
+	layer = CTWM_LAYER_NORMAL;
+    }
+    if (type & _NET_WM_WINDOW_TYPE_SPLASH) {
+	func.functions = 0;	/* no functions */
+	decor.decorations = 0;	/* no decorations */
+	list.lists = 0;		/* no lists */
+	layer = CTWM_LAYER_ABOVE_DOCK;
+    }
+    if (type & _NET_WM_WINDOW_TYPE_DIALOG) {
+	layer = CTWM_LAYER_NORMAL;
+    }
+    if (type & _NET_WM_WINDOW_TYPE_DROPDOWN_MENU) {
+	func.functions = 0;	/* no functions */
+	decor.decorations = 0;	/* no decorations */
+	list.lists = 0;		/* no lists */
+	layer = CTWM_LAYER_MENU;
+    }
+    if (type & _NET_WM_WINDOW_TYPE_POPUP_MENU) {
+	func.functions = 0;	/* no functions */
+	decor.decorations = 0;	/* no decorations */
+	list.lists = 0;		/* no lists */
+	layer = CTWM_LAYER_MENU;
+    }
+    if (type & _NET_WM_WINDOW_TYPE_TOOLTIP) {
+	func.functions = 0;	/* no functions */
+	decor.decorations = 0;	/* no decorations */
+	list.lists = 0;		/* no lists */
+	layer = CTWM_LAYER_ABOVE_DOCK;
+    }
+    if (type & _NET_WM_WINDOW_TYPE_NOTIFICATION) {
+	func.functions = 0;	/* no functions */
+	decor.decorations = 0;	/* no decorations */
+	list.lists = 0;		/* no lists */
+	layer = CTWM_LAYER_ABOVE_DOCK;
+    }
+    if (type & _NET_WM_WINDOW_TYPE_COMBO) {
+	func.functions = 0;	/* no functions */
+	decor.decorations = 0;	/* no decorations */
+	list.lists = 0;		/* no lists */
+	layer = CTWM_LAYER_MENU;
+    }
+    if (type & _NET_WM_WINDOW_TYPE_DND) {
+	func.functions = 0;	/* no functions */
+	decor.decorations = 0;	/* no decorations */
+	list.lists = 0;		/* no lists */
+	layer = CTWM_LAYER_MENU;
+    }
+    if (type & _NET_WM_WINDOW_TYPE_NORMAL) {
+	layer = CTWM_LAYER_NORMAL;
+    }
+    twin->func = func;
+    if (twin->decor.decorations != decor.decorations) {
+	twin->decor = decor;
+	/* change decorations */
+	twin->frame_bw3D = scr->ThreeDBorderWidth;
+	if (!decor.decoration.border) {
+	    twin->frame_bw = 0;
+	    twin->frame_bw3D = 0;
+	} else if (twin->frame_bw3D != 0) {
+	    twin->frame_bw = 0;
+	    scr->ClientBorderWidth = FALSE;
+	} else if (scr->ClientBorderWidth) {
+	    twin->frame_bw = twin->old_bw;
+	} else {
+	    twin->frame_bw = scr->BorderWidth;
+	}
+	if (decor.decoration.titlebar) {
+	    twin->title_height = scr->TitleHeight + twin->frame_bw;
+	} else {
+	    twin->title_height = 0;
+	}
+	SetupFrame(twin, twin->frame_x, twin->frame_y, twin->frame_width,
+		   twin->frame_height, -1, True);
+    }
+    twin->list = list;
+    if (twin->ontoppriority != layer) {
+	/* change layer */
+	if (twin->ontoppriority > layer) {
+	    twin->ontoppriority = layer;
+	    LowerWindow(twin);
+	} else {
+	    twin->ontoppriority = layer;
+	    RaiseWindow(twin);
 	}
     }
-
 }
 
 #define _NET_WM_STATE_ALLZOOM_MASK ( \
@@ -1418,28 +1551,19 @@ TwmSetWMWindowType(TwmWindow *twin, unsigned type)
   * twin->ewmh.state bitmask itself.
   */
 void
-TwmGetWMState(TwmWindow *twin, unsigned *flags)
+TwmGetWMState(ScreenInfo *scr, TwmWindow *twin, unsigned *flags)
 {
-    unsigned state = twin->ewmh.state;
+    unsigned state = 0;
 
 #ifdef DEBUG_EWMH
     fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
     fflush(stderr);
 #endif
-    if (twin->squeezed)
-	state |= _NET_WM_STATE_SHADED;
-    else
-	state &= ~_NET_WM_STATE_SHADED;
-
-#if 0
     /* Note that this is not really what sticky means.  Occupy all is a
        different concept.  Sticky means to stick to the viewport (and therefore
        move with it). */
     if (twin->occupation == fullOccupation)
 	state |= _NET_WM_STATE_STICKY;
-    else
-	state &= ~_NET_WM_STATE_STICKY;
-#endif
 
     state &= ~_NET_WM_STATE_ALLZOOM_MASK;
     switch (twin->zoomed) {
@@ -1473,185 +1597,94 @@ TwmGetWMState(TwmWindow *twin, unsigned *flags)
 	break;
     }
 
+    if (twin->ewmh.state & _NET_WM_STATE_MODAL)
+	state |= _NET_WM_STATE_MODAL;
+
+    if (twin->squeezed)
+	state |= _NET_WM_STATE_SHADED;
+
+    if (!twin->list.list.task)
+	state |= _NET_WM_STATE_SKIP_TASKBAR;
+
+    if (!twin->list.list.pager)
+	state |= _NET_WM_STATE_SKIP_PAGER;
+
     if (twin->isicon)
 	state |= _NET_WM_STATE_HIDDEN;
-    else
-	state &= ~_NET_WM_STATE_HIDDEN;
 
-    /* FIXME: do other bits */
+    if (twin->fullscreen)
+	state |= _NET_WM_STATE_FULLSCREEN;
+
+    if (twin->ontoppriority == CTWM_LAYER_ONTOP)
+	state |= _NET_WM_STATE_ABOVE;
+
+    if (twin->ontoppriority == CTWM_LAYER_BELOW)
+	state |= _NET_WM_STATE_BELOW;
+
+    if (twin->ontoppriority == CTWM_LAYER_ABOVE_DOCK)
+	state |= _NET_WM_STATE_STAYS_ON_TOP;
+
+    if (twin->ontoppriority == CTWM_LAYER_DESKTOP)
+	state |= _NET_WM_STATE_STAYS_AT_BOTTOM;
+
+    if (twin->ewmh.state & _NET_WM_STATE_DEMANDS_ATTENTION)
+	state |= _NET_WM_STATE_DEMANDS_ATTENTION;
+
+    if (scr->Focus == twin) {
+	state |= _NET_WM_STATE_FOCUSED;
+	state &= ~_NET_WM_STATE_DEMANDS_ATTENTION;
+    }
+
+    if (twin->decor.decoration.border)
+	state |= _NET_WM_STATE_DECOR_BORDER;
+
+    if (twin->decor.decoration.resizeh)
+	state |= _NET_WM_STATE_DECOR_HANDLE;
+
+    if (twin->decor.decoration.title)
+	state |= _NET_WM_STATE_DECOR_TITLE;
+
+    if (twin->decor.decoration.border || twin->decor.decoration.titlebar)
+	state |= _NET_WM_STATE_DECOR;
+
+    if (twin->ewmh.state & _NET_WM_STATE_PARENTRELATIVE_BACKGROUND)
+	state |= _NET_WM_STATE_PARENTRELATIVE_BACKGROUND;
+
+    if (twin->auto_raise)
+	state |= _NET_WM_STATE_AUTORAISE;
+
+    if (twin->auto_lower)
+	state |= _NET_WM_STATE_AUTOLOWER;
 
     *flags = state;
 }
 
-#define _NET_WM_STATE_MAXIMIZED_FULL \
-    (_NET_WM_STATE_MAXIMIZED_HORZ|_NET_WM_STATE_MAXIMIZED_VERT)
-
-#define _NET_WM_STATE_MAXIMUS \
-    (_NET_WM_STATE_MAXIMUS_BOTTOM | \
-     _NET_WM_STATE_MAXIMUS_TOP | \
-     _NET_WM_STATE_MAXIMUS_LEFT | \
-     _NET_WM_STATE_MAXIMUS_RIGHT)
-
 extern void fullzoom(TwmWindow *tmp_win, int flag);
 
-/** @brief Set the window state.
+/** @brief Change the window state.
+  * @param scr - screen
   * @param twin - TWM window
-  * @parma state - state to set
-  *
-  * This is normally called when a window is intially mapped.  We need to
-  * restore any conditions that are indicated in the state parameter.
+  * @param action1 - first action to perform
+  * @param action2 - second action to perform
+  * @param action - remove, add or toggle
+  * @param source - source of request
   */
-void
-TwmSetWMState(TwmWindow *twin, unsigned state)
-{
-    unsigned m, j;
-
-#ifdef DEBUG_EWMH
-    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
-    fflush(stderr);
-#endif
-    /* handle aliases */
-    if (state & _NET_WM_STATE_STAYS_AT_BOTTOM) {
-	state &= ~_NET_WM_STATE_STAYS_AT_BOTTOM;
-	state |= _NET_WM_STATE_BELOW;
-    }
-    if (state & _NET_WM_STATE_STAYS_ON_TOP) {
-	state &= ~_NET_WM_STATE_STAYS_ON_TOP;
-	state |= _NET_WM_STATE_ABOVE;
-    }
-
-    if (!(state ^ twin->ewmh.state))
-	return;
-
-    for (j = 0, m = 1; j < 31; j++, m <<= 1) {
-	if ((state ^ twin->ewmh.state) & m) {
-	    switch (j) {
-	    case _NET_WM_STATE_MODAL_BIT:
-		break;
-	    case _NET_WM_STATE_STICKY_BIT:
-		/* just set or clear the bit */
-		break;
-	    case _NET_WM_STATE_MAXIMIZED_HORZ_BIT:
-	    case _NET_WM_STATE_MAXIMIZED_VERT_BIT:
-		if (!(state & (_NET_WM_STATE_MAXIMUS | _NET_WM_STATE_FULLSCREEN))) {
-		    switch (state & _NET_WM_STATE_MAXIMIZED_FULL) {
-		    case 0:
-			if (twin->zoomed != ZOOM_NONE)
-			    fullzoom(twin, twin->zoomed);
-			break;
-		    case _NET_WM_STATE_MAXIMIZED_HORZ:
-			if (twin->zoomed != F_HORIZOOM)
-			    fullzoom(twin, F_HORIZOOM);
-			break;
-		    case _NET_WM_STATE_MAXIMIZED_VERT:
-			if (twin->zoomed != F_ZOOM)
-			    fullzoom(twin, F_ZOOM);
-			break;
-		    case _NET_WM_STATE_MAXIMIZED_FULL:
-			if (twin->zoomed != F_FULLZOOM)
-			    fullzoom(twin, F_FULLZOOM);
-			break;
-		    }
-		}
-		break;
-	    case _NET_WM_STATE_SHADED_BIT:
-		if (((state & m) && !twin->squeezed) || (!(state & m) && twin->squeezed))
-		    Squeeze(twin);
-		break;
-	    case _NET_WM_STATE_SKIP_TASKBAR_BIT:
-		/* just set or clear the bit */
-		break;
-	    case _NET_WM_STATE_SKIP_PAGER_BIT:
-		/* just set or clear the bit */
-		break;
-	    case _NET_WM_STATE_HIDDEN_BIT:
-		/* actually minimized */
-		if (state & m) {
-		    if (!twin->isicon)
-			Iconify(twin, 0, 0);
-		} else {
-		    if (twin->isicon)
-			DeIconify(twin);
-		}
-		break;
-	    case _NET_WM_STATE_FULLSCREEN_BIT:
-		if (twin->zoomed != F_FULLZOOM)
-		    fullzoom(twin, F_FULLZOOM);
-		break;
-	    case _NET_WM_STATE_ABOVE_BIT:
-		break;
-	    case _NET_WM_STATE_BELOW_BIT:
-		break;
-	    case _NET_WM_STATE_DEMANDS_ATTENTION_BIT:
-		break;
-	    case _NET_WM_STATE_FOCUSED_BIT:
-		break;
-	    case _NET_WM_STATE_DECOR_BORDER_BIT:
-		/* just set or clear the bit */
-		break;
-	    case _NET_WM_STATE_DECOR_HANDLE_BIT:
-		/* just set or clear the bit */
-		break;
-	    case _NET_WM_STATE_DECOR_TITLE_BIT:
-		/* just set or clear the bit */
-		break;
-	    case _NET_WM_STATE_DECOR_BIT:
-		/* just set or clear the bit */
-		break;
-	    case _NET_WM_STATE_PARENTRELATIVE_BACKGROUND_BIT:
-		break;
-	    case _NET_WM_STATE_STAYS_AT_BOTTOM_BIT:
-		break;
-	    case _NET_WM_STATE_STAYS_ON_TOP_BIT:
-		break;
-	    case _NET_WM_STATE_MAXIMUS_BOTTOM_BIT:
-		if (state & m)
-		    if (twin->zoomed != F_BOTTOMZOOM)
-			fullzoom(twin, F_BOTTOMZOOM);
-		break;
-	    case _NET_WM_STATE_MAXIMUS_LEFT_BIT:
-		if (state & m)
-		    if (twin->zoomed != F_LEFTZOOM)
-			fullzoom(twin, F_LEFTZOOM);
-		break;
-	    case _NET_WM_STATE_MAXIMUS_RIGHT_BIT:
-		if (state & m)
-		    if (twin->zoomed != F_RIGHTZOOM)
-			fullzoom(twin, F_RIGHTZOOM);
-		break;
-	    case _NET_WM_STATE_MAXIMUS_TOP_BIT:
-		if (state & m)
-		    if (twin->zoomed != F_TOPZOOM)
-			fullzoom(twin, F_TOPZOOM);
-		break;
-	    case _NET_WM_STATE_AUTORAISE_BIT:
-		break;
-	    case _NET_WM_STATE_AUTOLOWER_BIT:
-		break;
-	    default:
-		break;
-	    }
-	    if (state & m)
-		twin->ewmh.state |= m;
-	    else
-		twin->ewmh.state &= ~m;
-	}
-    }
-
-}
-
 void
 TwmChgWMState(ScreenInfo *scr, TwmWindow *twin, int action1, int action2, unsigned action,
 	      unsigned source)
 {
-    int current = 0;
-    TwmWindow *tmp_win;
+    int current = 0, n, actions[2] = { action1, action2 };
+    union WindowLists list = twin->list;
+    union WindowFunctions func = twin->func;
+    union WindowDecorations decor = twin->decor;
+    short zoomed = twin->zoomed;
+    short layer = twin->ontoppriority;
+    int occupation = twin->occupation;
 
 #ifdef DEBUG_EWMH
     fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
     fflush(stderr);
 #endif
-    tmp_win = TwmCanChangeDesktop(twin);
 
     /* sanity checks */
     switch (source) {
@@ -1681,260 +1714,597 @@ TwmChgWMState(ScreenInfo *scr, TwmWindow *twin, int action1, int action2, unsign
 
     TwmGetCurrentDesktop(scr, &current);
 
-    if (0 <= action1 && action1 <= 31) {
-	switch (action1) {
+    for (n = 0; n < 2; n++) {
+	if (0 > actions[n] || actions[n] > 31)
+	    continue;
+	switch (actions[n]) {
 	case _NET_WM_STATE_MODAL:
+	    /* just change bit */
 	    break;
 	case _NET_WM_STATE_STICKY:
+	    if (!twin->func.function.stick)
+		continue;
 	    switch (action) {
 	    case _NET_WM_STATE_REMOVE:
-		if (tmp_win != NULL)
-		    if (twin->ewmh.state & _NET_WM_STATE_STICKY)
-			ChangeOccupation(tmp_win, 1 << current);
+		if (occupation == fullOccupation)
+		    occupation = 1 << current;
 		break;
 	    case _NET_WM_STATE_ADD:
-		if (tmp_win != NULL)
-		    if (!(twin->ewmh.state & _NET_WM_STATE_STICKY))
-			if (twin->ewmh.allowed & _NET_WM_ACTION_STICK)
-			    OccupyAll(twin);
+		if (occupation != fullOccupation)
+		    occupation = fullOccupation;
 		break;
 	    case _NET_WM_STATE_TOGGLE:
-		if (tmp_win != NULL) {
-		    if (twin->ewmh.state & _NET_WM_STATE_STICKY)
-			ChangeOccupation(tmp_win, 1 << current);
-		    else if (twin->ewmh.allowed & _NET_WM_ACTION_STICK)
-			OccupyAll(twin);
+		if (twin->occupation == fullOccupation)
+		    occupation = 1 << current;
+		else
+		    occupation = fullOccupation;
+		break;
+	    }
+	    continue;
+	case _NET_WM_STATE_MAXIMIZED_HORZ:
+	    if (!func.function.maximize_horz)
+		continue;
+	    switch (action) {
+	    case _NET_WM_STATE_REMOVE:
+		switch (zoomed) {
+		case ZOOM_NONE:
+		case F_ZOOM:
+		case F_LEFTZOOM:
+		case F_RIGHTZOOM:
+		    break;
+		case F_BOTTOMZOOM:
+		case F_TOPZOOM:
+		case F_HORIZOOM:
+		    zoomed = ZOOM_NONE;
+		    break;
+		case F_FULLZOOM:
+		    zoomed = F_ZOOM;
+		    break;
 		}
 		break;
-	    default:
-		break;
-	    }
-	    break;
-	case _NET_WM_STATE_MAXIMIZED_HORZ:
-	    if (twin->ewmh.allowed & _NET_WM_ACTION_MAXIMIZE_HORZ)
-		break;
-	    break;
-	case _NET_WM_STATE_MAXIMIZED_VERT:
-	    if (twin->ewmh.allowed & _NET_WM_ACTION_MAXIMIZE_VERT)
-		break;
-	    break;
-	case _NET_WM_STATE_SHADED:
-	    switch (action) {
-	    case _NET_WM_STATE_REMOVE:
-		if (twin->ewmh.state & _NET_WM_STATE_SHADED)
-		    Squeeze(twin);
-		break;
 	    case _NET_WM_STATE_ADD:
-		if (!(twin->ewmh.state & _NET_WM_STATE_SHADED))
-		    if (twin->ewmh.allowed & _NET_WM_ACTION_SHADE)
-			Squeeze(twin);
-		break;
-	    case _NET_WM_STATE_TOGGLE:
-		if (twin->ewmh.state & _NET_WM_STATE_SHADED)
-		    Squeeze(twin);
-		else if (twin->ewmh.allowed & _NET_WM_ACTION_SHADE)
-		    Squeeze(twin);
-		break;
-	    default:
-		break;
-	    }
-	    break;
-	case _NET_WM_STATE_SKIP_TASKBAR:
-	case _NET_WM_STATE_SKIP_PAGER:
-	case _NET_WM_STATE_HIDDEN:
-	case _NET_WM_STATE_DEMANDS_ATTENTION:
-	    switch (action) {
-	    case _NET_WM_STATE_REMOVE:
-		twin->ewmh.state &= ~action1;
-		break;
-	    case _NET_WM_STATE_ADD:
-		twin->ewmh.state |= action1;
-		break;
-	    case _NET_WM_STATE_TOGGLE:
-		twin->ewmh.state ^= action1;
-		break;
-	    default:
-		break;
-	    }
-	    break;
-	case _NET_WM_STATE_FULLSCREEN:
-	    if (twin->ewmh.allowed & _NET_WM_ACTION_FULLSCREEN)
-		break;
-	    break;
-	case _NET_WM_STATE_ABOVE:
-	case _NET_WM_STATE_STAYS_ON_TOP:
-	    if (twin->ewmh.allowed & _NET_WM_ACTION_ABOVE)
-		break;
-	    break;
-	case _NET_WM_STATE_BELOW:
-	case _NET_WM_STATE_STAYS_AT_BOTTOM:
-	    if (twin->ewmh.allowed & _NET_WM_ACTION_BELOW)
-		break;
-	    break;
-	case _NET_WM_STATE_FOCUSED:
-	    /* read only */
-	    break;
-/* NON-STANDARD starts here: */
-	case _NET_WM_STATE_DECOR_BORDER:
-	    break;
-	case _NET_WM_STATE_DECOR_HANDLE:
-	    break;
-	case _NET_WM_STATE_DECOR_TITLE:
-	    break;
-	case _NET_WM_STATE_DECOR:
-	    break;
-	case _NET_WM_STATE_PARENTRELATIVE_BACKGROUND:
-	    break;
-	case _NET_WM_STATE_MAXIMUS_BOTTOM:
-	    if (twin->ewmh.allowed & _NET_WM_ACTION_MAXIMIZE_HORZ)
-		break;
-	    break;
-	case _NET_WM_STATE_MAXIMUS_LEFT:
-	    if (twin->ewmh.allowed & _NET_WM_ACTION_MAXIMIZE_VERT)
-		break;
-	    break;
-	case _NET_WM_STATE_MAXIMUS_RIGHT:
-	    if (twin->ewmh.allowed & _NET_WM_ACTION_MAXIMIZE_VERT)
-		break;
-	    break;
-	case _NET_WM_STATE_MAXIMUS_TOP:
-	    if (twin->ewmh.allowed & _NET_WM_ACTION_MAXIMIZE_HORZ)
-		break;
-	    break;
-	case _NET_WM_STATE_AUTORAISE:
-	    break;
-	case _NET_WM_STATE_AUTOLOWER:
-	    break;
-	default:
-	    break;
-	}
-	switch (action) {
-	case _NET_WM_STATE_REMOVE:
-	    twin->ewmh.state &= ~(1 << action1);
-	    break;
-	case _NET_WM_STATE_ADD:
-	    twin->ewmh.state |= (1 << action1);
-	    break;
-	case _NET_WM_STATE_TOGGLE:
-	    twin->ewmh.state ^= (1 << action1);
-	    break;
-	default:
-	    break;
-	}
-    }
-    if (0 <= action2 && action2 <= 31) {
-	switch (action2) {
-	case _NET_WM_STATE_MODAL:
-	    break;
-	case _NET_WM_STATE_STICKY:
-	    switch (action) {
-	    case _NET_WM_STATE_REMOVE:
-		if (tmp_win != NULL)
-		    ChangeOccupation(tmp_win, 1 << current);
-		break;
-	    case _NET_WM_STATE_ADD:
-		OccupyAll(twin);
-		break;
-	    case _NET_WM_STATE_TOGGLE:
-		if (tmp_win != NULL) {
-		    if (twin->ewmh.state & _NET_WM_STATE_STICKY)
-			ChangeOccupation(tmp_win, 1 << current);
-		    else
-			OccupyAll(tmp_win);
+		switch (zoomed) {
+		case ZOOM_NONE:
+		    zoomed = F_HORIZOOM;
+		    break;
+		case F_ZOOM:
+		case F_LEFTZOOM:
+		case F_RIGHTZOOM:
+		    zoomed = F_FULLZOOM;
+		    break;
+		case F_BOTTOMZOOM:
+		case F_TOPZOOM:
+		case F_HORIZOOM:
+		case F_FULLZOOM:
+		    break;
 		}
 		break;
-	    default:
+	    case _NET_WM_STATE_TOGGLE:
+		switch (zoomed) {
+		case ZOOM_NONE:
+		    zoomed = F_HORIZOOM;
+		    break;
+		case F_ZOOM:
+		case F_LEFTZOOM:
+		case F_RIGHTZOOM:
+		    zoomed = F_FULLZOOM;
+		    break;
+		case F_BOTTOMZOOM:
+		case F_TOPZOOM:
+		case F_HORIZOOM:
+		    zoomed = ZOOM_NONE;
+		    break;
+		case F_FULLZOOM:
+		    zoomed = F_ZOOM;
+		    break;
+		}
 		break;
 	    }
-	    break;
-	case _NET_WM_STATE_MAXIMIZED_HORZ:
-	    break;
+	    continue;
 	case _NET_WM_STATE_MAXIMIZED_VERT:
-	    break;
-	case _NET_WM_STATE_SHADED:
+	    if (!func.function.maximize_vert)
+		continue;
 	    switch (action) {
 	    case _NET_WM_STATE_REMOVE:
-		if (twin->ewmh.state & _NET_WM_STATE_SHADED)
+		switch (zoomed) {
+		case ZOOM_NONE:
+		    break;
+		case F_ZOOM:
+		case F_LEFTZOOM:
+		case F_RIGHTZOOM:
+		    zoomed = ZOOM_NONE;
+		    break;
+		case F_BOTTOMZOOM:
+		case F_TOPZOOM:
+		case F_HORIZOOM:
+		    break;
+		case F_FULLZOOM:
+		    zoomed = F_HORIZOOM;
+		    break;
+		}
+		break;
+	    case _NET_WM_STATE_ADD:
+		switch (zoomed) {
+		case ZOOM_NONE:
+		    zoomed = F_ZOOM;
+		    break;
+		case F_ZOOM:
+		case F_LEFTZOOM:
+		case F_RIGHTZOOM:
+		case F_FULLZOOM:
+		    break;
+		case F_BOTTOMZOOM:
+		case F_TOPZOOM:
+		case F_HORIZOOM:
+		    zoomed = F_FULLZOOM;
+		    break;
+		}
+		break;
+	    case _NET_WM_STATE_TOGGLE:
+		switch (zoomed) {
+		case ZOOM_NONE:
+		    zoomed = F_ZOOM;
+		    break;
+		case F_ZOOM:
+		case F_LEFTZOOM:
+		case F_RIGHTZOOM:
+		    zoomed = ZOOM_NONE;
+		    break;
+		case F_BOTTOMZOOM:
+		case F_TOPZOOM:
+		case F_HORIZOOM:
+		    zoomed = F_FULLZOOM;
+		    break;
+		case F_FULLZOOM:
+		    zoomed = F_HORIZOOM;
+		    break;
+		}
+		break;
+	    }
+	    continue;
+	case _NET_WM_STATE_SHADED:
+	    if (!func.function.shade)
+		continue;
+	    switch (action) {
+	    case _NET_WM_STATE_REMOVE:
+		if (twin->squeezed)
 		    Squeeze(twin);
 		break;
 	    case _NET_WM_STATE_ADD:
-		if (!(twin->ewmh.state & _NET_WM_STATE_SHADED))
+		if (!twin->squeezed)
 		    Squeeze(twin);
 		break;
 	    case _NET_WM_STATE_TOGGLE:
 		Squeeze(twin);
 		break;
-	    default:
-		break;
 	    }
-	    break;
+	    continue;
 	case _NET_WM_STATE_SKIP_TASKBAR:
-	case _NET_WM_STATE_SKIP_PAGER:
-	case _NET_WM_STATE_HIDDEN:
-	case _NET_WM_STATE_DEMANDS_ATTENTION:
 	    switch (action) {
 	    case _NET_WM_STATE_REMOVE:
-		twin->ewmh.state &= ~action2;
+		list.list.task = 1;
 		break;
 	    case _NET_WM_STATE_ADD:
-		twin->ewmh.state |= action2;
+		list.list.task = 0;
 		break;
 	    case _NET_WM_STATE_TOGGLE:
-		twin->ewmh.state ^= action2;
-		break;
-	    default:
+		list.list.task = list.list.task ? 0 : 1;
 		break;
 	    }
+	    continue;
+	case _NET_WM_STATE_SKIP_PAGER:
+	    switch (action) {
+	    case _NET_WM_STATE_REMOVE:
+		list.list.pager = 1;
+		break;
+	    case _NET_WM_STATE_ADD:
+		list.list.pager = 0;
+		break;
+	    case _NET_WM_STATE_TOGGLE:
+		list.list.pager = list.list.pager ? 0 : 1;
+		break;
+	    }
+	    continue;
+	case _NET_WM_STATE_HIDDEN:
+	    if (!func.function.minimize)
+		continue;
+	    switch (action) {
+	    case _NET_WM_STATE_REMOVE:
+		if (twin->isicon)
+		    DeIconify(twin);
+		break;
+	    case _NET_WM_STATE_ADD:
+		if (!twin->isicon)
+		    Iconify(twin, 0, 0);
+		break;
+	    case _NET_WM_STATE_TOGGLE:
+		if (twin->isicon)
+		    DeIconify(twin);
+		else
+		    Iconify(twin, 0, 0);
+		break;
+	    }
+	    continue;
+	case _NET_WM_STATE_DEMANDS_ATTENTION:
+	    /* just change bit */
 	    break;
 	case _NET_WM_STATE_FULLSCREEN:
-	    break;
+	    if (!func.function.fullscreen)
+		continue;
+	    switch (action) {
+	    case _NET_WM_STATE_REMOVE:
+		if (twin->fullscreen) {
+		    /* FIXME */
+		}
+		break;
+	    case _NET_WM_STATE_ADD:
+		if (!twin->fullscreen) {
+		    /* FIXME */
+		}
+		break;
+	    case _NET_WM_STATE_TOGGLE:
+		if (twin->fullscreen) {
+		    /* FIXME */
+		} else {
+		    /* FIXME */
+		}
+		break;
+	    }
+	    continue;
 	case _NET_WM_STATE_ABOVE:
-	case _NET_WM_STATE_STAYS_ON_TOP:
-	    break;
+	    if (!func.function.above)
+		continue;
+	    switch (action) {
+	    case _NET_WM_STATE_REMOVE:
+		if (layer == CTWM_LAYER_ONTOP) {
+		    if (twin->initial_layer != CTWM_LAYER_ONTOP)
+			layer = twin->initial_layer;
+		    else
+			layer = CTWM_LAYER_NORMAL;
+		}
+		break;
+	    case _NET_WM_STATE_ADD:
+		if (layer != CTWM_LAYER_ONTOP)
+		    layer = CTWM_LAYER_ONTOP;
+		break;
+	    case _NET_WM_STATE_TOGGLE:
+		if (layer == CTWM_LAYER_ONTOP) {
+		    if (twin->initial_layer != CTWM_LAYER_ONTOP)
+			layer = twin->initial_layer;
+		    else
+			layer = CTWM_LAYER_NORMAL;
+		} else
+		    layer = CTWM_LAYER_ONTOP;
+		break;
+	    }
+	    continue;
 	case _NET_WM_STATE_BELOW:
-	case _NET_WM_STATE_STAYS_AT_BOTTOM:
-	    break;
+	    if (!func.function.below)
+		continue;
+	    switch (action) {
+	    case _NET_WM_STATE_REMOVE:
+		if (layer == CTWM_LAYER_BELOW) {
+		    if (twin->initial_layer != CTWM_LAYER_BELOW)
+			layer = twin->initial_layer;
+		    else
+			layer = CTWM_LAYER_NORMAL;
+		}
+		break;
+	    case _NET_WM_STATE_ADD:
+		if (layer != CTWM_LAYER_BELOW)
+		    layer = CTWM_LAYER_BELOW;
+		break;
+	    case _NET_WM_STATE_TOGGLE:
+		if (layer == CTWM_LAYER_BELOW) {
+		    if (twin->initial_layer != CTWM_LAYER_BELOW)
+			layer = twin->initial_layer;
+		    else
+			layer = CTWM_LAYER_NORMAL;
+		} else
+		    layer = CTWM_LAYER_BELOW;
+		break;
+	    }
+	    continue;
 	case _NET_WM_STATE_FOCUSED:
-	    /* read-only */
-	    break;
+	    /* read only */
+	    continue;
 /* NON-STANDARD starts here: */
 	case _NET_WM_STATE_DECOR_BORDER:
-	    break;
+	    switch (action) {
+	    case _NET_WM_STATE_REMOVE:
+		if (decor.decoration.border)
+		    decor.decoration.border = 0;
+		break;
+	    case _NET_WM_STATE_ADD:
+		if (!decor.decoration.border)
+		    decor.decoration.border = 1;
+		break;
+	    case _NET_WM_STATE_TOGGLE:
+		if (decor.decoration.border)
+		    decor.decoration.border = 0;
+		else
+		    decor.decoration.border = 1;
+		break;
+	    }
+	    continue;
 	case _NET_WM_STATE_DECOR_HANDLE:
-	    break;
+	    switch (action) {
+	    case _NET_WM_STATE_REMOVE:
+		if (decor.decoration.resizeh)
+		    decor.decoration.resizeh = 0;
+		break;
+	    case _NET_WM_STATE_ADD:
+		if (!decor.decoration.resizeh)
+		    decor.decoration.resizeh = 1;
+		break;
+	    case _NET_WM_STATE_TOGGLE:
+		if (decor.decoration.resizeh)
+		    decor.decoration.resizeh = 0;
+		else
+		    decor.decoration.resizeh = 1;
+		break;
+	    }
+	    continue;
 	case _NET_WM_STATE_DECOR_TITLE:
-	    break;
+	    switch (action) {
+	    case _NET_WM_STATE_REMOVE:
+		if (decor.decoration.title)
+		    decor.decoration.title = 0;
+		break;
+	    case _NET_WM_STATE_ADD:
+		if (!decor.decoration.title)
+		    decor.decoration.title = 1;
+		break;
+	    case _NET_WM_STATE_TOGGLE:
+		if (decor.decoration.title)
+		    decor.decoration.title = 0;
+		else
+		    decor.decoration.title = 1;
+		break;
+	    }
+	    continue;
 	case _NET_WM_STATE_DECOR:
-	    break;
+	    switch (action) {
+	    case _NET_WM_STATE_REMOVE:
+		if (decor.decorations)
+		    decor.decorations = 0U;
+		break;
+	    case _NET_WM_STATE_ADD:
+		if (!decor.decorations)
+		    decor.decorations = -1U;
+		break;
+	    case _NET_WM_STATE_TOGGLE:
+		if (decor.decorations)
+		    decor.decorations = 0U;
+		else
+		    decor.decorations = -1U;
+		break;
+	    }
+	    continue;
 	case _NET_WM_STATE_PARENTRELATIVE_BACKGROUND:
+	    /* just change bit */
 	    break;
+	case _NET_WM_STATE_STAYS_AT_BOTTOM:
+	    if (!func.function.below)
+		continue;
+	    switch (action) {
+	    case _NET_WM_STATE_REMOVE:
+		if (layer == CTWM_LAYER_DESKTOP) {
+		    if (twin->initial_layer != CTWM_LAYER_DESKTOP)
+			layer = twin->initial_layer;
+		    else
+			layer = CTWM_LAYER_NORMAL;
+		}
+		break;
+	    case _NET_WM_STATE_ADD:
+		if (layer != CTWM_LAYER_DESKTOP)
+		    layer = CTWM_LAYER_DESKTOP;
+		break;
+	    case _NET_WM_STATE_TOGGLE:
+		if (layer == CTWM_LAYER_DESKTOP) {
+		    if (twin->initial_layer != CTWM_LAYER_DESKTOP)
+			layer = twin->initial_layer;
+		    else
+			layer = CTWM_LAYER_NORMAL;
+		} else
+		    layer = CTWM_LAYER_DESKTOP;
+		break;
+	    }
+	    continue;
+	case _NET_WM_STATE_STAYS_ON_TOP:
+	    if (!func.function.above)
+		continue;
+	    switch (action) {
+	    case _NET_WM_STATE_REMOVE:
+		if (layer == CTWM_LAYER_ABOVE_DOCK) {
+		    if (twin->initial_layer != CTWM_LAYER_ABOVE_DOCK)
+			layer = twin->initial_layer;
+		    else
+			layer = CTWM_LAYER_NORMAL;
+		}
+		break;
+	    case _NET_WM_STATE_ADD:
+		if (layer != CTWM_LAYER_ABOVE_DOCK)
+		    layer = CTWM_LAYER_ABOVE_DOCK;
+		break;
+	    case _NET_WM_STATE_TOGGLE:
+		if (layer == CTWM_LAYER_ABOVE_DOCK) {
+		    if (twin->initial_layer != CTWM_LAYER_ABOVE_DOCK)
+			layer = twin->initial_layer;
+		    else
+			layer = CTWM_LAYER_NORMAL;
+		} else
+		    layer = CTWM_LAYER_ABOVE_DOCK;
+		break;
+	    }
+	    continue;
 	case _NET_WM_STATE_MAXIMUS_BOTTOM:
-	    break;
+	    if (!func.function.maximus_bottom)
+		continue;
+	    switch (action) {
+	    case _NET_WM_STATE_REMOVE:
+		if (zoomed == F_BOTTOMZOOM)
+		    zoomed = ZOOM_NONE;
+		break;
+	    case _NET_WM_STATE_ADD:
+		if (zoomed != F_BOTTOMZOOM)
+		    zoomed = F_BOTTOMZOOM;
+		break;
+	    case _NET_WM_STATE_TOGGLE:
+		if (zoomed == F_BOTTOMZOOM)
+		    zoomed = ZOOM_NONE;
+		else
+		    zoomed = F_BOTTOMZOOM;
+		break;
+	    }
+	    continue;
 	case _NET_WM_STATE_MAXIMUS_LEFT:
-	    break;
+	    if (!func.function.maximus_left)
+		continue;
+	    switch (action) {
+	    case _NET_WM_STATE_REMOVE:
+		if (zoomed == F_LEFTZOOM)
+		    zoomed = ZOOM_NONE;
+		break;
+	    case _NET_WM_STATE_ADD:
+		if (zoomed != F_LEFTZOOM)
+		    zoomed = F_LEFTZOOM;
+		break;
+	    case _NET_WM_STATE_TOGGLE:
+		if (zoomed == F_LEFTZOOM)
+		    zoomed = ZOOM_NONE;
+		else
+		    zoomed = F_LEFTZOOM;
+		break;
+	    }
+	    continue;
 	case _NET_WM_STATE_MAXIMUS_RIGHT:
-	    break;
+	    if (!func.function.maximus_right)
+		continue;
+	    switch (action) {
+	    case _NET_WM_STATE_REMOVE:
+		if (zoomed == F_RIGHTZOOM)
+		    zoomed = ZOOM_NONE;
+		break;
+	    case _NET_WM_STATE_ADD:
+		if (zoomed != F_RIGHTZOOM)
+		    zoomed = F_RIGHTZOOM;
+		break;
+	    case _NET_WM_STATE_TOGGLE:
+		if (zoomed == F_RIGHTZOOM)
+		    zoomed = ZOOM_NONE;
+		else
+		    zoomed = F_RIGHTZOOM;
+		break;
+	    }
+	    continue;
 	case _NET_WM_STATE_MAXIMUS_TOP:
-	    break;
+	    if (!func.function.maximus_top)
+		continue;
+	    switch (action) {
+	    case _NET_WM_STATE_REMOVE:
+		if (zoomed == F_TOPZOOM)
+		    zoomed = ZOOM_NONE;
+		break;
+	    case _NET_WM_STATE_ADD:
+		if (zoomed != F_TOPZOOM)
+		    zoomed = F_TOPZOOM;
+		break;
+	    case _NET_WM_STATE_TOGGLE:
+		if (zoomed == F_TOPZOOM)
+		    zoomed = ZOOM_NONE;
+		else
+		    zoomed = F_TOPZOOM;
+		break;
+	    }
+	    continue;
 	case _NET_WM_STATE_AUTORAISE:
-	    break;
+	    switch (action) {
+	    case _NET_WM_STATE_REMOVE:
+		twin->auto_raise = 0;
+		break;
+	    case _NET_WM_STATE_ADD:
+		twin->auto_raise = 1;
+		break;
+	    case _NET_WM_STATE_TOGGLE:
+		twin->auto_raise = twin->auto_raise ? 0 : 1;
+	    }
+	    continue;
 	case _NET_WM_STATE_AUTOLOWER:
-	    break;
+	    switch (action) {
+	    case _NET_WM_STATE_REMOVE:
+		twin->auto_lower = 0;
+		break;
+	    case _NET_WM_STATE_ADD:
+		twin->auto_lower = 1;
+		break;
+	    case _NET_WM_STATE_TOGGLE:
+		twin->auto_lower = twin->auto_lower ? 0 : 1;
+	    }
+	    continue;
 	default:
-	    break;
+	    continue;
 	}
 	switch (action) {
 	case _NET_WM_STATE_REMOVE:
-	    twin->ewmh.state &= ~(1 << action2);
+	    twin->ewmh.state &= ~(1 << actions[n]);
 	    break;
 	case _NET_WM_STATE_ADD:
-	    twin->ewmh.state |= (1 << action2);
+	    twin->ewmh.state |= (1 << actions[n]);
 	    break;
 	case _NET_WM_STATE_TOGGLE:
-	    twin->ewmh.state ^= (1 << action2);
+	    twin->ewmh.state ^= (1 << actions[n]);
 	    break;
-	default:
-	    break;
+	}
+    }
+    if (twin->decor.decorations != decor.decorations) {
+	twin->decor = decor;
+	/* change decorations */
+	twin->frame_bw3D = scr->ThreeDBorderWidth;
+	if (!decor.decoration.border) {
+	    twin->frame_bw = 0;
+	    twin->frame_bw3D = 0;
+	} else if (twin->frame_bw3D != 0) {
+	    twin->frame_bw = 0;
+	    scr->ClientBorderWidth = FALSE;
+	} else if (scr->ClientBorderWidth) {
+	    twin->frame_bw = twin->old_bw;
+	} else {
+	    twin->frame_bw = scr->BorderWidth;
+	}
+	if (decor.decoration.titlebar) {
+	    twin->title_height = scr->TitleHeight + twin->frame_bw;
+	} else {
+	    twin->title_height = 0;
+	}
+	SetupFrame(twin, twin->frame_x, twin->frame_y, twin->frame_width,
+		   twin->frame_height, -1, True);
+    }
+    if (twin->list.lists != list.lists) {
+	twin->list = list;
+    }
+    if (twin->ontoppriority != layer) {
+	/* change layer */
+	if (twin->ontoppriority > layer) {
+	    twin->ontoppriority = layer;
+	    LowerWindow(twin);
+	} else {
+	    twin->ontoppriority = layer;
+	    RaiseWindow(twin);
+	}
+    }
+    if (twin->zoomed != zoomed) {
+	if (zoomed == ZOOM_NONE)
+	    fullzoom(twin, twin->zoomed);
+	else
+	    fullzoom(twin, zoomed);
+    }
+    if (twin->occupation != occupation) {
+	if ((twin = TwmCanChangeDesktop(twin)) != NULL) {
+	    if (occupation == fullOccupation)
+		OccupyAll(twin);
+	    else
+		ChangeOccupation(twin, occupation);
 	}
     }
 }
@@ -2053,7 +2423,7 @@ TwmUpdWMHandledIcons(ScreenInfo *scr)
     Bool handled = False;
 
 #ifdef DEBUG_EWMH
-    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
     fflush(stderr);
 #endif
     scr->ewmh.handled_icons = False;
@@ -2683,6 +3053,17 @@ TwmSetWMSystemTrayWindowFor(TwmWindow *twin)
 }
 
 void
+TwmIniWMWindowTypeOverride(TwmWindow *twin)
+{
+#ifdef DEBUG_EWMH
+    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
+    fflush(stderr);
+#endif
+    twin->func.functions = 0U;
+    twin->decor.decorations = 0U;
+}
+
+void
 TwmSetWMWindowTypeOverride(TwmWindow *twin)
 {
 #ifdef DEBUG_EWMH
@@ -2691,6 +3072,7 @@ TwmSetWMWindowTypeOverride(TwmWindow *twin)
 #endif
     twin->func.functions = 0U;
     twin->decor.decorations = 0U;
+    /* TODO: update the window */
 }
 
 // vim: sw=4 tw=80 com=srO\:/**,mb\:*,ex\:*/,srO\:/*,mb\:*,ex\:*/,b\:TRANS

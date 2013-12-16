@@ -139,7 +139,11 @@ TwmIniMwmHints(ScreenInfo *scr, TwmWindow *twin, MwmHints *hints)
 	    (hints->decorations & (MWM_DECOR_ALL | MWM_DECOR_STICK)) ? 1 : 0;
 	twin->decor.decoration.maximus =
 	    (hints->decorations & (MWM_DECOR_ALL | MWM_DECOR_MAXIMUS)) ? 1 : 0;
-
+	twin->decor.decoration.titlebar =
+	    (hints->decorations & (MWM_DECOR_ALL |
+	     (MWM_DECOR_TITLE | MWM_DECOR_MENU | MWM_DECOR_MINIMIZE |
+	      MWM_DECOR_MAXIMIZE | MWM_DECOR_CLOSE | MWM_DECOR_RESIZE |
+	      MWM_DECOR_SHADE | MWM_DECOR_STICK | MWM_DECOR_MAXIMUS))) ? 1 : 0;
     }
     /* FIXME: handle tearoff menus */
 }

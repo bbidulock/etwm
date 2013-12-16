@@ -356,6 +356,7 @@ union WindowDecorations {
 	unsigned shade:1;		/* has shade button */
 	unsigned stick:1;		/* has stick button */
 	unsigned maximus:1;		/* has maximus buttons */
+	unsigned titlebar:1;		/* has titlebar */
     } decoration;
     unsigned decorations;
 };
@@ -426,6 +427,7 @@ struct TwmWindow
     short highlight;		/* should highlight this window */
     short stackmode;		/* honor stackmode requests */
     short ontoppriority;	/* how much on top should that be */
+    short initial_layer;	/* copy of initial ontoppriority */
     short iconify_by_unmapping;	/* unmap window to iconify it */
     short iconmgr;		/* this is an icon manager window */
     short wspmgr;		/* this is a workspace manager manager window */
@@ -438,6 +440,7 @@ struct TwmWindow
     unsigned int save_frame_width;  /* width of frame */
     unsigned int save_frame_height; /* height of frame */
     short zoomed;		/* is the window zoomed? */
+    short fullscreen;		/* is the window fullscreen? */
     short wShaped;		/* this window has a bounding shape */
     unsigned long protocols;	/* which protocols this window handles */
     Colormaps cmaps;		/* colormaps for this application */

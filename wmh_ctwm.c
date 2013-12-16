@@ -254,30 +254,77 @@ TwmGetWinLayer(TwmWindow *twin, unsigned *layer)
     *layer = twin->ontoppriority / 2;
 }
 
+/** @brief Initialize the layer for a window.
+  * @param twin - TWM window
+  * @param layer - layer to initialize to
+  *
+  * Gnome/WinWM/WMH does not realy have a way of specifying window type as does
+  * NetWM/EWMH.  Also, it does not have a way of specifying active functions and
+  * decorations unless it also supports _MOTIF_WM_HINTS.  There is, however, a
+  * fairly consistent mapping of window type to layer, so it is possible to
+  * discern some window types by the layer specified.  So, this function also
+  * affects the avaliable functions and decorations.
+  */
 void
 TwmIniWinLayer(TwmWindow *twin, unsigned layer)
 {
+    union WindowFunctions func = twin->func;
+    union WindowDecorations decor = twin->decor;
+    union WindowLists list = twin->list;
+
     switch (layer) {
     case WIN_LAYER_DESKTOP:
     case 1:
+	/* just desktop windows */
+	func.functions = 0;	/* no functions */
+	decor.decorations = 0;	/* no decorations */
+	list.lists = 0;		/* no lists */
+	break;
     case WIN_LAYER_BELOW:
     case 3:
+	/* things that are stuck to the desktop */
+	break;
     case WIN_LAYER_NORMAL:
     case 5:
+	/* toolbars, tearoff menus, utility windows, dialogs, normal */
+	break;
     case WIN_LAYER_ONTOP:
     case 7:
+	/* things that are stuck to the screen */
+	break;
     case WIN_LAYER_DOCK:
     case 9:
+	/* just dock windows */
+	func.functions = 0;	/* no functions */
+	decor.decorations = 0;	/* no decorations */
+	list.lists = 0;		/* no lists */
+	break;
     case WIN_LAYER_ABOVE_DOCK:
     case 11:
-    case WIN_LAYER_MENU:
-	twin->ontoppriority = layer * 2;
+	/* basically splashes, notifications and tooltips */
+	func.functions = 0;	/* no functions */
+	decor.decorations = 0;	/* no decorations */
+	list.lists = 0;		/* no lists */
 	break;
     default:
-	twin->ontoppriority = WIN_LAYER_MENU;
+	layer = WIN_LAYER_MENU;
+	/* fall through */
+    case WIN_LAYER_MENU:
+    case 13:
+	/* drop-down menus, popup menus, combo boxes and dnd windows */
+	func.functions = 0;	/* no functions */
+	decor.decorations = 0;	/* no decorations */
+	list.lists = 0;		/* no lists */
 	break;
     }
+    twin->func = func;
+    twin->decor = decor;
+    twin->list = list;
+    twin->ontoppriority = twin->initial_layer = layer * 2;
 }
+
+extern void SetupFrame(TwmWindow *tmp_win, int x, int y, int w, int h, int bw,
+		       Bool sendEvent);
 
 /** @brief Set the layer for a window.
   * @param twin - the TWM window
@@ -287,27 +334,94 @@ TwmIniWinLayer(TwmWindow *twin, unsigned layer)
   * that has the same effect as layers.
   */
 void
-TwmSetWinLayer(TwmWindow *twin, unsigned layer)
+TwmSetWinLayer(ScreenInfo *scr, TwmWindow *twin, unsigned layer)
 {
+    union WindowFunctions func = twin->func;
+    union WindowDecorations decor = twin->decor;
+    union WindowLists list = twin->list;
+
     switch (layer) {
     case WIN_LAYER_DESKTOP:
     case 1:
+	/* just desktop windows */
+	func.functions = 0;	/* no functions */
+	decor.decorations = 0;	/* no decorations */
+	list.lists = 0;		/* no lists */
+	break;
     case WIN_LAYER_BELOW:
     case 3:
+	/* things that are stuck to the desktop */
+	break;
     case WIN_LAYER_NORMAL:
     case 5:
+	/* toolbars, tearoff menus, utility windows, dialogs, normal */
+	break;
     case WIN_LAYER_ONTOP:
     case 7:
+	/* things that are stuck to the screen */
+	break;
     case WIN_LAYER_DOCK:
     case 9:
+	/* just dock windows */
+	func.functions = 0;	/* no functions */
+	decor.decorations = 0;	/* no decorations */
+	list.lists = 0;		/* no lists */
+	break;
+	break;
     case WIN_LAYER_ABOVE_DOCK:
     case 11:
-    case WIN_LAYER_MENU:
-	twin->ontoppriority = layer * 2;
+	/* basically splashes, notifications and tooltips */
+	func.functions = 0;	/* no functions */
+	decor.decorations = 0;	/* no decorations */
+	list.lists = 0;		/* no lists */
+	break;
 	break;
     default:
-	twin->ontoppriority = WIN_LAYER_MENU;
+	layer = WIN_LAYER_MENU;
+	/* fall through */
+    case WIN_LAYER_MENU:
+    case 13:
+	/* drop-down menus, popup menus, combo boxes and dnd windows */
+	func.functions = 0;	/* no functions */
+	decor.decorations = 0;	/* no decorations */
+	list.lists = 0;		/* no lists */
 	break;
+    }
+    twin->func = func;
+    if (twin->decor.decorations != decor.decorations) {
+	twin->decor = decor;
+	/* change decorations */
+	twin->frame_bw3D = scr->ThreeDBorderWidth;
+	if (!decor.decoration.border) {
+	    twin->frame_bw = 0;
+	    twin->frame_bw3D = 0;
+	} else if (twin->frame_bw3D != 0) {
+	    twin->frame_bw = 0;
+	    scr->ClientBorderWidth = FALSE;
+	} else if (scr->ClientBorderWidth) {
+	    twin->frame_bw = twin->old_bw;
+	} else {
+	    twin->frame_bw = scr->BorderWidth;
+	}
+	if (decor.decoration.titlebar) {
+	    twin->title_height = scr->TitleHeight + twin->frame_bw;
+	} else {
+	    twin->title_height = 0;
+	}
+	SetupFrame(twin, twin->frame_x, twin->frame_y, twin->frame_width,
+		   twin->frame_height, -1, True);
+    }
+    twin->list = list;
+    layer *= 2;
+    if (twin->ontoppriority != layer) {
+	/* change layer */
+	if (twin->ontoppriority > layer) {
+	    twin->ontoppriority = layer;
+	    LowerWindow(twin);
+	} else {
+	    twin->ontoppriority = layer;
+	    RaiseWindow(twin);
+	}
     }
 }
 

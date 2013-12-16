@@ -3116,7 +3116,7 @@ Ret_NET_WM_DESKTOP(ScreenInfo *scr, TwmWindow *twin)
     twin->ewmh.desktop = desktop;
     Upd_NET_WM_DESKTOP(scr, twin);
     Upd_NET_WM_DESKTOP_MASK(scr, twin);
-    Upd_NET_WM_STATE(twin);
+    Upd_NET_WM_STATE(scr, twin);
 }
 
 /** @brief Receive a client message changing the desktop for a window.
@@ -3140,7 +3140,7 @@ Rcv_NET_WM_DESKTOP(ScreenInfo *scr, TwmWindow *twin, XClientMessageEvent *event)
     TwmSetWMDesktop(scr, twin, desktop, source);
     Upd_NET_WM_DESKTOP(scr, twin);
     Upd_NET_WM_DESKTOP_MASK(scr, twin);
-    Upd_NET_WM_STATE(twin);	/* for sticky state */
+    Upd_NET_WM_STATE(scr, twin);	/* for sticky state */
 }
 
 /** @} */
@@ -3291,13 +3291,13 @@ Ini_NET_WM_WINDOW_TYPE(TwmWindow *twin)
     unsigned type = 0;
 
     if ((present = Get_NET_WM_WINDOW_TYPE(twin->w, &type)))
-	TwmSetWMWindowType(twin, type);
+	TwmIniWMWindowType(twin, type);
     twin->ewmh.props._NET_WM_WINDOW_TYPE = present;
     twin->ewmh.type = type;
 }
 
 static void
-Ret_NET_WM_WINDOW_TYPE(TwmWindow *twin)
+Ret_NET_WM_WINDOW_TYPE(ScreenInfo *scr, TwmWindow *twin)
 {
     Bool present;
     unsigned type = 0;
@@ -3307,13 +3307,13 @@ Ret_NET_WM_WINDOW_TYPE(TwmWindow *twin)
     fflush(stderr);
 #endif
     if ((present = Get_NET_WM_WINDOW_TYPE(twin->w, &type)))
-	TwmSetWMWindowType(twin, type);
+	TwmSetWMWindowType(scr, twin, type);
     twin->ewmh.props._NET_WM_WINDOW_TYPE = present;
     twin->ewmh.type = type;
     Upd_NET_WM_WINDOW_TYPE(twin);
-    /* The allowed actions must be updated whenever the window type may have
-       changed. */
+    /* The following are updated whenever the window type may have changed.  */
     Upd_NET_WM_ALLOWED_ACTIONS(twin);
+    Upd_NET_WM_STATE(scr, twin);
 }
 
 /** @} */
@@ -3488,7 +3488,7 @@ Get_NET_WM_STATE(Window window, unsigned *flags)
   * will not change the property unless the actual state changes.
   */
 void
-Upd_NET_WM_STATE(TwmWindow *twin)
+Upd_NET_WM_STATE(ScreenInfo *scr, TwmWindow *twin)
 {
     unsigned state = 0;
 
@@ -3496,14 +3496,20 @@ Upd_NET_WM_STATE(TwmWindow *twin)
     fprintf(stderr, "%s on window 0x%08lx\n", __FUNCTION__, twin->w);
     fflush(stderr);
 #endif
-    TwmGetWMState(twin, &twin->ewmh.state);
+    TwmGetWMState(scr, twin, &state);
     if (!twin->ewmh.props._NET_WM_STATE || twin->ewmh.state != state) {
-	Set_NET_WM_STATE(twin->w, twin->ewmh.state);
+	Set_NET_WM_STATE(twin->w, state);
 	twin->ewmh.props._NET_WM_STATE = 1;
 	twin->ewmh.state = state;
     }
 }
 
+/** @brief Initialize the window state.
+  * @param twin - TWM window
+  *
+  * Should be called when initially managing a top-level window to initialize
+  * the window state.
+  */
 static void
 Ini_NET_WM_STATE(TwmWindow *twin)
 {
@@ -3513,28 +3519,6 @@ Ini_NET_WM_STATE(TwmWindow *twin)
     present = Get_NET_WM_STATE(twin->w, &state);
     twin->ewmh.props._NET_WM_STATE = present;
     twin->ewmh.state = state;
-}
-
-/** @brief Retrieve the window state.
-  * @param twin - TWM window
-  *
-  * Should be called when a window is intially mapped or restored.
-  */
-static void
-Ret_NET_WM_STATE(TwmWindow *twin)
-{
-    Bool present;
-    unsigned state = 0;
-
-#ifdef DEBUG_EWMH
-    fprintf(stderr, "%s for window 0x%08lx\n", __FUNCTION__, twin->w);
-    fflush(stderr);
-#endif
-    if ((present = Get_NET_WM_STATE(twin->w, &state)))
-	TwmSetWMState(twin, state);
-    twin->ewmh.props._NET_WM_STATE = present;
-    twin->ewmh.state = state;
-    Upd_NET_WM_STATE(twin);
 }
 
 void
@@ -3574,7 +3558,7 @@ Rcv_NET_WM_STATE(ScreenInfo *scr, TwmWindow *twin, XClientMessageEvent *event)
     if (!(bits = bits1 | bits2))
 	return;
     TwmChgWMState(scr, twin, action1, action2, action, source);
-    Upd_NET_WM_STATE(twin);
+    Upd_NET_WM_STATE(scr, twin);
 }
 
 /** @} */
@@ -6600,6 +6584,16 @@ Get_KDE_NET_WM_WINDOW_TYPE_OVERRIDE(Window window)
 }
 
 static void
+Ini_KDE_NET_WM_WINDOW_TYPE_OVERRIDE(TwmWindow *twin)
+{
+    Bool present;
+
+    if ((present = Get_KDE_NET_WM_WINDOW_TYPE_OVERRIDE(twin->w)))
+	TwmIniWMWindowTypeOverride(twin);
+    twin->ewmh.props._KDE_NET_WM_WINDOW_TYPE_OVERRIDE = present;
+}
+
+static void
 Ret_KDE_NET_WM_WINDOW_TYPE_OVERRIDE(TwmWindow *twin)
 {
     Bool present;
@@ -6908,7 +6902,7 @@ Rcv_NET_WM_DESKTOP_MASK(ScreenInfo *scr, TwmWindow *twin, XClientMessageEvent *e
     TwmChgWMDesktopMask(scr, twin, index, mask);
     Upd_NET_WM_DESKTOP_MASK(scr, twin);
     Upd_NET_WM_DESKTOP(scr, twin);
-    Upd_NET_WM_STATE(twin);	/* for sticky state */
+    Upd_NET_WM_STATE(scr, twin);	/* for sticky state */
 }
 
 /** @} */
@@ -7323,6 +7317,7 @@ AddWindowEwmh(ScreenInfo *scr, TwmWindow *twin)
     Ini_NET_WM_FULLSCREEN_MONITORS(scr, twin);
     // Ret_NET_WM_WINDOW_OPACITY(twin);
     Ini_NET_VIRTUAL_POS(scr, twin);
+    Ini_KDE_NET_WM_WINDOW_TYPE_OVERRIDE(twin);
 
     // Upd_NET_CLIENT_LIST(scr);
     // Upd_NET_CLIENT_LIST_STACKING(scr);
@@ -7341,7 +7336,7 @@ UpdWindowEwmh(ScreenInfo *scr, TwmWindow *twin)
     Upd_NET_WM_VISIBLE_NAME(twin);
     Upd_NET_WM_VISIBLE_ICON_NAME(twin);
     Upd_NET_WM_DESKTOP(scr, twin);
-    Upd_NET_WM_STATE(twin);
+    Upd_NET_WM_STATE(scr, twin);
     Upd_NET_WM_ALLOWED_ACTIONS(twin);
     Upd_NET_FRAME_EXTENTS(twin);
     Upd_NET_WM_DESKTOP_MASK(scr, twin);
@@ -7552,6 +7547,8 @@ HandleNetPropertyNotify(ScreenInfo *scr, TwmWindow *twin, XEvent *xev)
 	    Ret_NET_WM_STRUT_PARTIAL(scr, twin);
 	} else if (atom == _XA_NET_WM_ICON) {
 	    Ret_NET_WM_ICON(twin);
+	} else if (atom == _XA_NET_WM_WINDOW_TYPE) {
+	    Ret_NET_WM_WINDOW_TYPE(scr, twin);
 	} else if (atom == _XA_NET_WM_ICON_GEOMETRY) {
 	    Ret_NET_WM_ICON_GEOMETRY(twin);
 	} else if (atom == _XA_NET_WM_USER_TIME) {
@@ -7561,6 +7558,8 @@ HandleNetPropertyNotify(ScreenInfo *scr, TwmWindow *twin, XEvent *xev)
 	    Ret_NET_WM_SYNC_REQUEST_COUNTER(twin);
 	} else if (atom == _XA_NET_WM_HANDLED_ICONS) {
 	    Ret_NET_WM_HANDLED_ICONS(scr, twin);
+	} else if (atom == _XA_KDE_NET_WM_WINDOW_TYPE_OVERRIDE) {
+	    Ret_KDE_NET_WM_WINDOW_TYPE_OVERRIDE(twin);
 	} else
 	    return False;
     } else {

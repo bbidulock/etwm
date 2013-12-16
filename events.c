@@ -864,6 +864,7 @@ void HandleFocusIn(XFocusInEvent *event)
     Scr->Focus = Tmp_win;
 #ifdef EWMH
     Upd_NET_ACTIVE_WINDOW(Scr);
+    Upd_NET_WM_STATE(Scr, Tmp_win);
 #endif				/* EWMH */
 }
 
@@ -882,6 +883,7 @@ void HandleFocusOut(XFocusOutEvent *event)
     Scr->Focus= NULL;
 #ifdef EWMH
     Upd_NET_ACTIVE_WINDOW(Scr);
+    Upd_NET_WM_STATE(Scr, Tmp_win);
 #endif				/* EWMH */
 }
 

@@ -263,6 +263,12 @@ TwmWindow *AddWindow(Window w, int iconm, IconMgr *iconp)
     tmp_win->savevs = NULL;
     tmp_win->cmaps.number_cwins = 0;
     tmp_win->savegeometry.width = -1;
+    tmp_win->func.functions = -1U;
+    tmp_win->decor.decorations = -1U;
+    tmp_win->list.lists = -1U;
+    tmp_win->ontoppriority = CTWM_LAYER_NORMAL;
+    tmp_win->initial_layer = CTWM_LAYER_NORMAL;
+    tmp_win->occupation = 0;
 
     XSelectInput(dpy, tmp_win->w, PropertyChangeMask);
     XGetWindowAttributes(dpy, tmp_win->w, &tmp_win->attr);
@@ -271,16 +277,6 @@ TwmWindow *AddWindow(Window w, int iconm, IconMgr *iconp)
     XGetClassHint(dpy, tmp_win->w, &tmp_win->class);
     FetchWmProtocols (tmp_win);
     FetchWmColormapWindows (tmp_win);
-
-#ifdef EWMH
-    AddWindowEwmh(Scr, tmp_win);
-#endif				/* EWMH */
-#ifdef WMH
-    AddWindowWmh(Scr, tmp_win);
-#endif				/* WMH */
-#ifdef MWMH
-    AddWindowMwmh(Scr, tmp_win);
-#endif				/* MWMH */
 
     if (GetWindowConfig (tmp_win,
 	&saved_x, &saved_y, &saved_width, &saved_height,
@@ -388,6 +384,17 @@ TwmWindow *AddWindow(Window w, int iconm, IconMgr *iconp)
       *moz = '\0';
     }
 #endif
+
+#ifdef EWMH
+    AddWindowEwmh(Scr, tmp_win);
+#endif				/* EWMH */
+#ifdef WMH
+    AddWindowWmh(Scr, tmp_win);
+#endif				/* WMH */
+#ifdef MWMH
+    AddWindowMwmh(Scr, tmp_win);
+#endif				/* MWMH */
+
     namelen = strlen (tmp_win->name);
 
     if (LookInList(Scr->IgnoreTransientL, tmp_win->full_name, &tmp_win->class))
@@ -401,8 +408,10 @@ TwmWindow *AddWindow(Window w, int iconm, IconMgr *iconp)
 	(!LookInList(Scr->NoStackModeL, tmp_win->full_name, 
 	    &tmp_win->class));
 
-    tmp_win->ontoppriority = (LookInList(Scr->AlwaysOnTopL,
-	tmp_win->full_name, &tmp_win->class)) ? CTWM_LAYER_DOCK : CTWM_LAYER_NORMAL;
+    if (LookInList(Scr->AlwaysOnTopL, tmp_win->full_name, &tmp_win->class)) {
+	tmp_win->ontoppriority = CTWM_LAYER_DOCK;
+	tmp_win->initial_layer = CTWM_LAYER_DOCK;
+    }
 
     tmp_win->titlehighlight = Scr->TitleHighlight && 
 	(!LookInList(Scr->NoTitleHighlight, tmp_win->full_name, 
@@ -460,20 +469,23 @@ TwmWindow *AddWindow(Window w, int iconm, IconMgr *iconp)
 	if (!t && tmp_win->group) t = GetTwmWindow(tmp_win->group);
 	if (t) tmp_win->UnmapByMovingFarAway = t->UnmapByMovingFarAway;
     }
-    if ((Scr->WindowRingAll && !iswman &&
-	!LookInList(Scr->WindowRingExcludeL, tmp_win->full_name, &tmp_win->class)) ||
-	LookInList(Scr->WindowRingL, tmp_win->full_name, &tmp_win->class)) {
+    if (iswman || LookInList(Scr->WindowRingExcludeL, tmp_win->full_name, &tmp_win->class)
+	|| (!Scr->WindowRingAll
+	    && !LookInList(Scr->WindowRingL, tmp_win->full_name, &tmp_win->class)))
+	tmp_win->list.list.window = 0;
+
+    if (tmp_win->list.list.window) {
 	if (Scr->Ring) {
 	    tmp_win->ring.next = Scr->Ring->ring.next;
 	    if (Scr->Ring->ring.next->ring.prev)
-	      Scr->Ring->ring.next->ring.prev = tmp_win;
+		Scr->Ring->ring.next->ring.prev = tmp_win;
 	    Scr->Ring->ring.next = tmp_win;
 	    tmp_win->ring.prev = Scr->Ring;
 	} else {
 	    tmp_win->ring.next = tmp_win->ring.prev = Scr->Ring = tmp_win;
 	}
     } else
-      tmp_win->ring.next = tmp_win->ring.prev = NULL;
+	tmp_win->ring.next = tmp_win->ring.prev = NULL;
     tmp_win->ring.cursor_valid = False;
 
     tmp_win->squeeze_info = NULL;
@@ -496,10 +508,15 @@ TwmWindow *AddWindow(Window w, int iconm, IconMgr *iconp)
 	}
       }
 
+    if (LookInList(Scr->NoBorder, tmp_win->full_name, &tmp_win->class)) {
+	tmp_win->decor.decoration.border = 0;
+	tmp_win->decor.decoration.resizeh = 0;
+    }
+
     tmp_win->old_bw = tmp_win->attr.border_width;
 
     tmp_win->frame_bw3D = Scr->ThreeDBorderWidth;
-    if (LookInList(Scr->NoBorder, tmp_win->full_name, &tmp_win->class)) {
+    if (!tmp_win->decor.decoration.border) {
 	tmp_win->frame_bw = 0;
 	tmp_win->frame_bw3D = 0;
     }
@@ -516,13 +533,16 @@ TwmWindow *AddWindow(Window w, int iconm, IconMgr *iconp)
     }
     bw2 = tmp_win->frame_bw * 2;
 
-    tmp_win->title_height = Scr->TitleHeight + tmp_win->frame_bw;
-    if (Scr->NoTitlebar)
-        tmp_win->title_height = 0;
-    if (LookInList(Scr->MakeTitle, tmp_win->full_name, &tmp_win->class))
-        tmp_win->title_height = Scr->TitleHeight + tmp_win->frame_bw;
-    if (LookInList(Scr->NoTitle, tmp_win->full_name, &tmp_win->class))
-        tmp_win->title_height = 0;
+    if ((Scr->NoTitlebar
+	 && !LookInList(Scr->MakeTitle, tmp_win->full_name, &tmp_win->class))
+	|| LookInList(Scr->NoTitle, tmp_win->full_name, &tmp_win->class)
+	|| (tmp_win->transient && !Scr->DecorateTransients))
+	tmp_win->decor.decoration.titlebar = 0;
+
+    if (tmp_win->decor.decoration.titlebar)
+	tmp_win->title_height = Scr->TitleHeight + tmp_win->frame_bw;
+    else
+	tmp_win->title_height = 0;
 
     tmp_win->OpaqueMove = Scr->DoOpaqueMove;
     if (LookInList(Scr->OpaqueMoveList, tmp_win->full_name, &tmp_win->class))
@@ -537,10 +557,6 @@ TwmWindow *AddWindow(Window w, int iconm, IconMgr *iconp)
     else
     if (LookInList(Scr->NoOpaqueResizeList, tmp_win->full_name, &tmp_win->class))
 	tmp_win->OpaqueResize = FALSE;
-
-    /* if it is a transient window, don't put a title on it */
-    if (tmp_win->transient && !Scr->DecorateTransients)
-	tmp_win->title_height = 0;
 
     if (LookInList(Scr->StartIconified, tmp_win->full_name, &tmp_win->class))
     {
@@ -598,7 +614,7 @@ TwmWindow *AddWindow(Window w, int iconm, IconMgr *iconp)
     if (restoredFromPrevSession) {
       SetupOccupation (tmp_win, saved_occupation);
     } else
-      SetupOccupation (tmp_win, 0);
+      SetupOccupation (tmp_win, tmp_win->occupation);
     tmp_win->old_parent_vs = vs;
     /*=================================================================*/
 

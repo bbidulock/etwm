@@ -289,7 +289,7 @@ void TwmSetWorkspaceNames(ScreenInfo *scr, char **names, int count);
 
 /* _WIN_LAYER */
 void TwmGetWinLayer(TwmWindow *twin, unsigned *layer);
-void TwmSetWinLayer(TwmWindow *twin, unsigned layer);
+void TwmSetWinLayer(ScreenInfo *scr, TwmWindow *twin, unsigned layer);
 void TwmIniWinLayer(TwmWindow *twin, unsigned layer);
 
 /* _WIN_STATE */
