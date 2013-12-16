@@ -4042,17 +4042,17 @@ void
 RaiseWindow(TwmWindow *tmp_win)
 {
     Window root, parent, *children, above = None;
-    unsigned int nchildren, n;
+    unsigned int nchildren;
     short ontop = tmp_win->ontoppriority;
     XWindowChanges xwc;
-    int xwcm;
+    int xwcm, n;
 
     if (!XQueryTree(dpy, Scr->Root, &root, &parent, &children, &nchildren))
 	return;
 
     /* find the bottom-most window that has a higher layer than the window
        being raised */
-    for (n = 0; n < nchildren; n++) {
+    for (n = 0; n < (int) nchildren; n++) {
 	TwmWindow *twin = NULL;
 
 	if (XFindContext(dpy, children[n], TwmContext, (XPointer *) &twin) != XCSUCCESS
@@ -4080,16 +4080,16 @@ void
 RaiseIcon(Window icon, short ontop)
 {
     Window root, parent, *children, above = None;
-    unsigned int nchildren, n;
+    unsigned int nchildren;
     XWindowChanges xwc;
-    int xwcm;
+    int xwcm, n;
 
     if (!XQueryTree(dpy, Scr->Root, &root, &parent, &children, &nchildren))
 	return;
 
     /* find the bottom-most window that has a higher layer than the window
        being raised */
-    for (n = 0; n < nchildren; n++) {
+    for (n = 0; n < (int) nchildren; n++) {
 	TwmWindow *twin = NULL;
 
 	if (XFindContext(dpy, children[n], TwmContext, (XPointer *) &twin) != XCSUCCESS
@@ -4151,14 +4151,15 @@ void
 RaiseLower(TwmWindow *tmp_win)
 {
     Window root, parent, *children;
-    unsigned int nchildren, n, top, bot;
+    unsigned int nchildren, top, bot;
     short ontop = tmp_win->ontoppriority;
+    int n;
 
     if (!XQueryTree(dpy, Scr->Root, &root, &parent, &children, &nchildren))
 	return;
 
     /* find the bottom-most window with same priority. */
-    for (n = 0; n < nchildren; n++) {
+    for (n = 0; n < (int) nchildren; n++) {
 	TwmWindow *twin = NULL;
 
 	if (XFindContext(dpy, children[n], TwmContext, (XPointer *) &twin) != XCSUCCESS
@@ -4170,7 +4171,7 @@ RaiseLower(TwmWindow *tmp_win)
 	}
     }
     /* find the top-most window with the same priority */
-    for (n = nchildren - 1; n >= 0; n--) {
+    for (n = (int) nchildren - 1; n >= 0; n--) {
 	TwmWindow *twin = NULL;
 
 	if (XFindContext(dpy, children[n], TwmContext, (XPointer *) &twin) != XCSUCCESS
@@ -4223,13 +4224,14 @@ void
 RaiseLowerIcon(Window icon, short ontop)
 {
     Window root, parent, *children;
-    unsigned int nchildren, n, top, bot;
+    unsigned int nchildren, top, bot;
+    int n;
 
     if (!XQueryTree(dpy, Scr->Root, &root, &parent, &children, &nchildren))
 	return;
 
     /* find the bottom-most window with same priority. */
-    for (n = 0; n < nchildren; n++) {
+    for (n = 0; n < (int) nchildren; n++) {
 	TwmWindow *twin = NULL;
 
 	if (XFindContext(dpy, children[n], TwmContext, (XPointer *) &twin) != XCSUCCESS
@@ -4241,7 +4243,7 @@ RaiseLowerIcon(Window icon, short ontop)
 	}
     }
     /* find the top-most window with the same priority */
-    for (n = nchildren - 1; n >= 0; n--) {
+    for (n = (int) nchildren - 1; n >= 0; n--) {
 	TwmWindow *twin = NULL;
 
 	if (XFindContext(dpy, children[n], TwmContext, (XPointer *) &twin) != XCSUCCESS
@@ -4290,18 +4292,18 @@ void RaiseLowerIcon (Window icon, int ontop)
 void
 LowerWindow(TwmWindow *tmp_win)
 {
-    Window root, parent, *children, below = None;
-    unsigned int nchildren, n;
+    Window root = None, parent = None, *children = NULL, below = None;
+    unsigned int nchildren = 0;
     short ontop = tmp_win->ontoppriority;
     XWindowChanges xwc;
-    int xwcm;
+    int xwcm, n;
 
     if (!XQueryTree(dpy, Scr->Root, &root, &parent, &children, &nchildren))
 	return;
 
     /* find the top-most window that has a lower layer than the window being
        lowered */
-    for (n = nchildren - 1; n >= 0; n--) {
+    for (n = (int) nchildren - 1; n >= 0; n--) {
 	TwmWindow *twin = NULL;
 
 	if (XFindContext(dpy, children[n], TwmContext, (XPointer *) &twin) != XCSUCCESS
@@ -4322,7 +4324,8 @@ LowerWindow(TwmWindow *tmp_win)
     }
     XConfigureWindow(dpy, tmp_win->frame, xwcm, &xwc);
     PlaceTransients(tmp_win, Above);
-    XFree(children);
+    if (children != NULL)
+	XFree(children);
 }
 
 #else
@@ -4362,16 +4365,16 @@ void
 LowerIcon(Window icon, short ontop)
 {
     Window root, parent, *children, below = None;
-    unsigned int nchildren, n;
+    unsigned int nchildren;
     XWindowChanges xwc;
-    int xwcm;
+    int xwcm, n;
 
     if (!XQueryTree(dpy, Scr->Root, &root, &parent, &children, &nchildren))
 	return;
 
     /* find the top-most window that has a lower layer than the window being
        lowered */
-    for (n = nchildren - 1; n >= 0; n--) {
+    for (n = (int) nchildren - 1; n >= 0; n--) {
 	TwmWindow *twin = NULL;
 
 	if (XFindContext(dpy, children[n], TwmContext, (XPointer *) &twin) != XCSUCCESS
