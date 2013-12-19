@@ -4521,6 +4521,12 @@ void DeIconify(TwmWindow *tmp_win)
 	ExecuteFunction (Scr->DeIconifyFunction.func, action,
 			   (Window) 0, tmp_win, &event, C_ROOT, FALSE);
     }
+#ifdef EMWH
+    upd_NET_WM_STATE(Scr, tmp_win);
+#endif				/* EWMH */
+#ifdef WMH
+    Upd_WIN_STATE(Scr, tmp_win);
+#endif				/* WMH */
     XSync (dpy, 0);
 }
 
@@ -4662,6 +4668,12 @@ void Iconify(TwmWindow *tmp_win, int def_x, int def_y)
 	ExecuteFunction (Scr->IconifyFunction.func, action,
 			   (Window) 0, tmp_win, &event, C_ROOT, FALSE);
     }
+#ifdef EMWH
+    upd_NET_WM_STATE(Scr, tmp_win);
+#endif				/* EWMH */
+#ifdef WMH
+    Upd_WIN_STATE(Scr, tmp_win);
+#endif				/* WMH */
     XSync (dpy, 0);
 }
 
