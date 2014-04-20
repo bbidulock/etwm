@@ -1338,7 +1338,8 @@ Upd_NET_DESKTOP_VIEWPORT(ScreenInfo *scr)
 	free(scr->ewmh.viewport);
 	scr->ewmh.viewport = viewport;
 	scr->ewmh.viewports = viewports;
-    }
+    } else
+	free(viewport);
 }
 
 static void
@@ -1789,7 +1790,8 @@ Upd_NET_WORKAREA(ScreenInfo *scr)
 	free(scr->ewmh.workarea);
 	scr->ewmh.workarea = workarea;
 	scr->ewmh.workareas = workareas;
-    }
+    } else
+	free(workarea);
 }
 
 static void
@@ -1923,7 +1925,8 @@ Upd_NET_VIRTUAL_ROOTS(ScreenInfo *scr)
 	scr->ewmh.props._NET_VIRTUAL_ROOTS = 1;
 	free(scr->ewmh.vroots);
 	scr->ewmh.vroots = vroots;
-    }
+    } else
+	free(vroots);
 }
 
 void
@@ -6832,7 +6835,8 @@ Upd_NET_WM_DESKTOP_MASK(ScreenInfo *scr, TwmWindow *twin)
 	free(twin->ewmh.mask);
 	twin->ewmh.mask = mask;
 	twin->ewmh.masks = masks;
-    }
+    } else
+	free(mask);
 }
 
 static void
@@ -7425,6 +7429,7 @@ HandleNetClientMessage(ScreenInfo *scr, TwmWindow *twin, XEvent *xev)
     if ((name = XGetAtomName(dpy, message_type)) != NULL) {
 	fprintf(stderr, "%s for message_type %s\n", __FUNCTION__, name);
 	fflush(stderr);
+	XFree(name);
     }
 #endif
 
@@ -7525,6 +7530,7 @@ HandleNetPropertyNotify(ScreenInfo *scr, TwmWindow *twin, XEvent *xev)
     if ((name = XGetAtomName(dpy, atom)) != NULL) {
 	fprintf(stderr, "%s for property %s\n", __FUNCTION__, name);
 	fflush(stderr);
+	XFree(name);
     }
 #endif
 
@@ -7597,6 +7603,7 @@ HandleNetSelectionClear(ScreenInfo *scr, TwmWindow *twin, XEvent *xev)
     if ((name = XGetAtomName(dpy, atom)) != NULL) {
 	fprintf(stderr, "%s for selection %s\n", __FUNCTION__, name);
 	fflush(stderr);
+	XFree(name);
     }
 #endif
 

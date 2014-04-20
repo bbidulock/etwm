@@ -535,7 +535,8 @@ Upd_WIN_CLIENT_LIST(ScreenInfo *scr)
 	scr->wmh.props._WIN_CLIENT_LIST = 1;
 	free(scr->wmh.clients);
 	scr->wmh.clients = clients;
-    }
+    } else
+	free(clients);
 }
 
 /** @brief Initialize the client window list.
@@ -857,7 +858,7 @@ Set_WIN_WORKSPACE_NAMES(Window root, char **names, int count)
     fprintf(stderr, "%s on root 0x%08lx\n", __FUNCTION__, root);
     fflush(stderr);
 #endif
-    if (XStringListToTextProperty(names, count, &text) == Success) {
+    if (XStringListToTextProperty(names, count, &text)) {
 	XSetTextProperty(dpy, root, &text, _XA_WIN_WORKSPACE_NAMES);
 	XFree(text.value);
     }
@@ -905,7 +906,8 @@ Upd_WIN_WORKSPACE_NAMES(ScreenInfo *scr)
 	if (scr->wmh.names != NULL)
 	    XFreeStringList(scr->wmh.names);
 	scr->wmh.names = names;
-    }
+    } else if (names)
+	XFreeStringList(names);
 }
 
 /** @brief - Initialize the workspace names.
@@ -2096,7 +2098,8 @@ Upd_WIN_WORKSPACES(ScreenInfo *scr, TwmWindow *twin)
 	free(twin->wmh.mask);
 	twin->wmh.mask = mask;
 	twin->wmh.masks = masks;
-    }
+    } else
+	free(mask);
 }
 
 static void

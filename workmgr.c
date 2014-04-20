@@ -137,6 +137,9 @@ void InitWorkSpaceManager (void)
     Scr->workSpaceMgr.occupyWindow->twm_win   = (TwmWindow*) 0;
     Scr->workSpaceMgr.occupyWindow->vspace    = Scr->WMgrVertButtonIndent;
     Scr->workSpaceMgr.occupyWindow->hspace    = Scr->WMgrHorizButtonIndent;
+    Scr->workSpaceMgr.occupyWindow->tmpOccupation = -1;
+    Scr->workSpaceMgr.occupyWindow->width     = -1;
+    Scr->workSpaceMgr.occupyWindow->height    = -1;
 
     Scr->workSpaceMgr.curColors.back  = Scr->Black;
     Scr->workSpaceMgr.curColors.fore  = Scr->White;
@@ -1416,6 +1419,7 @@ void AllocateOthersIconManagers (void)
     WorkSpace *ws;
 
     if (! Scr->workSpaceManagerActive) return;
+    if (! Scr->workSpaceMgr.workSpaceList) return;
 
     oldp = Scr->iconmgr;
     for (ws = Scr->workSpaceMgr.workSpaceList->next; ws != NULL; ws = ws->next) {

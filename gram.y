@@ -167,40 +167,50 @@ stmt		: error
 		| squeeze
 		| ICON_REGION string DKEYWORD DKEYWORD number number {
 		      (void) AddIconRegion($2, $3, $4, $5, $6, "undef", "undef", "undef");
+		      free($2);
 		  }
 		| ICON_REGION string DKEYWORD DKEYWORD number number string {
 		      (void) AddIconRegion($2, $3, $4, $5, $6, $7, "undef", "undef");
+		      free($2);
 		  }
 		| ICON_REGION string DKEYWORD DKEYWORD number number string string {
 		      (void) AddIconRegion($2, $3, $4, $5, $6, $7, $8, "undef");
+		      free($2);
 		  }
 		| ICON_REGION string DKEYWORD DKEYWORD number number string string string {
 		      (void) AddIconRegion($2, $3, $4, $5, $6, $7, $8, $9);
+		      free($2);
 		  }
 		| ICON_REGION string DKEYWORD DKEYWORD number number {
 		      list = AddIconRegion($2, $3, $4, $5, $6, "undef", "undef", "undef");
+		      free($2);
 		  }
 		  win_list
 		| ICON_REGION string DKEYWORD DKEYWORD number number string {
 		      list = AddIconRegion($2, $3, $4, $5, $6, $7, "undef", "undef");
+		      free($2);
 		  }
 		  win_list
 		| ICON_REGION string DKEYWORD DKEYWORD number number string string {
 		      list = AddIconRegion($2, $3, $4, $5, $6, $7, $8, "undef");
+		      free($2);
 		  }
 		  win_list
 		| ICON_REGION string DKEYWORD DKEYWORD number number string string string {
 		      list = AddIconRegion($2, $3, $4, $5, $6, $7, $8, $9);
+		      free($2);
 		  }
 		  win_list
 
 		| WINDOW_REGION string DKEYWORD DKEYWORD {
 		      list = AddWindowRegion ($2, $3, $4);
+		      free($2);
 		  }
 		  win_list
 
 		| WINDOW_BOX string string {
 		      list = addWindowBox ($2, $3);
+		      free($2); free($3);
 		  }
 		  win_list
 
@@ -208,19 +218,24 @@ stmt		: error
 						  {
 						    Scr->iconmgr->geometry= (char*)$2;
 						    Scr->iconmgr->columns=$3;
-						  }
+						  } else
+							  free($2);
 						}
 		| ICONMGR_GEOMETRY string	{ if (Scr->FirstTime)
 						    Scr->iconmgr->geometry = (char*)$2;
+						  else
+						    free($2);
 						}
 		| WORKSPCMGR_GEOMETRY string number	{ if (Scr->FirstTime)
 				{
 				    Scr->workSpaceMgr.geometry= (char*)$2;
 				    Scr->workSpaceMgr.columns=$3;
-				}
+				} else
+				    free($2);
 						}
 		| WORKSPCMGR_GEOMETRY string	{ if (Scr->FirstTime)
 				    Scr->workSpaceMgr.geometry = (char*)$2;
+				    else free($2);
 						}
 		| MAPWINDOWCURRENTWORKSPACE {}
 		  curwork
@@ -262,9 +277,13 @@ stmt		: error
 		| RIGHT_TITLEBUTTON string EQUALS action {
 					  GotTitleButton ($2, $4, True);
 					}
-		| LEFT_TITLEBUTTON string { CreateTitleButton($2, 0, NULL, NULL, FALSE, TRUE); }
+		| LEFT_TITLEBUTTON string { if (!CreateTitleButton($2, 0, NULL, NULL, FALSE, TRUE))
+						free($2);
+					}
 		  binding_list
-		| RIGHT_TITLEBUTTON string { CreateTitleButton($2, 0, NULL, NULL, TRUE, TRUE); }
+		| RIGHT_TITLEBUTTON string { if (!CreateTitleButton($2, 0, NULL, NULL, TRUE, TRUE))
+						free($2);
+					}
 		  binding_list
 		| button string		{
 		    root = GetRoot($2, NULLSTR, NULLSTR);
@@ -278,7 +297,7 @@ stmt		: error
 			else {
 			    MenuItem *item;
 
-			    root = GetRoot(TWM_ROOT,NULLSTR,NULLSTR);
+			    root = GetRoot(strdup(TWM_ROOT),NULLSTR,NULLSTR);
 			    item = AddToMenu (root, "x", Action,
 					NULL, $2, NULLSTR, NULLSTR);
 			    AddFuncButton ($1, C_ROOT, 0, $2, (MenuRoot*) 0, item);
@@ -360,7 +379,9 @@ stmt		: error
 		  win_list
 		| AUTO_LOWER		{ Scr->AutoLowerDefault = TRUE; }
 		| MENU string LP string COLON string RP	{
-					root = GetRoot($2, $4, $6); }
+					root = GetRoot($2, $4, $6);
+					free($4); free($6);
+					}
 		  menu			{ root->real_menu = TRUE;}
 		| MENU string		{ root = GetRoot($2, NULLSTR, NULLSTR); }
 		  menu			{ root->real_menu = TRUE; }
@@ -382,7 +403,7 @@ stmt		: error
 					  }
 					  else
 					  {
-					    root = GetRoot(TWM_ROOT,NULLSTR,NULLSTR);
+					    root = GetRoot(strdup(TWM_ROOT),NULLSTR,NULLSTR);
 					    Scr->DefaultFunction.item =
 						AddToMenu(root,"x",Action,
 							  NULL,$2, NULLSTR, NULLSTR);
@@ -391,7 +412,7 @@ stmt		: error
 					  pull = NULL;
 					}
 		| WINDOW_FUNCTION action { Scr->WindowFunction.func = $2;
-					   root = GetRoot(TWM_ROOT,NULLSTR,NULLSTR);
+					   root = GetRoot(strdup(TWM_ROOT),NULLSTR,NULLSTR);
 					   Scr->WindowFunction.item =
 						AddToMenu(root,"x",Action,
 							  NULL,$2, NULLSTR, NULLSTR);
@@ -399,7 +420,7 @@ stmt		: error
 					   pull = NULL;
 					}
 		| CHANGE_WORKSPACE_FUNCTION action { Scr->ChangeWorkspaceFunction.func = $2;
-					   root = GetRoot(TWM_ROOT,NULLSTR,NULLSTR);
+					   root = GetRoot(strdup(TWM_ROOT),NULLSTR,NULLSTR);
 					   Scr->ChangeWorkspaceFunction.item =
 						AddToMenu(root,"x",Action,
 							  NULL,$2, NULLSTR, NULLSTR);
@@ -407,7 +428,7 @@ stmt		: error
 					   pull = NULL;
 					}
 		| DEICONIFY_FUNCTION action { Scr->DeIconifyFunction.func = $2;
-					   root = GetRoot(TWM_ROOT,NULLSTR,NULLSTR);
+					   root = GetRoot(strdup(TWM_ROOT),NULLSTR,NULLSTR);
 					   Scr->DeIconifyFunction.item =
 						AddToMenu(root,"x",Action,
 							  NULL,$2, NULLSTR, NULLSTR);
@@ -415,7 +436,7 @@ stmt		: error
 					   pull = NULL;
 					}
 		| ICONIFY_FUNCTION action { Scr->IconifyFunction.func = $2;
-					   root = GetRoot(TWM_ROOT,NULLSTR,NULLSTR);
+					   root = GetRoot(strdup(TWM_ROOT),NULLSTR,NULLSTR);
 					   Scr->IconifyFunction.item =
 						AddToMenu(root,"x",Action,
 							  NULL,$2, NULLSTR, NULLSTR);
@@ -603,7 +624,7 @@ pixmap_entries	: /* Empty */
 		| pixmap_entries pixmap_entry
 		;
 
-pixmap_entry	: TITLE_HILITE string { SetHighlightPixmap ($2); }
+pixmap_entry	: TITLE_HILITE string { SetHighlightPixmap ($2); free($2); }
 		;
 
 
@@ -615,49 +636,49 @@ cursor_entries	: /* Empty */
 		;
 
 cursor_entry	: FRAME string string {
-			NewBitmapCursor(&Scr->FrameCursor, $2, $3); }
+			NewBitmapCursor(&Scr->FrameCursor, $2, $3); free($2); free($3); }
 		| FRAME string	{
-			NewFontCursor(&Scr->FrameCursor, $2); }
+			NewFontCursor(&Scr->FrameCursor, $2); free($2); }
 		| TITLE string string {
-			NewBitmapCursor(&Scr->TitleCursor, $2, $3); }
+			NewBitmapCursor(&Scr->TitleCursor, $2, $3); free($2); free($3); }
 		| TITLE string {
-			NewFontCursor(&Scr->TitleCursor, $2); }
+			NewFontCursor(&Scr->TitleCursor, $2); free($2); }
 		| ICON string string {
-			NewBitmapCursor(&Scr->IconCursor, $2, $3); }
+			NewBitmapCursor(&Scr->IconCursor, $2, $3); free($2); free($3); }
 		| ICON string {
-			NewFontCursor(&Scr->IconCursor, $2); }
+			NewFontCursor(&Scr->IconCursor, $2); free($2); }
 		| ICONMGR string string {
-			NewBitmapCursor(&Scr->IconMgrCursor, $2, $3); }
+			NewBitmapCursor(&Scr->IconMgrCursor, $2, $3); free($2); free($3); }
 		| ICONMGR string {
-			NewFontCursor(&Scr->IconMgrCursor, $2); }
+			NewFontCursor(&Scr->IconMgrCursor, $2); free($2); }
 		| BUTTON string string {
-			NewBitmapCursor(&Scr->ButtonCursor, $2, $3); }
+			NewBitmapCursor(&Scr->ButtonCursor, $2, $3); free($2); free($3); }
 		| BUTTON string {
-			NewFontCursor(&Scr->ButtonCursor, $2); }
+			NewFontCursor(&Scr->ButtonCursor, $2); free($2); }
 		| MOVE string string {
-			NewBitmapCursor(&Scr->MoveCursor, $2, $3); }
+			NewBitmapCursor(&Scr->MoveCursor, $2, $3); free($2); free($3); }
 		| MOVE string {
-			NewFontCursor(&Scr->MoveCursor, $2); }
+			NewFontCursor(&Scr->MoveCursor, $2); free($2); }
 		| RESIZE string string {
-			NewBitmapCursor(&Scr->ResizeCursor, $2, $3); }
+			NewBitmapCursor(&Scr->ResizeCursor, $2, $3); free($2); free($3); }
 		| RESIZE string {
-			NewFontCursor(&Scr->ResizeCursor, $2); }
+			NewFontCursor(&Scr->ResizeCursor, $2); free($2); }
 		| WAITC string string {
-			NewBitmapCursor(&Scr->WaitCursor, $2, $3); }
+			NewBitmapCursor(&Scr->WaitCursor, $2, $3); free($2); free($3); }
 		| WAITC string {
-			NewFontCursor(&Scr->WaitCursor, $2); }
+			NewFontCursor(&Scr->WaitCursor, $2); free($2); }
 		| MENU string string {
-			NewBitmapCursor(&Scr->MenuCursor, $2, $3); }
+			NewBitmapCursor(&Scr->MenuCursor, $2, $3); free($2); free($3); }
 		| MENU string {
-			NewFontCursor(&Scr->MenuCursor, $2); }
+			NewFontCursor(&Scr->MenuCursor, $2); free($2); }
 		| SELECT string string {
-			NewBitmapCursor(&Scr->SelectCursor, $2, $3); }
+			NewBitmapCursor(&Scr->SelectCursor, $2, $3); free($2); free($3); }
 		| SELECT string {
-			NewFontCursor(&Scr->SelectCursor, $2); }
+			NewFontCursor(&Scr->SelectCursor, $2); free($2); }
 		| KILL string string {
-			NewBitmapCursor(&Scr->DestroyCursor, $2, $3); }
+			NewBitmapCursor(&Scr->DestroyCursor, $2, $3); free($2); free($3); }
 		| KILL string {
-			NewFontCursor(&Scr->DestroyCursor, $2); }
+			NewFontCursor(&Scr->DestroyCursor, $2); free($2); }
 		;
 
 color_list	: LB color_entries RB {}
@@ -719,7 +740,7 @@ win_color_entries	: /* Empty */
 
 win_color_entry	: string string		{ if (Scr->FirstTime &&
 					      color == Scr->Monochrome)
-					    AddToList(list, $1, $2); }
+					    AddToList(list, $1, $2); free($1); }
 		;
 
 wingeom_list	: LB wingeom_entries RB {}
@@ -729,7 +750,7 @@ wingeom_entries	: /* Empty */
 		| wingeom_entries wingeom_entry
 		;
 /* added a ';' after call to AddToList */
-wingeom_entry	: string string	{ AddToList (&Scr->WindowGeometries, $1, $2); }
+wingeom_entry	: string string	{ AddToList (&Scr->WindowGeometries, $1, $2); free($1); }
 		;
 
 geom_list	: LB geom_entries RB {}
@@ -739,7 +760,7 @@ geom_entries	: /* Empty */
 		| geom_entries geom_entry
 		;
 
-geom_entry	: string { AddToList (&Scr->VirtualScreens, $1, ""); }
+geom_entry	: string { AddToList (&Scr->VirtualScreens, $1, ""); free($1); }
 		;
 
 squeeze		: SQUEEZE_TITLE {
@@ -775,12 +796,14 @@ iconm_entry	: string string number	{ if (Scr->FirstTime)
 					    AddToList(list, $1, (char *)
 						AllocateIconManager($1, NULLSTR,
 							$2,$3));
+					    else { free($1); free($2); }
 					}
 		| string string string number
 					{ if (Scr->FirstTime)
 					    AddToList(list, $1, (char *)
 						AllocateIconManager($1,$2,
 						$3, $4));
+					    else { free($1); free($2); free($3); }
 					}
 		;
 
@@ -793,6 +816,7 @@ workspc_entries	: /* Empty */
 
 workspc_entry	: string	{
 			AddWorkSpace ($1, NULLSTR, NULLSTR, NULLSTR, NULLSTR, NULLSTR);
+			free($1);
 		}
 		| string	{
 			curWorkSpc = (char*)$1;
@@ -809,46 +833,59 @@ workapp_entries	: /* Empty */
 
 workapp_entry	: string		{
 			AddWorkSpace (curWorkSpc, $1, NULLSTR, NULLSTR, NULLSTR, NULLSTR);
+			free($1);
 		}
 		| string string		{
 			AddWorkSpace (curWorkSpc, $1, $2, NULLSTR, NULLSTR, NULLSTR);
+			free($1); free($2);
 		}
 		| string string string	{
 			AddWorkSpace (curWorkSpc, $1, $2, $3, NULLSTR, NULLSTR);
+			free($1); free($2); free($3);
 		}
 		| string string string string	{
 			AddWorkSpace (curWorkSpc, $1, $2, $3, $4, NULLSTR);
+			free($1); free($2); free($3); free($4);
 		}
 		| string string string string string	{
 			AddWorkSpace (curWorkSpc, $1, $2, $3, $4, $5);
+			free($1); free($2); free($3); free($4); free($5);
 		}
 		;
 
 curwork		: LB string RB {
 		    WMapCreateCurrentBackGround ($2, NULL, NULL, NULL);
+		    free($2);
 		}
 		| LB string string RB {
 		    WMapCreateCurrentBackGround ($2, $3, NULL, NULL);
+		    free($2); free($3);
 		}
 		| LB string string string RB {
 		    WMapCreateCurrentBackGround ($2, $3, $4, NULL);
+		    free($2); free($3); free($4);
 		}
 		| LB string string string string RB {
 		    WMapCreateCurrentBackGround ($2, $3, $4, $5);
+		    free($2); free($3); free($4); free($5);
 		}
 		;
 
 defwork		: LB string RB {
 		    WMapCreateDefaultBackGround ($2, NULL, NULL, NULL);
+		    free($2);
 		}
 		| LB string string RB {
 		    WMapCreateDefaultBackGround ($2, $3, NULL, NULL);
+		    free($2); free($3);
 		}
 		| LB string string string RB {
 		    WMapCreateDefaultBackGround ($2, $3, $4, NULL);
+		    free($2); free($3); free($4);
 		}
 		| LB string string string string RB {
 		    WMapCreateDefaultBackGround ($2, $3, $4, $5);
+		    free($2); free($3); free($4); free($5);
 		}
 		;
 
@@ -861,6 +898,7 @@ win_entries	: /* Empty */
 
 win_entry	: string		{ if (Scr->FirstTime)
 					    AddToList(list, $1, 0);
+					    free($1);
 					}
 		;
 
@@ -888,6 +926,7 @@ occupy_workspc_entries	:   /* Empty */
 
 occupy_workspc_entry	: string {
 				AddToClientsList ($1, client);
+				free($1);
 			  }
 			;
 
@@ -900,6 +939,7 @@ occupy_window_entries	:   /* Empty */
 
 occupy_window_entry	: string {
 				AddToClientsList (workspace, $1);
+				free($1);
 			  }
 			;
 
@@ -910,7 +950,7 @@ icon_entries	: /* Empty */
 		| icon_entries icon_entry
 		;
 
-icon_entry	: string string		{ if (Scr->FirstTime) AddToList(list, $1, $2); }
+icon_entry	: string string		{ if (Scr->FirstTime) AddToList(list, $1, $2); else free($2); free($1); }
 		;
 
 function	: LB function_entries RB {}
@@ -936,6 +976,7 @@ menu_entries	: /* Empty */
 menu_entry	: string action		{
 			if ($2 == F_SEPARATOR) {
 			    if (lastmenuitem) lastmenuitem->separated = 1;
+			    free($1);
 			}
 			else {
 			    lastmenuitem = AddToMenu(root, $1, Action, pull, $2, NULLSTR, NULLSTR);
@@ -946,6 +987,7 @@ menu_entry	: string action		{
 		| string LP string COLON string RP action {
 			if ($7 == F_SEPARATOR) {
 			    if (lastmenuitem) lastmenuitem->separated = 1;
+			    free($1); free($3); free($5);
 			}
 			else {
 			    lastmenuitem = AddToMenu(root, $1, Action, pull, $7, $3, $5);
@@ -972,6 +1014,7 @@ action		: FKEYWORD	{ $$ = $1; }
 						 Action);
 					$$ = F_NOP;
 				    }
+				    free($2);
 				  case F_WARPTOSCREEN:
 				    if (!CheckWarpScreenArg (Action)) {
 					twmrc_error_prefix();
@@ -980,6 +1023,7 @@ action		: FKEYWORD	{ $$ = $1; }
 						 Action);
 					$$ = F_NOP;
 				    }
+				    free($2);
 				    break;
 				  case F_COLORMAP:
 				    if (CheckColormapArg (Action)) {
@@ -991,6 +1035,7 @@ action		: FKEYWORD	{ $$ = $1; }
 						 Action);
 					$$ = F_NOP;
 				    }
+				    free($2);
 				    break;
 				} /* end switch */
 				   }
@@ -1014,8 +1059,7 @@ button		: BUTTON number		{ $$ = $2;
 					}
 		;
 
-string		: STRING		{ ptr = (char *)malloc(strlen((char*)$1)+1);
-					  strcpy(ptr, $1);
+string		: STRING		{ ptr = strdup($1);
 					  RemoveDQuote(ptr);
 					  $$ = ptr;
 					}
@@ -1122,6 +1166,8 @@ static MenuRoot *GetRoot(char *name, char *fore, char *back)
     tmp = FindMenuRoot(name);
     if (tmp == NULL)
 	tmp = NewMenuRoot(name);
+    else
+	free(name);
 
     if (fore)
     {
@@ -1150,7 +1196,7 @@ static void GotButton (int butt, int func)
 	    AddFuncButton (butt, i, mods, func, pull, (MenuItem*) 0);
 	}
 	else {
-	    root = GetRoot (TWM_ROOT, NULLSTR, NULLSTR);
+	    root = GetRoot (strdup(TWM_ROOT), NULLSTR, NULLSTR);
 	    item = AddToMenu (root, "x", Action, NULL, func, NULLSTR, NULLSTR);
 	    AddFuncButton (butt, i, mods, func, (MenuRoot*) 0, item);
 	}
@@ -1174,11 +1220,16 @@ static void GotKey(char *key, int func)
 
 	if (func == F_MENU) {
 	    pull->prev = NULL;
-	    if (!AddFuncKey (key, i, mods, func, pull, Name, Action)) break;
+	    if (!AddFuncKey (key, i, mods, func, pull, Name, Action)) {
+		free(key);
+		break;
+	    }
 	}
 	else
-	if (!AddFuncKey(key, i, mods, func, (MenuRoot*) 0, Name, Action))
-	  break;
+	if (!AddFuncKey(key, i, mods, func, (MenuRoot*) 0, Name, Action)) {
+	    free(key);
+	    break;
+	}
     }
 
     Action = "";
@@ -1196,6 +1247,7 @@ static void GotTitleButton (char *bitmapname, int func, Bool rightside)
 	fprintf (stderr,
 		 "unable to create %s titlebutton \"%s\"\n",
 		 rightside ? "right" : "left", bitmapname);
+	free(bitmapname);
     }
     Action = "";
     pull = NULL;

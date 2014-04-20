@@ -1888,6 +1888,8 @@ static void put_pixel_on_root(Pixel pixel)
   for (i=0; i< nPixels; i++)
       if (pixel == retProp[i]) addPixel = 0;
 
+  if (retProp)
+	  XFree(retProp);
   if (addPixel)
       XChangeProperty (dpy, Scr->Root, _XA_MIT_PRIORITY_COLORS,
 		       XA_CARDINAL, 32, PropModeAppend,
@@ -1899,7 +1901,7 @@ static void put_pixel_on_root(Pixel pixel)
  */
 int do_string_savecolor(int colormode, char *s)
 {
-  Pixel p;
+  Pixel p = 0;
   GetColor(colormode, &p, s);
   put_pixel_on_root(p);
   return 0;

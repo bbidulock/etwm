@@ -967,6 +967,7 @@ static Image *LoadXpmImage (char *name, ColorPair cp)
     image->width  = attributes.width;
     image->height = attributes.height;
     image->next   = None;
+    XpmFreeAttributes(&attributes);
     return (image);
 }
 
@@ -4197,17 +4198,24 @@ unsigned char *GetWMPropertyString(Window w, Atom prop)
 	    } else
 	    if (status < 0 || text_list_count < 0) {
 		switch (status) {
+		    char *name;
 		case XConverterNotFound:
 		    fprintf (stderr, "%s: Converter not found; unable to convert property %s of window ID %lx.\n",
-			     ProgramName, XGetAtomName(dpy, prop), w);
+			     ProgramName, (name = XGetAtomName(dpy, prop)), w);
+		    if (name)
+			    XFree(name);
 		    break;
 		case XNoMemory:
 		    fprintf (stderr, "%s: Insufficient memory; unable to convert property %s of window ID %lx.\n",
-			     ProgramName, XGetAtomName(dpy, prop), w);
+			     ProgramName, (name = XGetAtomName(dpy, prop)), w);
+		    if (name)
+			    XFree(name);
 		    break;
 		case XLocaleNotSupported:
 		    fprintf (stderr, "%s: Locale not supported; unable to convert property %s of window ID %lx.\n",
-			     ProgramName, XGetAtomName(dpy, prop), w);
+			     ProgramName, (name = XGetAtomName(dpy, prop)), w);
+		    if (name)
+			    XFree(name);
 		    break;
 		}
 		stringptr = NULL;
@@ -4222,9 +4230,12 @@ unsigned char *GetWMPropertyString(Window w, Atom prop)
 		XFreeStringList(text_list);
 	    }
 	} else {
+	    char *name;
 	    /* property is encoded in a format we don't understand */
 	    fprintf (stderr, "%s: Encoding not STRING or COMPOUND_TEXT; unable to decode property %s of window ID %lx.\n",
-		     ProgramName, XGetAtomName(dpy, prop), w);
+		     ProgramName, (name = XGetAtomName(dpy, prop)), w);
+	    if (name)
+		    XFree(name);
 	    stringptr = NULL;
 	}
 	XFree (text_prop.value); 
