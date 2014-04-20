@@ -253,7 +253,7 @@ int main(int argc, char **argv)
 int main(int argc, char **argv, char **environ)
 #endif
 {
-    Window croot, parent, *children, selwin;
+    Window croot, parent, *children, selwin = None;
     unsigned int nchildren;
     int i, j;
     unsigned long valuemask;	/* mask for create windows */

@@ -1482,7 +1482,7 @@ void Animate (void)
 {
     TwmWindow	*t;
     int		scrnum;
-    ScreenInfo	*scr;
+    ScreenInfo	*scr = NULL;
     int		i;
     TBWindow	*tbw;
     int		nb;
@@ -1527,7 +1527,8 @@ void Animate (void)
     MaybeAnimate |= AnimateRoot ();
     if (MaybeAnimate) {
 	Animating++;
-	SendEndAnimationMessage(scr->currentvs->wsw->w, LastTimestamp());
+	if (scr)
+	    SendEndAnimationMessage(scr->currentvs->wsw->w, LastTimestamp());
     }
     XFlush (dpy);
     return;

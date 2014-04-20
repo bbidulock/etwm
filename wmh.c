@@ -334,7 +334,7 @@ Set_WIN_SUPPORTING_WM_CHECK(Window root, Window window)
 		    PropModeReplace, (unsigned char *) &data, 1);
 }
 
-static void
+void
 Ini_WIN_SUPPORTING_WM_CHECK(ScreenInfo *scr)
 {
     Window check = TwmWinManager(scr);
@@ -798,7 +798,7 @@ Ini_WIN_WORKSPACE(ScreenInfo *scr, TwmWindow *twin)
   * current workspace to the root.  Call this function (twin != NULL) when
   * adding a window to read or write the current desktop to the window.
   */
-static void
+void
 Ret_WIN_WORKSPACE(ScreenInfo *scr, TwmWindow *twin)
 {
     Bool present;
@@ -1060,7 +1060,7 @@ Ini_WIN_LAYER(TwmWindow *twin)
  * Called when the manged window is first added (i.e. when it is mapped) to
  * retrieve or set the _WIN_LAYER.
  */
-static void
+void
 Ret_WIN_LAYER(ScreenInfo *scr, TwmWindow *twin)
 {
     Bool present;
@@ -1198,7 +1198,7 @@ Ini_WIN_STATE(ScreenInfo *scr, TwmWindow *twin)
  * Called when the managed window is first added (i.e. when it is mapped) to
  * retrieve or set the _WIN_STATE.
  */
-static void
+void
 Ret_WIN_STATE(ScreenInfo *scr, TwmWindow *twin)
 {
     Bool present;
@@ -2123,7 +2123,7 @@ Ini_WIN_WORKSPACES(ScreenInfo *scr, TwmWindow *twin)
   * Sets the workspace mask to the property or derives it from the workspace
   * property.
   */
-static void
+void
 Ret_WIN_WORKSPACES(ScreenInfo *scr, TwmWindow *twin)
 {
     Bool present;
@@ -2157,7 +2157,7 @@ Del_WIN_WORKSPACES(TwmWindow *twin)
   * @param twin - TWM window
   * @param event - client message changing the workspace mask
   */
-static void
+void
 Rcv_WIN_WORKSPACES(ScreenInfo *scr, TwmWindow *twin, XClientMessageEvent *event)
 {
     unsigned index = event->data.l[0];
@@ -2309,7 +2309,7 @@ Ini_WIN_MAXIMIZED_GEOMETRY(ScreenInfo *scr, TwmWindow *twin)
     twin->wmh.maximized = maximized;
 }
 
-static void
+void
 Ret_WIN_MAXIMIZED_GEOMETRY(ScreenInfo *scr, TwmWindow *twin)
 {
     Bool present;

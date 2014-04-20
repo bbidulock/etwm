@@ -179,7 +179,7 @@ cmp_atom_list(Atom *al1, Atom *al2)
     return (0);
 }
 
-static int
+int
 cmp_info(MwmInfo *i1, MwmInfo *i2)
 {
     if (i1->flags < i2->flags)
@@ -257,7 +257,7 @@ Set_MOTIF_WM_INFO(Window root, MwmInfo *info)
 /** @brief Initialize the motif window manager information property.
   * @param scr - screen
   */
-static void
+void
 Ini_MOTIF_WM_INFO(ScreenInfo *scr)
 {
     MwmInfo info;
@@ -331,7 +331,7 @@ Set_DT_WORKSPACE_LIST(Window info, Atom *list, int count)
 		    (unsigned char *) list, count);
 }
 
-static Bool
+Bool
 Get_DT_WORKSPACE_LIST(Window info, Atom **list, int *count)
 {
     Atom actual_type = None;
@@ -610,7 +610,7 @@ Ini_MWM_WM_PROTOCOLS(TwmWindow *twin)
     twin->mwmh.protocols = protocols;
 }
 
-static void
+void
 Ret_MWM_WM_PROTOCOLS(TwmWindow *twin)
 {
     Bool present;
@@ -908,7 +908,7 @@ Snd_MOTIF_WM_OFFSET(ScreenInfo *scr, TwmWindow *twin)
   *
   * @{ */
 
-static void
+void
 Set_DT_WORKSPACE_HINTS(Window window, DtWmWorkspaceHints *hints)
 {
     int n;

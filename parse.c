@@ -2125,7 +2125,8 @@ static FILE *start_m4(FILE *fraw)
 
         fno = fileno(fraw);
         /* if (-1 == fcntl(fno, F_SETFD, 0)) perror("fcntl()"); */
-        pipe(fids);
+        if (pipe(fids) == -1)
+	    return NULL;
         fres = fork();
         if (fres < 0) {
                 perror("Fork for m4 failed");

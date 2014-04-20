@@ -1834,7 +1834,7 @@ Set_NET_SUPPORTING_WM_CHECK(Window root, Window window)
 		    PropModeReplace, (unsigned char *) &data, 1);
 }
 
-static void
+void
 Ini_NET_SUPPORTING_WM_CHECK(ScreenInfo *scr)
 {
     Window check = TwmNetManager(scr);
@@ -2282,7 +2282,7 @@ Rcv_NET_SHOWING_DESKTOP(ScreenInfo *scr, XClientMessageEvent *event)
   *
   * @{ */
 
-static void
+void
 Set_WM_CLASS(Window window, XClassHint *class)
 {
     XTextProperty text = { NULL, };
@@ -2539,7 +2539,7 @@ Ini_WM_CLIENT_MACHINE(ScreenInfo *scr, TwmWindow *twin)
   *
   * @{ */
 
-static void
+void
 Set_WM_COMMAND(Window window, char **command, int count)
 {
 #ifdef DEBUG_EWMH
@@ -2811,7 +2811,7 @@ Upd_NET_WM_VISIBLE_NAME(TwmWindow *twin)
   * WM_ICON_NAME.
   *
   * @{ */
-static void
+void
 Set_NET_WM_ICON_NAME(Window window, char *name)
 {
 #ifdef DEBUG_EWMH
@@ -3102,7 +3102,7 @@ Ini_NET_WM_DESKTOP(ScreenInfo *scr, TwmWindow *twin)
   * Call this function when initially managing a window to determine the initial
   * desktop for the window.
   */
-static void
+void
 Ret_NET_WM_DESKTOP(ScreenInfo *scr, TwmWindow *twin)
 {
     Bool present;
@@ -3654,7 +3654,7 @@ Set_NET_WM_ALLOWED_ACTIONS(Window window, unsigned allowed)
   * @param window - window from which to fetch
   * @param allowed - where to store the allowed actions
   */
-static Bool
+Bool
 Get_NET_WM_ALLOWED_ACTIONS(Window window, unsigned *allowed)
 {
 #ifdef DEBUG_EWMH
@@ -3722,7 +3722,7 @@ Upd_NET_WM_ALLOWED_ACTIONS(TwmWindow *twin)
   * Could be used to set the strut on window manager created windows such as the
   * workspace manager and icon managers.
   */
-static void
+void
 Set_NET_WM_STRUT(Window window, struct NetStrut *strut)
 {
 #ifdef DEBUG_EWMH
@@ -3824,7 +3824,7 @@ Get_NET_WM_STRUT(Window window, struct NetStrut *strut)
   * Could be used to set the partial strut on TWM windows that are created by
   * the window manager such as the workspace manager and icon managers.
   */
-static void
+void
 Set_NET_WM_STRUT_PARTIAL(Window window, struct NetStrut *strut)
 {
 #ifdef DEBUG_EWMH
@@ -4269,7 +4269,7 @@ Ret_NET_WM_HANDLED_ICONS(ScreenInfo *scr, TwmWindow *twin)
   * particularly bad for laptops running on battery power.
   *
   * @{ */
-static void
+void
 Set_NET_WM_USER_TIME_WINDOW(Window window, Window time_window)
 {
     long data = time_window;
@@ -4594,7 +4594,7 @@ Del_NET_FRAME_EXTENTS(TwmWindow *twin)
   * For example, it can avoid drawing occluded portions behind the window.
   *
   * @{ */
-static void
+void
 Set_NET_WM_OPAQUE_REGION(Window window)
 {
 #ifdef DEBUG_EWMH
@@ -4623,7 +4623,7 @@ Set_NET_WM_OPAQUE_REGION(Window window)
   * to run composited to avoid exposes.
   *
   * @{ */
-static void
+void
 Set_NET_WM_BYPASS_COMPOSITOR(Window window, enum _NET_COMPOSITOR_HINT hint)
 {
     long data = (long) hint;
@@ -5212,7 +5212,7 @@ Ini_NET_WM_FULLSCREEN_MONITORS(ScreenInfo *scr, TwmWindow *twin)
     twin->ewmh.monitors = monitors;
 }
 
-static void
+void
 Ret_NET_WM_FULLSCREEN_MONITORS(ScreenInfo *scr, TwmWindow *twin)
 {
     Bool present;
@@ -5324,7 +5324,7 @@ Rcv_NET_WM_FULLSCREEN_MONITORS(ScreenInfo *scr, TwmWindow *twin,
 /** @name _NET_WM_WINDOW_OPACITY
   *
   * @{ */
-static void
+void
 Set_NET_WM_WINDOW_OPACITY(Window window, unsigned char opacity)
 {
     long data = (long) opacity;
@@ -5721,7 +5721,7 @@ release_seq(EwmhSequence *seq)
   * associated window (if any) and frees the structure.  This invalidates all
   * references to seq.
   */
-static void
+void
 free_seq(EwmhSequence *seq)
 {
     if (seq != NULL) {
@@ -5744,7 +5744,7 @@ free_seq(EwmhSequence *seq)
   * @param seq - startup notification sequence
   * @return Bool - truth value
   */
-static Bool
+Bool
 removable_seq(EwmhSequence *seq)
 {
     if (seq == NULL)
@@ -6202,6 +6202,8 @@ Snd_NET_STARTUP_INFO_MSG(ScreenInfo *scr, EwmhSequence *seq, enum _NET_NOTIFY_MS
 	cmd = "remove:";
 	fend = 1;
 	break;
+    default:
+	return;
     }
     if ((msg = calloc(strlen(cmd) + 1, 1)) == NULL)
 	return;
@@ -6406,7 +6408,7 @@ Upd_NET_STARTUP_INFO(ScreenInfo *scr, TwmWindow *twin, Bool forced)
 /** @name _NET_SYSTEM_TRAY_ORIENTATION
   *
   * @{ */
-static void
+void
 Set_NET_SYSTEM_TRAY_ORIENTATION(Window root,
 				enum _NET_SYSTEM_TRAY_ORIENTATION orientation)
 {
@@ -6425,7 +6427,7 @@ Set_NET_SYSTEM_TRAY_ORIENTATION(Window root,
 /** @name _NET_SYSTEM_TRAY_VISUAL
   *
   * @{ */
-static void
+void
 Set_NET_SYSTEM_TRAY_VISUAL(Visual visual)
 {
 }
@@ -6536,7 +6538,7 @@ Get_KDE_NET_WM_SYSTEM_TRAY_WINDOW_FOR(Window window)
     return True;
 }
 
-static void
+void
 Ret_KDE_NET_WM_SYSTEM_TRAY_WINDOW_FOR(TwmWindow *twin)
 {
     Bool present;
@@ -6698,7 +6700,7 @@ Upd_NET_MAXIMIZED_RESTORE(ScreenInfo *scr, TwmWindow *twin)
   * Should be called when a window is intially managed to retrieve or set the
   * maximized restore configuration.
   */
-static void
+void
 Ret_NET_MAXIMIZED_RESTORE(ScreenInfo *scr, TwmWindow *twin)
 {
     Bool present;
@@ -6726,7 +6728,7 @@ Del_NET_MAXIMIZED_RESTORE(TwmWindow *twin)
 /** @name  _NET_PROPERTIES
   *
   * @{ */
-static void
+void
 Set_NET_PROPERTIES(void)
 {
 }
@@ -6859,7 +6861,7 @@ Ini_NET_WM_DESKTOP_MASK(ScreenInfo *scr, TwmWindow *twin)
   * Sets the desktop mask to the property or derives it from the desktop
   * property.
   */
-static void
+void
 Ret_NET_WM_DESKTOP_MASK(ScreenInfo *scr, TwmWindow *twin)
 {
     Bool present;
@@ -6988,7 +6990,7 @@ Ini_NET_VIRTUAL_POS(ScreenInfo *scr, TwmWindow *twin)
     twin->ewmh.virtual_pos = virtual_pos;
 }
 
-static void
+void
 Ret_NET_VIRTUAL_POS(ScreenInfo *scr, TwmWindow *twin)
 {
     Bool present;
@@ -7036,18 +7038,18 @@ SIGNAL_T Done(int signum);
   * manager, the property should be absent.
   *
   * @{ */
-static void
+void
 Set_NET_RESTART(void)
 {
 }
 
-static Bool
+Bool
 Get_NET_RESTART(void)
 {
     return False;
 }
 
-static void
+void
 Ret_NET_RESTART(void)
 {
 }

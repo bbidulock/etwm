@@ -12,7 +12,8 @@ dist_ctwm_DATA = system.ctwmrc
 
 AM_CPPFLAGS = -include config.h \
 	'-DSYSTEM_INIT_FILE="$(ctwmdir)/system.ctwmrc"' \
-	'-DPIXMAP_DIRECTORY="$(pixmapdir)"'
+	'-DPIXMAP_DIRECTORY="$(pixmapdir)"' \
+	'-DYY_NO_INPUT'
 
 AM_CFLAGS = $(CTWM_CFLAGS) $(xpm_CFLAGS) $(xrandr_CFLAGS) $(xinerama_CFLAGS)
 

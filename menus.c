@@ -73,6 +73,7 @@
 
 #include <stdio.h>
 #include <signal.h>
+#include <errno.h>
 
 #ifdef VMS
 #include <stdlib.h>
@@ -1552,7 +1553,7 @@ Bool PopUpMenu (MenuRoot *menu, int x, int y, Bool center)
     if (menu == Scr->Keys) {
 	FuncKey *tmpKey;
 	char *tmpStr, *tmpStr2;
-	char modStr[5];
+	char modStr[8];
 	char *oldact = 0;
 	int oldmod = 0;
 	int tmpLen;
@@ -3933,13 +3934,15 @@ static void Execute(char *s)
     sig = signal (SIGALRM, SIG_IGN);
     XUngrabPointer(dpy, CurrentTime);
     XFlush(dpy);
-    (void) system (s);
+    if (system (s) == -1)
+	fprintf(stderr, "execute: %s: %s\n", s, strerror(errno));
     signal (SIGALRM, sig);
   }
 #else  /* USE_SIGNALS */
     XUngrabPointer(dpy, CurrentTime);
     XFlush(dpy);
-    (void) system (s);
+    if (system (s) == -1)
+	fprintf(stderr, "execute: %s: %s\n", s, strerror(errno));
 #endif  /* USE_SIGNALS */
 
     if (restorevar) {		/* why bother? */
@@ -4151,7 +4154,7 @@ void
 RaiseLower(TwmWindow *tmp_win)
 {
     Window root, parent, *children;
-    unsigned int nchildren, top, bot;
+    unsigned int nchildren, top = -1, bot = -1;
     short ontop = tmp_win->ontoppriority;
     int n;
 
@@ -4224,7 +4227,7 @@ void
 RaiseLowerIcon(Window icon, short ontop)
 {
     Window root, parent, *children;
-    unsigned int nchildren, top, bot;
+    unsigned int nchildren, top = -1, bot = -1;
     int n;
 
     if (!XQueryTree(dpy, Scr->Root, &root, &parent, &children, &nchildren))
