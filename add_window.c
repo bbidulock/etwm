@@ -1299,12 +1299,14 @@ TwmWindow *AddWindow(Window w, int iconm, IconMgr *iconp)
 	tmp_win->title_y = tmp_win->frame_bw3D - tmp_win->frame_bw;
     }
 
-    valuemask = (CWEventMask | CWDontPropagate);
+    valuemask = (CWEventMask | CWDontPropagate | CWBackingStore | CWWinGravity);
     attributes.event_mask = (StructureNotifyMask | PropertyChangeMask |
 			     ColormapChangeMask | VisibilityChangeMask |
 			     FocusChangeMask | 
 			     EnterWindowMask | LeaveWindowMask);
     attributes.do_not_propagate_mask = ButtonPressMask | ButtonReleaseMask | PointerMotionMask;
+    attributes.backing_store = NotUseful;
+    attributes.win_gravity = NorthWestGravity;
     XChangeWindowAttributes (dpy, tmp_win->w, valuemask, &attributes);
 
     if (HasShape)
