@@ -2,7 +2,8 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([etwm],[3.8.3],[http://github.com/bbidulock/issues],[etwm])
+AC_INIT([etwm],[3.8.3],[http://github.com/bbidulock/etwm/issues],[etwm],[http://github.com/bbidulock/etwm])
+AC_REVISION([3.8.3])
 AC_CONFIG_SRCDIR([iconmgr.h])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_AUX_DIR([scripts])
@@ -10,7 +11,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_USE_SYSTEM_EXTENSIONS
 
 # Initialize Automake
-AM_INIT_AUTOMAKE([gnits 1.14 dist-xz no-dist-gzip std-options -Wall color-tests silent-rules tar-pax])
+AM_INIT_AUTOMAKE([gnits 1.14 dist-bzip2 no-dist-gzip std-options -Wall color-tests silent-rules tar-pax])
 AM_MAINTAINER_MODE
 
 # Checks for programs.

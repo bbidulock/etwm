@@ -1,5 +1,109 @@
 # created with git log --stat=76 -M -C|fmt -sct -w80
 
+commit 4c76b8a395d6f707212a3cdfe5bb884938775da0
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Fri Jun 20 07:00:04 2014 -0600
+
+    big rename of CTWM to ETWM
+
+ .gitignore                                 |   6 +-
+ AUTHORS                                    |  20 +-
+ AUTHORS.in                                 |  12 +
+ COPYING                                    |   8 +-
+ ChangeLog                                  | 544 +++++++++++++++++++++++--
+ INSTALL                                    | 370 +++++++++++++++++
+ Imakefile                                  |  44 +-
+ Imakefile.X11R4                            |  22 +-
+ Imakefile.local-template                   |   8 +-
+ Makefile.am                                |  96 +++--
+ NEWS                                       |   2 +-
+ NEWS => NEWS.in                            |   4 +-
+ PROBLEMS                                   |  12 +-
+ README                                     |   8 +-
+ README.Claude                              |  12 +-
+ README.VMS                                 |  40 +-
+ README.ctwm => README.etwm                 |  20 +-
+ README.gnome                               |  10 +-
+ README => README.in                        |  22 +-
+ THANKS                                     |   0
+ THANKS.in                                  |   0
+ TODO.gnome                                 |   2 +-
+ TODO.in                                    |  14 +
+ add_window.c                               |  16 +-
+ add_window.h                               |   4 +-
+ autogen.sh                                 |  45 ++
+ configure.ac                               |  15 +-
+ configure.sh                               |  38 ++
+ cursor.c                                   |   6 +-
+ cursor.h                                   |   4 +-
+ demolib.c                                  |  22 +-
+ descrip.local-template                     |  10 +-
+ descrip.mms                                |  24 +-
+ descrip.submms                             |  10 +-
+ ctwm.axp_opt => etwm.axp_opt               |   2 +-
+ ctwm.c => etwm.c                           |  40 +-
+ ctwm.com => etwm.com                       |   6 +-
+ ctwm.h => etwm.h                           |  18 +-
+ ctwm.man => etwm.man                       | 284 ++++++-------
+ ctwm.spec => etwm.spec                     |  40 +-
+ ctwm.txt => etwm.txt                       | 244 +++++------
+ ctwm.vax_opt => etwm.vax_opt               |   2 +-
+ events.c                                   |  14 +-
+ events.h                                   |   4 +-
+ ewmh.c                                     |   2 +-
+ ewmh_ctwm.c => ewmh_etwm.c                 | 172 ++++----
+ example.ctwmrc => example.etwmrc           |   4 +-
+ gc.c                                       |   6 +-
+ gendeftwmrc.com                            |  10 +-
+ gram.y                                     |   6 +-
+ gtw.c                                      |   4 +-
+ iconmgr.c                                  |   6 +-
+ iconmgr.h                                  |   4 +-
+ icons.c                                    |   6 +-
+ icons.h                                    |   4 +-
+ levitte.ctwmrc => levitte.etwmrc           |   2 +-
+ lex.l                                      |   5 +-
+ libctwm.c => libetwm.c                     |  22 +-
+ list.c                                     |   6 +-
+ list.h                                     |   4 +-
+ lnm.c                                      |   4 +-
+ lnm.h                                      |   4 +-
+ make.com                                   |  26 +-
+ menus.c                                    |  44 +-
+ menus.h                                    |   4 +-
+ mwmh.c                                     |   2 +-
+ mwmh_ctwm.c => mwmh_etwm.c                 |   4 +-
+ parse.c                                    |  26 +-
+ parse.h                                    |   4 +-
+ peterc.ctwmrc => peterc.etwmrc             |   8 +-
+ resize.c                                   |   6 +-
+ resize.h                                   |   4 +-
+ screen.h                                   |  22 +-
+ session.c                                  |  16 +-
+ session.h                                  |   4 +-
+ sound.c                                    |   6 +-
+ sound.doc                                  |  12 +-
+ sound.h                                    |   4 +-
+ system.ctwmrc => system.etwmrc             |   0
+ system.ctwmrc.gnome => system.etwmrc.gnome |   0
+ twm.h                                      |   6 +-
+ types.h                                    |   6 +-
+ util.c                                     |  12 +-
+ util.h                                     |   4 +-
+ version.c                                  |   4 +-
+ version.h                                  |   4 +-
+ vms.txt                                    |  24 +-
+ vms2.txt                                   |  16 +-
+ vscreen.c                                  |  18 +-
+ vscreen.h                                  |   8 +-
+ windowbox.c                                |   4 +-
+ windowbox.h                                |   4 +-
+ wmh.c                                      |   2 +-
+ wmh_ctwm.c => wmh_etwm.c                   |  34 +-
+ workmgr.c                                  | 118 +++---
+ workmgr.h                                  |  12 +-
+ 96 files changed, 1938 insertions(+), 925 deletions(-)
+
 commit 8d5e89f93ddf1a6c229d9040b65e5fa8b213d5d9
 Author: Brian Bidulock <bidulock@openss7.org>
 Date:   Thu May 15 07:22:42 2014 -0600
