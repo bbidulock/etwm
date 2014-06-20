@@ -1,7 +1,7 @@
-$! Make.com for building CTWM
+$! Make.com for building ETWM
 $ SAVE_VERIFY='F$VERIFY(0)
 $!
-$!	Compile the CTWM Window Manager
+$!	Compile the ETWM Window Manager
 $!
 $!--------------------------- Customization -------------------------------
 $!  Define logicals pointing to the needed directories
@@ -16,7 +16,7 @@ $
 $! where the xpm object library is.
 $ define/nolog xpmlib pd:[src.xpm-3_4e]
 $
-$! ctwm exit style:
+$! etwm exit style:
 $!	0 - Just exit with error code 20.
 $!	1 - run sys$system:decw$endsession.exe on exit
 $ EXIT_ENDSESSION = 0
@@ -214,10 +214,10 @@ $     CALL MAKE GRAM.H -
 	   GRAM.H_VMS
 $ endif
 $ write sys$output -
-	"Building DEFTWMRC.C from SYSTEM.CTWMRC using GENDEFTWMRC.COM"
-$ CALL MAKE DEFTWMRC.C		"@GENDEFTWMRC.COM"		SYSTEM.CTWMRC -
+	"Building DEFTWMRC.C from SYSTEM.ETWMRC using GENDEFTWMRC.COM"
+$ CALL MAKE DEFTWMRC.C		"@GENDEFTWMRC.COM"		SYSTEM.ETWMRC -
        GENDEFTWMRC.COM
-$ write sys$output "Compiling CTWM sources with CC=",CC
+$ write sys$output "Compiling ETWM sources with CC=",CC
 $ CALL MAKE ADD_WINDOW.'EXT'OBJ "CC 'cc_options' ADD_WINDOW.C"	ADD_WINDOW.C -
        "TWM.H ADD_WINDOW.H UTIL.H RESIZE.H PARSE.H GRAM.H LIST.H EVENTS.H" -
        "MENUS.H SCREEN.H ICONS.H ICONMGR.H" -
@@ -226,7 +226,7 @@ $ CALL MAKE CLICKTOFOCUS.'EXT'OBJ-
 			"CC 'cc_options' CLICKTOFOCUS.C" CLICKTOFOCUS.C -
        "CLICKTOFOCUS.H TWM.H UTIL.H SCREEN.H" -
        "LIST.H MENUS.H ICONMGR.H VSCREEN.H WORKMGR.H"
-$ CALL MAKE CTWM.'EXT'OBJ  	"CC 'cc_options' CTWM.C"	CTWM.C -
+$ CALL MAKE ETWM.'EXT'OBJ  	"CC 'cc_options' ETWM.C"	ETWM.C -
        "TWM.H ADD_WINDOW.H GC.H PARSE.H VERSION.H MENUS.H EVENTS.H UTIL.H" -
        "GRAM.H SCREEN.H ICONS.H ICONMGR.H" -
        "LIST.H MENUS.H ICONMGR.H VSCREEN.H WORKMGR.H"
@@ -287,8 +287,8 @@ $!
 $ Link:		! Link the executable.  If all object files aren't here,
 $		! I'm deeply sorry
 $ EXE_EXT = EXT - "VAXC_"
-$ OPTION := CTWM.'OPT_EXT'
-$ OPTION_CMD := ,CTWM.'OPT_EXT'/OPT
+$ OPTION := ETWM.'OPT_EXT'
+$ OPTION_CMD := ,ETWM.'OPT_EXT'/OPT
 $
 $ CALL MAKE VERSION.OPT		"CALL MAKEVEROPT VERSION.OPT"	VERSION.C -
        MAKE.COM
@@ -296,9 +296,9 @@ $ CALL MAKE 'OPTION'		"CALL MAKELIBOPT ''OPTION' ''F$TRNLNM("X11XMULIB")' ''CLIB
        MAKE.COM
 $ CALL MAKE OBJS.'EXT'OPT	"CALL MAKEOBJOPT OBJS.''EXT'OPT *.''EXT'OBJ" -
        *.'EXT'OBJ MAKE.COM
-$ write sys$output "Building CTWM image"
-$ CALL MAKE CTWM.'EXE_EXT'EXE	-
-       "LINK ''link_options'/EXE=CTWM.''EXE_EXT'EXE OBJS.''EXT'OPT/OPT,VERSION.OPT/OPT ''OPTION_CMD'" -
+$ write sys$output "Building ETWM image"
+$ CALL MAKE ETWM.'EXE_EXT'EXE	-
+       "LINK ''link_options'/EXE=ETWM.''EXE_EXT'EXE OBJS.''EXT'OPT/OPT,VERSION.OPT/OPT ''OPTION_CMD'" -
        OBJS.'EXT'OPT 'OPTION' VERSION.OPT
 $!
 $ deassign xpmlib
@@ -438,7 +438,7 @@ $ close foo
 $ delete version.tmp;*
 $ version = f$extract(0,10,f$element(1,"""",line))
 $ open/write foo 'p1'
-$ write foo "NAME=""CTWM"""
+$ write foo "NAME=""ETWM"""
 $ write foo "IDENT=""V''version'"""
 $ VV='F$Verify(0)
 $Exit3:

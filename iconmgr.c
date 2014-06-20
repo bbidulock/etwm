@@ -19,11 +19,11 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 /* 
- *  [ ctwm ]
+ *  [ etwm ]
  *
  *  Copyright 1992 Claude Lecommandeur.
  *            
- * Permission to use, copy, modify  and distribute this software  [ctwm] and
+ * Permission to use, copy, modify  and distribute this software  [etwm] and
  * its documentation for any purpose is hereby granted without fee, provided
  * that the above  copyright notice appear  in all copies and that both that
  * copyright notice and this permission notice appear in supporting documen-
@@ -52,7 +52,7 @@
  *
  * 09-Mar-89 Tom LaStrange		File Created
  *
- * Do the necessary modification to be integrated in ctwm.
+ * Do the necessary modification to be integrated in etwm.
  * Can no longer be used for the standard twm.
  *
  * 22-April-92 Claude Lecommandeur.

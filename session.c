@@ -25,11 +25,11 @@
 /**    OR PERFORMANCE OF THIS SOFTWARE.                                     **/
 /*****************************************************************************/
 /* 
- *  [ ctwm ]
+ *  [ etwm ]
  *
  *  Copyright 1992 Claude Lecommandeur.
  *            
- * Permission to use, copy, modify  and distribute this software  [ctwm] and
+ * Permission to use, copy, modify  and distribute this software  [etwm] and
  * its documentation for any purpose is hereby granted without fee, provided
  * that the above  copyright notice appear  in all copies and that both that
  * copyright notice and this permission notice appear in supporting documen-
@@ -92,7 +92,7 @@
  *
  * 95/01/04 Ralph Mor, X Consortium        Initial Version.
  *
- * Do the necessary modification to be integrated in ctwm.
+ * Do the necessary modification to be integrated in etwm.
  * Can no longer be used for the standard twm.
  *
  * 21 Mar 1997  Matthew McNeill, Durham University  Modified Version.
@@ -462,7 +462,7 @@ int WriteWinConfigEntry (FILE *configFile, TwmWindow *theWindow,
     }
 
     /* ===================[ Matthew McNeill Feb 1997 ]========================= *
-     * there has been a structural change to TwmWindow in ctwm. The Icon information
+     * there has been a structural change to TwmWindow in etwm. The Icon information
      * is in a sub-structure now. The presence of icon information is not indicative
      * of its current state. There is a new boolean condition for this (isicon)
      */
@@ -470,7 +470,7 @@ int WriteWinConfigEntry (FILE *configFile, TwmWindow *theWindow,
     if (!write_byte (configFile, theWindow->isicon ? 1 : 0)) return 0;    /* iconified */
 
     /* ===================[ Matthew McNeill Feb 1997 ]========================= *
-     * there has been a structural change to TwmWindow in ctwm. The Icon information
+     * there has been a structural change to TwmWindow in etwm. The Icon information
      * is in a sub-structure now, if there is no icon, this sub-structure does
      * not exist and the attempted access (below) causes a core dump.
      * we need to check that the structure exists before trying to access it
@@ -947,13 +947,13 @@ void SaveYourselfPhase2CB (SmcConn smcCon, SmPointer clientData)
 	    path = ".";
     }
     /*==============[ Matthew McNeill Feb 1997 ]==============*
-     *        changed the unique name to CTWM rather than TWM 
+     *        changed the unique name to ETWM rather than TWM 
      *        this is tidier and more functional and prevents
-     *        TWM picking up CTWM config files. The format is 
+     *        TWM picking up ETWM config files. The format is 
      *        no longer the same since the new format supports
      *        virtaul workspaces.
      *========================================================*/
-    if ((filename = unique_filename (path, ".ctwm", &configFd)) == NULL)
+    if ((filename = unique_filename (path, ".etwm", &configFd)) == NULL)
 	goto bad;
 
     if (!(configFile = fdopen (configFd, "wb"))) /* wb = write binary */

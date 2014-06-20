@@ -1,6 +1,6 @@
 -- NEWS for ETWM
 
-Changes from ctwm 3.8.2 to etwm 3.8.3
+Changes from ctwm 3.8.2 to @PACKAGE@ @VERSION@
 -------------------------------------
 
  - moved old README to README.etwm

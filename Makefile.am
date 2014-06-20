@@ -1,39 +1,75 @@
 ACLOCAL_AMFLAGS	 = -I m4
 
+EXTRA_DIST = INSTALL COPYING AUTHORS AUTHORS.in NEWS NEWS.in README README.in THANKS THANKS.in TODO TODO.in ChangeLog
+
+ChangeLog:
+	( \
+	  echo -e "# created with git log --stat=76 -M -C|fmt -sct -w80\n" ; \
+	  git log --stat=76 -M -C|fmt -sct -w80 ; \
+	)>$@
+
+AUTHORS.in:
+	( \
+	  echo "\@PACKAGE\@ -- authors file.  \@DATE\@" ; \
+	  echo "" ; \
+	  git log|grep '^Author:'|awk '{if(!authors[$$0]){print$$0;authors[$$0]=1;}}'|tac \
+	)>$@
+
+README: README.in
+	sed -r -e 's:\@PACKAGE\@:$(PACKAGE):g;s:\@VERSION\@:$(VERSION):g;s:\@DATE\@:$(DATE):g' $< >$@
+
+NEWS: NEWS.in
+	sed -r -e 's:\@PACKAGE\@:$(PACKAGE):g;s:\@VERSION\@:$(VERSION):g;s:\@DATE\@:$(DATE):g' $< >$@
+
+AUTHORS: AUTHORS.in
+	sed -r -e 's:\@PACKAGE\@:$(PACKAGE):g;s:\@VERSION\@:$(VERSION):g;s:\@DATE\@:$(DATE):g' $< >$@
+
+THANKS: THANKS.in
+	sed -r -e 's:\@PACKAGE\@:$(PACKAGE):g;s:\@VERSION\@:$(VERSION):g;s:\@DATE\@:$(DATE):g' $< >$@
+
+TODO: TODO.in
+	sed -r -e 's:\@PACKAGE\@:$(PACKAGE):g;s:\@VERSION\@:$(VERSION):g;s:\@DATE\@:$(DATE):g' $< >$@
+
+dist_noinst_SCRIPTS = autogen.sh configure.sh
+
+EXTRA_DIST += siconify.bm
+
 AM_YFLAGS = -d
 
-bin_PROGRAMS = ctwm
-lib_LIBRARIES = libctwm.a
+bin_PROGRAMS = etwm
+lib_LIBRARIES = libetwm.a
 
-ctwmdir = $(sysconfdir)/X11/ctwm
-pixmapdir = $(ctwmdir)/pixmaps
+AM_INSTALLCHECK_STD_OPTIONS_EXEMPT = etwm
 
-dist_ctwm_DATA = system.ctwmrc
+etwmdir = $(sysconfdir)/X11/etwm
+pixmapdir = $(etwmdir)/pixmaps
+
+dist_etwm_DATA = system.etwmrc
 
 AM_CPPFLAGS = -include config.h \
-	'-DSYSTEM_INIT_FILE="$(ctwmdir)/system.ctwmrc"' \
+	'-DSYSTEM_INIT_FILE="$(etwmdir)/system.etwmrc"' \
 	'-DPIXMAP_DIRECTORY="$(pixmapdir)"' \
 	'-DYY_NO_INPUT'
 
-AM_CFLAGS = $(CTWM_CFLAGS) $(xpm_CFLAGS) $(xrandr_CFLAGS) $(xinerama_CFLAGS)
+AM_CFLAGS = $(ETWM_CFLAGS) $(xpm_CFLAGS) $(xrandr_CFLAGS) $(xinerama_CFLAGS)
 
-libctwm_a_SOURCES = \
+libetwm_a_SOURCES = \
 	twm.h \
-	ctwm.h \
-	libctwm.c
+	etwm.h \
+	libetwm.c
 
-ctwm_LDADD = $(CTWM_LIBS) $(xpm_LIBS) $(xrandr_LIBS) $(xinerama_LIBS) libctwm.a
+etwm_LDADD = $(ETWM_LIBS) $(xpm_LIBS) $(xrandr_LIBS) $(xinerama_LIBS) libetwm.a
 
-EXTRA_ctwm_SOURCES = \
+EXTRA_etwm_SOURCES = \
 	ewmh.c \
 	ewmh.h \
-	ewmh_ctwm.c \
+	ewmh_etwm.c \
 	wmh.c \
 	wmh.h \
-	wmh_ctwm.c \
+	wmh_etwm.c \
 	mwmh.c \
 	mwmh.h \
-	mwmh_ctwm.c \
+	mwmh_etwm.c \
 	gnome.c \
 	gnome.h \
 	gnomewindefs.h \
@@ -44,13 +80,13 @@ EXTRA_ctwm_SOURCES = \
 	vms_cmd_services.c \
 	vms_cmd_services.h
 
-ctwm_SOURCES = \
+etwm_SOURCES = \
 	add_window.c \
 	add_window.h \
 	clicktofocus.c \
 	clicktofocus.h \
-	ctwm.c \
-	ctwm.h \
+	etwm.c \
+	etwm.h \
 	cursor.c \
 	cursor.h \
 	deftwmrc.c \
@@ -89,37 +125,37 @@ ctwm_SOURCES = \
 	workmgr.h
 
 if GNOME
-ctwm_SOURCES += \
+etwm_SOURCES += \
 	gnome.c \
 	gnome.h \
 	gnomewindefs.h
 endif
 
 if SOUND
-ctwm_SOURCES += \
+etwm_SOURCES += \
 	sound.c \
 	sound.h
 endif
 
 if EWMH
-ctwm_SOURCES += \
+etwm_SOURCES += \
 	ewmh.c \
 	ewmh.h \
-	ewmh_ctwm.c
+	ewmh_etwm.c
 endif
 
 if WMH
-ctwm_SOURCES += \
+etwm_SOURCES += \
 	wmh.c \
 	wmh.h \
-	wmh_ctwm.c
+	wmh_etwm.c
 endif
 
 if MWMH
-ctwm_SOURCES += \
+etwm_SOURCES += \
 	mwmh.c \
 	mwmh.h \
-	mwmh_ctwm.c
+	mwmh_etwm.c
 endif
 
 dist_pixmap_DATA = \
@@ -216,15 +252,15 @@ dist_pixmap_DATA = \
 
 BUILT_SOURCES = gram.h deftwmrc.c
 
-deftwmrc.c: system.ctwmrc
+deftwmrc.c: system.etwmrc
 	$(AM_V_at)rm -f $@ ; \
 	echo '/* ' >>$@ ; \
 	echo ' * This file is generated automatically from the default' >>$@ ; \
-	echo ' * ctwm bindings file system.ctwmrc by the ctwm Makefile.' >>$@ ; \
+	echo ' * etwm bindings file system.etwmrc by the etwm Makefile.' >>$@ ; \
 	echo ' */' >>$@ ; \
 	echo '' >>$@ ; \
 	echo 'char *defTwmrc[] = {' >>$@ ; \
-	sed -e '/^#/d' -e 's/"/\\"/g' -e 's/^/    "/' -e 's/$$/",/' ${srcdir}/system.ctwmrc >>$@ ; \
+	sed -e '/^#/d' -e 's/"/\\"/g' -e 's/^/    "/' -e 's/$$/",/' ${srcdir}/system.etwmrc >>$@ ; \
 	echo '    (char *) 0 };' >>$@
 
-man1_MANS = ctwm.man
+dist_man1_MANS = etwm.man

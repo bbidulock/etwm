@@ -1,9 +1,9 @@
 /* 
- *  [ ctwm ]
+ *  [ etwm ]
  *
  *  Copyright 1992 Claude Lecommandeur.
  *            
- * Permission to use, copy, modify  and distribute this software  [ctwm] and
+ * Permission to use, copy, modify  and distribute this software  [etwm] and
  * its documentation for any purpose is hereby granted without fee, provided
  * that the above  copyright notice appear  in all copies and that both that
  * copyright notice and this permission notice appear in supporting documen-
@@ -143,7 +143,7 @@ sound_init (void)
      */
     soundfile [0] = '\0';
     if ((home = getenv ("HOME")) != NULL) strcpy (soundfile, home);
-    strcat (soundfile, "/.ctwm-sounds");
+    strcat (soundfile, "/.etwm-sounds");
     fl = fopen (soundfile, "r");
     if (fl == NULL)
 	return;

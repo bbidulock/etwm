@@ -25,11 +25,11 @@
 /**    OR PERFORMANCE OF THIS SOFTWARE.                                     **/
 /*****************************************************************************/
 /* 
- *  [ ctwm ]
+ *  [ etwm ]
  *
  *  Copyright 1992 Claude Lecommandeur.
  *            
- * Permission to use, copy, modify  and distribute this software  [ctwm] and
+ * Permission to use, copy, modify  and distribute this software  [etwm] and
  * its documentation for any purpose is hereby granted without fee, provided
  * that the above  copyright notice appear  in all copies and that both that
  * copyright notice and this permission notice appear in supporting documen-
@@ -646,7 +646,7 @@ extern Atom _XA_WM_WORKSPACESLIST;
 extern Atom _XA_WM_CURRENTWORKSPACE;
 extern Atom _XA_WM_NOREDIRECT;
 extern Atom _XA_WM_OCCUPATION;
-extern Atom _XA_WM_CTWM_VSCREENMAP;
+extern Atom _XA_WM_ETWM_VSCREENMAP;
 extern Atom _XA_MANAGER;
 extern Atom _OL_WIN_ATTR;
 extern Atom _XA_KDE_WM_CHANGE_STATE;

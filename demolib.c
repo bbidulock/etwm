@@ -1,9 +1,9 @@
 /* 
- *  [ ctwm ]
+ *  [ etwm ]
  *
  *  Copyright 1992 Claude Lecommandeur.
  *            
- * Permission to use, copy, modify  and distribute this software  [ctwm] and
+ * Permission to use, copy, modify  and distribute this software  [etwm] and
  * its documentation for any purpose is hereby granted without fee, provided
  * that the above  copyright notice appear  in all copies and that both that
  * copyright notice and this permission notice appear in supporting documen-
@@ -32,7 +32,7 @@
 #include <X11/Xatom.h>
 #endif
 
-#include "ctwm.h"
+#include "etwm.h"
 
 Window awindow = 0x5c0000d;
 char *awspc1 = "lecom", *awspc2 = "root";
@@ -55,14 +55,14 @@ char **argv;
 
 /****************************************************************/
 
-    if (! CtwmIsRunning) {
-	fprintf (stderr, "ctwm is not running\n");
+    if (! EtwmIsRunning) {
+	fprintf (stderr, "etwm is not running\n");
 	exit (1);
     }
 
 /****************************************************************/
 
-    wlist = CtwmListWorkspaces (dpy, 0);
+    wlist = EtwmListWorkspaces (dpy, 0);
     if (wlist == (char**) 0) {
 	fprintf (stderr, "cannot obtain workspaces list\n");
 	exit (1);
@@ -76,7 +76,7 @@ char **argv;
 
 /****************************************************************/
 
-    cur = CtwmCurrentWorkspace (dpy, 0);
+    cur = EtwmCurrentWorkspace (dpy, 0);
     if (cur == NULL) {
 	fprintf (stderr, "cannot obtain current workspace\n");
 	exit (1);
@@ -85,7 +85,7 @@ char **argv;
 
 /****************************************************************/
 
-    status = CtwmChangeWorkspace (dpy, 0, awspc1);
+    status = EtwmChangeWorkspace (dpy, 0, awspc1);
     if (! status) {
 	fprintf (stderr, "cannot change the current workspace\n");
 	exit (1);
@@ -93,7 +93,7 @@ char **argv;
 
 /****************************************************************/
 
-    wlist = CtwmCurrentOccupation (dpy, awindow);
+    wlist = EtwmCurrentOccupation (dpy, awindow);
     if (wlist == (char**) 0) {
 	fprintf (stderr, "cannot obtain occupation of window  %x\n", awindow);
 	exit (1);
@@ -111,14 +111,14 @@ char **argv;
     occupation [0] = awspc1;
     occupation [1] = awspc2;
     occupation [2] = NULL;
-    status = CtwmSetOccupation (dpy, awindow, occupation);
+    status = EtwmSetOccupation (dpy, awindow, occupation);
     if (! status) {
 	fprintf (stderr, "cannot change the occupation of window %x\n", awindow);
     }
     printf ("occupation of window %x changed to \"lecom\", \"root\"\n", awindow);
 
 /****************************************************************/
-    status = CtwmAddToCurrentWorkspace (dpy, awindow);
+    status = EtwmAddToCurrentWorkspace (dpy, awindow);
     if (! status) {
 	fprintf (stderr, "cannot change the occupation of window %x\n", awindow);
     }

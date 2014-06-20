@@ -25,11 +25,11 @@
 /**    OR PERFORMANCE OF THIS SOFTWARE.                                     **/
 /*****************************************************************************/
 /* 
- *  [ ctwm ]
+ *  [ etwm ]
  *
  *  Copyright 1992 Claude Lecommandeur.
  *            
- * Permission to use, copy, modify  and distribute this software  [ctwm] and
+ * Permission to use, copy, modify  and distribute this software  [etwm] and
  * its documentation for any purpose is hereby granted without fee, provided
  * that the above  copyright notice appear  in all copies and that both that
  * copyright notice and this permission notice appear in supporting documen-
@@ -59,7 +59,7 @@
  *
  * 17-Nov-87 Thomas E. LaStrange		File created
  *
- * Do the necessary modification to be integrated in ctwm.
+ * Do the necessary modification to be integrated in etwm.
  * Can no longer be used for the standard twm.
  *
  * 22-April-92 Claude Lecommandeur.
@@ -103,7 +103,7 @@
 #define USE_SIGNALS
 #endif
 
-static void CtwmNextEvent (Display *display, XEvent  *event);
+static void EtwmNextEvent (Display *display, XEvent  *event);
 void RedoIcon(void);
 static void do_key_menu (MenuRoot *menu,	/* menu to pop up */
 			 Window w);		/* invoking window or None */
@@ -526,7 +526,7 @@ void HandleEvents(void)
 	}
 	WindowMoved = FALSE;
 
-	CtwmNextEvent (dpy, &Event);
+	EtwmNextEvent (dpy, &Event);
 
 	if (Event.type < 0 || Event.type >= MAX_X_EVENT)
 	    XtDispatchEvent (&Event);
@@ -542,7 +542,7 @@ void HandleEvents(void)
 extern unsigned long timefe;
 #endif
 
-static void CtwmNextEvent (Display *display, XEvent  *event)
+static void EtwmNextEvent (Display *display, XEvent  *event)
 {
     int animate = (AnimationActive && MaybeAnimate);
 
@@ -4446,7 +4446,7 @@ void ConfigureRootWindow (XEvent *ev)
     if (captive && ((Scr->crootw != oldw) || (Scr->crooth != oldh))) {
       twmrc_error_prefix ();
       fprintf (stderr, "You cannot change root window geometry with virtual screens active,\n");
-      fprintf (stderr, "from now on, the ctwm behaviour is unpredictable.\n");
+      fprintf (stderr, "from now on, the etwm behaviour is unpredictable.\n");
     }
 }
 

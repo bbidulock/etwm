@@ -8,7 +8,7 @@ config.log
 config.status
 configure
 cscope.*
-ctwm
+etwm
 deftwmrc.c
 depcomp
 .deps/
@@ -16,7 +16,7 @@ gram.c
 gram.h
 install-sh
 lex.c
-libctwm.a
+libetwm.a
 *.log
 m4/
 Makefile
@@ -27,3 +27,5 @@ scripts/
 stamp-h1
 .*.sw[op]
 ylwrap
+*.tar.[gx]z
+*.tar.bz2

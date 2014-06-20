@@ -1,14 +1,14 @@
-What did I do for ctwm?				(Richard Levitte)
+What did I do for etwm?				(Richard Levitte)
 -----------------------
 
->>>> ctwm 3.5 beta 1:
+>>>> etwm 3.5 beta 1:
 
 19970301:
 
   Well, some bug fixes (a missing return at one place...  Baaaad...), fixing
   the restart code for VMS, a lot of extra declarations to make DEC C shut up,
   A real descrip.mms (and a descrip.submms), so you can compile for VAX and
-  AXP without any file conflict, enhancements of make.com, ctwm.com and of
+  AXP without any file conflict, enhancements of make.com, etwm.com and of
   the docs...
 
   Well, that's about it.
@@ -38,15 +38,15 @@ What did I do for ctwm?				(Richard Levitte)
 
   A .HLP file created (Thank you Michael Lemke!).
 
->>>> ctwm 3.5 beta 3:
+>>>> etwm 3.5 beta 3:
 
 19971115:
 
   Readded the following files that I have hacked on since the latest
-  release of Ctwm 3.5 beta 1 for VMS (or that were forgotten back then):
+  release of Etwm 3.5 beta 1 for VMS (or that were forgotten back then):
 
-	ALLOCA.C, CTWM.COM, DESCRIP.MMS, GENDEFTWMRC.COM,
-	LEVITTE_SYSTEM.CTWMRC, MAKE.COM, README.VMS, VMS.TXT
+	ALLOCA.C, ETWM.COM, DESCRIP.MMS, GENDEFTWMRC.COM,
+	LEVITTE_SYSTEM.ETWMRC, MAKE.COM, README.VMS, VMS.TXT
 
   Added a few function declarations in the following files:
 
@@ -54,7 +54,7 @@ What did I do for ctwm?				(Richard Levitte)
 
   MENUS.C needed to include CURSOR.H for correct declaration of
   MakeStringCursor().  Also, I've removed (with #if 0..#endif) some code
-  that Claude claims is already done in Done() (found in CTWM.C).  Tests
+  that Claude claims is already done in Done() (found in ETWM.C).  Tests
   have proved that he's right.
 
   I readded the sanity code in TWM.H for now, currently commented, to

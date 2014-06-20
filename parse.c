@@ -25,11 +25,11 @@
 /**    OR PERFORMANCE OF THIS SOFTWARE.                                     **/
 /*****************************************************************************/
 /* 
- *  [ ctwm ]
+ *  [ etwm ]
  *
  *  Copyright 1992 Claude Lecommandeur.
  *            
- * Permission to use, copy, modify  and distribute this software  [ctwm] and
+ * Permission to use, copy, modify  and distribute this software  [etwm] and
  * its documentation for any purpose is hereby granted without fee, provided
  * that the above  copyright notice appear  in all copies and that both that
  * copyright notice and this permission notice appear in supporting documen-
@@ -60,7 +60,7 @@
  * 17-Nov-87 Thomas E. LaStrange       File created
  * 10-Oct-90 David M. Sternlicht       Storing saved colors on root
  *
- * Do the necessary modification to be integrated in ctwm.
+ * Do the necessary modification to be integrated in etwm.
  * Can no longer be used for the standard twm.
  *
  * 22-April-92 Claude Lecommandeur.
@@ -84,7 +84,7 @@
 #include <X11/Xmu/SysUtil.h>
 #endif
 #include "twm.h"
-#include "ctwm.h"
+#include "etwm.h"
 #include "screen.h"
 #include "menus.h"
 #include "util.h"
@@ -110,7 +110,7 @@
 
 #ifndef SYSTEM_INIT_FILE
 #ifdef VMS
-#define SYSTEM_INIT_FILE "DECW$SYSTEM_DEFAULTS:SYSTEM.CTWMRC"
+#define SYSTEM_INIT_FILE "DECW$SYSTEM_DEFAULTS:SYSTEM.ETWMRC"
 #else
 #define SYSTEM_INIT_FILE "/usr/lib/X11/twm/system.twmrc"
 #endif
@@ -201,11 +201,11 @@ int ParseTwmrc (char *filename)
      *       Unix                  |   VMS
      *   0.  -f filename.#         | -f filename_#
      *   1.  -f filename           | -f filename
-     *   2.  .ctwmrc.#             | ctwm.rc_#
-     *   3.  .ctwmrc               | ctwm.rc
+     *   2.  .etwmrc.#             | etwm.rc_#
+     *   3.  .etwmrc               | etwm.rc
      *   4.  .twmrc.#              | twm.rc_#
      *   5.  .twmrc                | twm.rc
-     *   6.  system.ctwmrc         | system.ctwmrc
+     *   6.  system.etwmrc         | system.etwmrc
      */
     for (twmrc = NULL, i = 0; !twmrc && i < 7; i++) {
 	switch (i) {
@@ -228,7 +228,7 @@ int ParseTwmrc (char *filename)
 		if (home) {
 		    homelen = strlen (home);
 		    cp = tmpfilename;
-		    (void) sprintf (tmpfilename, "%sctwm.rc_%d",
+		    (void) sprintf (tmpfilename, "%setwm.rc_%d",
 				    home, Scr->screen);
 		    break;
 		}
@@ -272,20 +272,20 @@ int ParseTwmrc (char *filename)
 	    cp = filename;
 	    break;
 
-	  case 2:			/* ~/.ctwmrc.screennum */
+	  case 2:			/* ~/.etwmrc.screennum */
 	    if (!filename) {
 		home = getenv ("HOME");
 		if (home) {
 		    homelen = strlen (home);
 		    cp = tmpfilename;
-		    (void) sprintf (tmpfilename, "%s/.ctwmrc.%d",
+		    (void) sprintf (tmpfilename, "%s/.etwmrc.%d",
 				    home, Scr->screen);
 		    break;
 		}
 	    }
 	    continue;
 
-	  case 3:			/* ~/.ctwmrc */
+	  case 3:			/* ~/.etwmrc */
 	    if (home) {
 		tmpfilename[homelen + 8] = '\0';
 	    }
@@ -2263,7 +2263,7 @@ static char *m4_defs(Display *display, char *host)
         fputs(MkNum("Y_RESOLUTION",Resolution(screen->height,screen->mheight)),tmpf);
         fputs(MkNum("PLANES",DisplayPlanes(display, Scr->screen)), tmpf);
         fputs(MkNum("BITS_PER_RGB", visual->bits_per_rgb), tmpf);
-        fputs(MkDef("TWM_TYPE", "ctwm"), tmpf);
+        fputs(MkDef("TWM_TYPE", "etwm"), tmpf);
         fputs(MkDef("TWM_VERSION", VersionNumber), tmpf);
         switch(visual->class) {
                 case(StaticGray):       vc = "StaticGray";      break;

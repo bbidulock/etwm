@@ -1,9 +1,9 @@
 /* 
- *  [ ctwm ]
+ *  [ etwm ]
  *
  *  Copyright 2004 Richard Levitte.
  *            
- * Permission to use, copy, modify  and distribute this software  [ctwm] and
+ * Permission to use, copy, modify  and distribute this software  [etwm] and
  * its documentation for any purpose is hereby granted without fee, provided
  * that the above  copyright notice appear  in all copies and that both that
  * copyright notice and this permission notice appear in supporting documen-
@@ -81,6 +81,6 @@ typedef struct MapSubwindow MapSubwindow;
 typedef struct ButtonSubwindow ButtonSubwindow;
 typedef struct WorkSpaceWindow WorkSpaceWindow;
 typedef struct OccupyWindow OccupyWindow;
-typedef struct CaptiveCTWM CaptiveCTWM;
+typedef struct CaptiveETWM CaptiveETWM;
 
 #endif /* _TYPES_ */

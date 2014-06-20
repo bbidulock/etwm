@@ -11,12 +11,12 @@ $     exe := axp_exe
 $ else
 $     exe := vax_exe
 $ endif
-$ ctwm:=$'progdir'ctwm.'exe'
+$ etwm:=$'progdir'etwm.'exe'
 $ ShowWelcomeSwitch = "-W"
 $ if welcome_file .nes. ""
 $ then
 $     t = f$edit(f$parse(welcome_file,,,"type") - ".", "lowercase")
-$     define ctwm_welcome_file "''t':/''welcome_file'"
+$     define etwm_welcome_file "''t':/''welcome_file'"
 $     ShowWelcomeSwitch = ""
 $ endif
 $ vue$suppress_output_popup
@@ -33,7 +33,7 @@ $ if p6 .nes. "" then args = args + " """+p6+""""
 $ if p7 .nes. "" then args = args + " """+p7+""""
 $ if p8 .nes. "" then args = args + " """+p8+""""
 $ set noon
-$ ctwm 'args'
+$ etwm 'args'
 $ if $status .eq. 1
 $ then	! We know this is a restart
 $     ShowWelcomeSwitch = "-W"	! the restart does not need a welcome

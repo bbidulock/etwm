@@ -1,8 +1,8 @@
 #****************
-#    ctwm.rc
+#    etwm.rc
 #****************
 
-PixmapDirectory        "MPHA7$USER1:[THEORY.PETERC.XPM.ctwmicons]"
+PixmapDirectory        "MPHA7$USER1:[THEORY.PETERC.XPM.etwmicons]"
 NoDefaults
 #NoVersion
 NoGrabServer
@@ -228,7 +228,7 @@ Button2 = : frame       : f.function "move-or-raise"
 Button1 = : icon        : f.function "move-or-iconify"
 Button2 = : icon        : f.iconify
 Button1 = : iconmgr     : f.iconify
-Button1 = : root        : f.menu "ctwmops"
+Button1 = : root        : f.menu "etwmops"
 Button2 = : root        : f.menu "windowops"
 Button3 = : root        : f.menu "DECstuff"
 "F4"    = s : window    : f.destroy
@@ -251,7 +251,7 @@ menu "TMenu" {
     "Occupy all" f.occupyall
 }
 
-menu "ctwmops"
+menu "etwmops"
 {
     "PeterC"        f.title
     "DECterm"       !"create/terminal/nobroadcast/detach DECterm"

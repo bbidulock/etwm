@@ -26,11 +26,11 @@
 /*****************************************************************************/
 
 /* 
- *  [ ctwm ]
+ *  [ etwm ]
  *
  *  Copyright 1992 Claude Lecommandeur.
  *            
- * Permission to use, copy, modify  and distribute this software  [ctwm] and
+ * Permission to use, copy, modify  and distribute this software  [etwm] and
  * its documentation for any purpose is hereby granted without fee, provided
  * that the above  copyright notice appear  in all copies and that both that
  * copyright notice and this permission notice appear in supporting documen-
@@ -60,7 +60,7 @@
  *
  * 31-Mar-88 Tom LaStrange        Initial Version.
  *
- * Do the necessary modification to be integrated in ctwm.
+ * Do the necessary modification to be integrated in etwm.
  * Can no longer be used for the standard twm.
  *
  * 22-April-92 Claude Lecommandeur.
@@ -266,8 +266,8 @@ TwmWindow *AddWindow(Window w, int iconm, IconMgr *iconp)
     tmp_win->func.functions = -1U;
     tmp_win->decor.decorations = -1U;
     tmp_win->list.lists = -1U;
-    tmp_win->ontoppriority = CTWM_LAYER_NORMAL;
-    tmp_win->initial_layer = CTWM_LAYER_NORMAL;
+    tmp_win->ontoppriority = ETWM_LAYER_NORMAL;
+    tmp_win->initial_layer = ETWM_LAYER_NORMAL;
     tmp_win->occupation = 0;
 
     XSelectInput(dpy, tmp_win->w, PropertyChangeMask);
@@ -409,8 +409,8 @@ TwmWindow *AddWindow(Window w, int iconm, IconMgr *iconp)
 	    &tmp_win->class));
 
     if (LookInList(Scr->AlwaysOnTopL, tmp_win->full_name, &tmp_win->class)) {
-	tmp_win->ontoppriority = CTWM_LAYER_DOCK;
-	tmp_win->initial_layer = CTWM_LAYER_DOCK;
+	tmp_win->ontoppriority = ETWM_LAYER_DOCK;
+	tmp_win->initial_layer = ETWM_LAYER_DOCK;
     }
 
     tmp_win->titlehighlight = Scr->TitleHighlight && 
@@ -1406,7 +1406,7 @@ TwmWindow *AddWindow(Window w, int iconm, IconMgr *iconp)
      */
     if (RootFunction) ReGrab();
     if (!iswman) WMapAddWindow (tmp_win);
-    SetPropsIfCaptiveCtwm (tmp_win);
+    SetPropsIfCaptiveEtwm (tmp_win);
     savegeometry (tmp_win);
     return (tmp_win);
 }

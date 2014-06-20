@@ -1,4 +1,4 @@
-XCOMM This is the local configuration file for Imakefile for ctwm.
+XCOMM This is the local configuration file for Imakefile for etwm.
 XCOMM
 XCOMM Some of the things you can define also come with make variables that
 XCOMM can be manipulated.  All such variables have names starting with\
@@ -69,8 +69,8 @@ XCOMM
 #define JPEG
 
 XCOMM ----------------------------------------------------------------------
-XCOMM Feature: Using M4 to process the ctwm configuration file
-XCOMM If you want to process the ctwm configuration file with m4, define
+XCOMM Feature: Using M4 to process the etwm configuration file
+XCOMM If you want to process the etwm configuration file with m4, define
 XCOMM USE_M4.
 XCOMM
 #define USE_M4
@@ -92,7 +92,7 @@ XCOMM DEBUGGING:
 
 XCOMM ----------------------------------------------------------------------
 XCOMM Feature: General debugging
-XCOMM If you want to get all kinds of debugging output from CTWM, define
+XCOMM If you want to get all kinds of debugging output from ETWM, define
 XCOMM DEBUG.
 XCOMM
 #undef  DEBUG

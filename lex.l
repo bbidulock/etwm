@@ -26,11 +26,11 @@
 /**    OR PERFORMANCE OF THIS SOFTWARE.                                     **/
 /*****************************************************************************/
 /* 
- *  [ ctwm ]
+ *  [ etwm ]
  *
  *  Copyright 1992 Claude Lecommandeur.
  *            
- * Permission to use, copy, modify  and distribute this software  [ctwm] and
+ * Permission to use, copy, modify  and distribute this software  [etwm] and
  * its documentation for any purpose is hereby granted without fee, provided
  * that the above  copyright notice appear  in all copies and that both that
  * copyright notice and this permission notice appear in supporting documen-
@@ -96,6 +96,7 @@ number				[0-9]+
 
 [a-zA-Z\.]+			{ int token = parse_keyword (yytext, 
 							     &yylval.num);
+				  (void) yyunput;
 				  if (token == ERRORTOKEN) {
 				      twmrc_error_prefix();
 				      fprintf (stderr,

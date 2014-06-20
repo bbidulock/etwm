@@ -1,10 +1,10 @@
 #######################################################################
 #                                                                     #
-#                           .ctwmrc addition                          #
+#                           .etwmrc addition                          #
 #                                                                     #
 #######################################################################
 
-PixmapDirectory			"~/images/ctwm"
+PixmapDirectory			"~/images/etwm"
 UnknownIcon			"xpm:unknown.xpm"
 IconJustification		"left"
 RightTitleButton		"%xpm:resize" = f.horizoom

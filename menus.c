@@ -25,11 +25,11 @@
 /**    OR PERFORMANCE OF THIS SOFTWARE.                                     **/
 /*****************************************************************************/
 /* 
- *  [ ctwm ]
+ *  [ etwm ]
  *
  *  Copyright 1992 Claude Lecommandeur.
  *            
- * Permission to use, copy, modify  and distribute this software  [ctwm] and
+ * Permission to use, copy, modify  and distribute this software  [etwm] and
  * its documentation for any purpose is hereby granted without fee, provided
  * that the above  copyright notice appear  in all copies and that both that
  * copyright notice and this permission notice appear in supporting documen-
@@ -59,7 +59,7 @@
  *
  * 17-Nov-87 Thomas E. LaStrange		File created
  *
- * Do the necessary modification to be integrated in ctwm.
+ * Do the necessary modification to be integrated in etwm.
  * Can no longer be used for the standard twm.
  *
  * 22-April-92 Claude Lecommandeur.
@@ -87,7 +87,7 @@
 #include <X11/Xatom.h>
 #endif
 #include "twm.h"
-#include "ctwm.h"
+#include "etwm.h"
 #include "gc.h"
 #include "menus.h"
 #include "resize.h"
@@ -2484,7 +2484,7 @@ int ExecuteFunction(int func, char *action, Window w, TwmWindow *tmp_win,
 	Bool	cont = True;
 	Window	root = RootWindow (dpy, Scr->screen);
 	Cursor	cursor;
-	CaptiveCTWM cctwm0, cctwm;
+	CaptiveETWM cetwm0, cetwm;
 
 	if (DeferExecution(context, func, Scr->MoveCursor)) return TRUE;
 
@@ -2492,9 +2492,9 @@ int ExecuteFunction(int func, char *action, Window w, TwmWindow *tmp_win,
 	    XBell (dpy, 0);
 	    break;
 	}
-	cctwm0 = GetCaptiveCTWMUnderPointer ();
-	cursor = MakeStringCursor (cctwm0.name);
-	free (cctwm0.name);
+	cetwm0 = GetCaptiveETWMUnderPointer ();
+	cursor = MakeStringCursor (cetwm0.name);
+	free (cetwm0.name);
 	if (DeferExecution (context, func, Scr->MoveCursor)) return TRUE;
 
 	XGrabPointer (dpy, root, True,
@@ -2510,27 +2510,27 @@ int ExecuteFunction(int func, char *action, Window w, TwmWindow *tmp_win,
 
 		case ButtonRelease :
 		    cont = False;
-		    cctwm = GetCaptiveCTWMUnderPointer ();
-		    free (cctwm.name);
-		    if (cctwm.root == Scr->Root) break;
-		    if (cctwm.root == Scr->XineramaRoot) break;
+		    cetwm = GetCaptiveETWMUnderPointer ();
+		    free (cetwm.name);
+		    if (cetwm.root == Scr->Root) break;
+		    if (cetwm.root == Scr->XineramaRoot) break;
 		    SetNoRedirect (tmp_win->w);
 		    XUngrabButton (dpy, AnyButton, AnyModifier, tmp_win->w);
-		    XReparentWindow (dpy, tmp_win->w, cctwm.root, 0, 0);
+		    XReparentWindow (dpy, tmp_win->w, cetwm.root, 0, 0);
 		    XMapWindow (dpy, tmp_win->w);
 		    break;
 	
 		case MotionNotify :
-		    cctwm = GetCaptiveCTWMUnderPointer ();
-		    if (cctwm.root != cctwm0.root) {
+		    cetwm = GetCaptiveETWMUnderPointer ();
+		    if (cetwm.root != cetwm0.root) {
 			XFreeCursor (dpy, cursor);
-			cursor = MakeStringCursor (cctwm.name);
-			cctwm0 = cctwm;
+			cursor = MakeStringCursor (cetwm.name);
+			cetwm0 = cetwm;
 			XChangeActivePointerGrab (dpy,
 				ButtonPressMask | ButtonMotionMask | ButtonReleaseMask,
 				cursor, CurrentTime);
 		    }
-		    free (cctwm.name);
+		    free (cetwm.name);
 		    break;
 	    }
 	}
@@ -3248,7 +3248,7 @@ int ExecuteFunction(int func, char *action, Window w, TwmWindow *tmp_win,
 
 	/* check to make sure raise is not from the WindowFunction */
 	if (tmp_win->icon && (w == tmp_win->icon->w) && Context != C_ROOT) 
-	    RaiseIcon(w, CTWM_LAYER_ONTOP);
+	    RaiseIcon(w, ETWM_LAYER_ONTOP);
 	else {
 	    RaiseWindow (tmp_win);
 	    WMapRaise   (tmp_win);
@@ -3260,7 +3260,7 @@ int ExecuteFunction(int func, char *action, Window w, TwmWindow *tmp_win,
 	    return TRUE;
 
 	if (tmp_win->icon && (w == tmp_win->icon->w))
-	    LowerIcon(w, CTWM_LAYER_BELOW);
+	    LowerIcon(w, ETWM_LAYER_BELOW);
 	else {
 	    LowerWindow(tmp_win);
 	    WMapLower (tmp_win);
@@ -3270,7 +3270,7 @@ int ExecuteFunction(int func, char *action, Window w, TwmWindow *tmp_win,
     case F_RAISEICONS:
 	for (t = Scr->FirstWindow; t != NULL; t = t->next)
 	    if (t->icon && t->icon->w)
-		RaiseIcon(t->icon->w, CTWM_LAYER_ONTOP);
+		RaiseIcon(t->icon->w, ETWM_LAYER_ONTOP);
 	break;
 
     case F_FOCUS:
@@ -3910,7 +3910,7 @@ static void Execute(char *s)
     if (subs) {
 	if (captive) {
 	    name = (char*) malloc (21 + strlen (captivename) + 1);
-	    sprintf (name, "-xrm 'ctwm.redirect:%s'", captivename);
+	    sprintf (name, "-xrm 'etwm.redirect:%s'", captivename);
 	} else {
 	    name = (char*) malloc (1);
 	    *name = '\0';

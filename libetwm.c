@@ -1,9 +1,9 @@
 /* 
- *  [ ctwm ]
+ *  [ etwm ]
  *
  *  Copyright 1992 Claude Lecommandeur.
  *            
- * Permission to use, copy, modify  and distribute this software  [ctwm] and
+ * Permission to use, copy, modify  and distribute this software  [etwm] and
  * its documentation for any purpose is hereby granted without fee, provided
  * that the above  copyright notice appear  in all copies and that both that
  * copyright notice and this permission notice appear in supporting documen-
@@ -29,16 +29,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include "twm.h"
-#include "ctwm.h"
+#include "etwm.h"
 
 Atom _XA_WM_OCCUPATION;
 Atom _XA_WM_CURRENTWORKSPACE;
 Atom _XA_WM_WORKSPACESLIST;
 
-/* Note that this doesn't assure that ctwm is really running,
+/* Note that this doesn't assure that etwm is really running,
    i should set up a communication via flipping a property */
 
-Bool CtwmIsRunning (Display *display, int scrnum)
+Bool EtwmIsRunning (Display *display, int scrnum)
 {
     unsigned char	*prop;
     unsigned long	bytesafter;
@@ -55,7 +55,7 @@ Bool CtwmIsRunning (Display *display, int scrnum)
     return (True);
 }
 
-char **CtwmListWorkspaces (Display *display, int scrnum)
+char **EtwmListWorkspaces (Display *display, int scrnum)
 {
     unsigned char	*prop;
     char		*p;
@@ -97,7 +97,7 @@ char **CtwmListWorkspaces (Display *display, int scrnum)
     return (ret);
 }
 
-char *CtwmCurrentWorkspace (Display *display, int scrnum)
+char *EtwmCurrentWorkspace (Display *display, int scrnum)
 {
     unsigned char	*prop;
     unsigned long	bytesafter;
@@ -115,7 +115,7 @@ char *CtwmCurrentWorkspace (Display *display, int scrnum)
     return ((char*) prop);
 }
 
-int CtwmChangeWorkspace (Display *display, int scrnum, char	*workspace)
+int EtwmChangeWorkspace (Display *display, int scrnum, char	*workspace)
 {
     _XA_WM_CURRENTWORKSPACE = XInternAtom (display, "WM_CURRENTWORKSPACE", True);
     if (_XA_WM_CURRENTWORKSPACE == None) return (0);
@@ -126,7 +126,7 @@ int CtwmChangeWorkspace (Display *display, int scrnum, char	*workspace)
     return (1);
 }
 
-char **CtwmCurrentOccupation (Display *display, Window window)
+char **EtwmCurrentOccupation (Display *display, Window window)
 {
     unsigned char	*prop;
     char		*p;
@@ -168,7 +168,7 @@ char **CtwmCurrentOccupation (Display *display, Window window)
     return (ret);
 }
 
-int CtwmSetOccupation (Display *display, Window window, char **occupation)
+int EtwmSetOccupation (Display *display, Window window, char **occupation)
 {
     int		len;
     char	**occ;
@@ -197,7 +197,7 @@ int CtwmSetOccupation (Display *display, Window window, char **occupation)
     return (1);
 }
 
-int CtwmAddToCurrentWorkspace (Display *display, Window window)
+int EtwmAddToCurrentWorkspace (Display *display, Window window)
 {
     unsigned char	*prop;
     unsigned long	bytesafter;

@@ -1297,7 +1297,7 @@ TermMwmh(ScreenInfo *scr)
 /** @} */
 
 /** @name Addition and Withdrawal of windows
-  * CTWM treats withdrawal and deletion of windows identically.
+  * ETWM treats withdrawal and deletion of windows identically.
   * @{ */
 
 /** @brief Add a window in the MWMH sense.

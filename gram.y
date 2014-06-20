@@ -25,11 +25,11 @@
 /**    OR PERFORMANCE OF THIS SOFTWARE.                                     **/
 /*****************************************************************************/
 /*
- *  [ ctwm ]
+ *  [ etwm ]
  *
  *  Copyright 1992 Claude Lecommandeur.
  *
- * Permission to use, copy, modify  and distribute this software  [ctwm] and
+ * Permission to use, copy, modify  and distribute this software  [etwm] and
  * its documentation for any purpose is hereby granted without fee, provided
  * that the above  copyright notice appear  in all copies and that both that
  * copyright notice and this permission notice appear in supporting documen-
@@ -60,7 +60,7 @@
  * 07-Jan-86 Thomas E. LaStrange	File created
  * 11-Nov-90 Dave Sternlicht            Adding SaveColors
  * 10-Oct-90 David M. Sternlicht        Storing saved colors on root
- * 22-April-92 Claude Lecommandeur	modifications for ctwm.
+ * 22-April-92 Claude Lecommandeur	modifications for etwm.
  *
  ***********************************************************************/
 

@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([ctwm], [3.8.3], [http://github.com/bbidulock], [ctwm])
+AC_INIT([etwm],[3.8.3],[http://github.com/bbidulock/issues],[etwm])
 AC_CONFIG_SRCDIR([iconmgr.h])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_AUX_DIR([scripts])
@@ -10,11 +10,18 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_USE_SYSTEM_EXTENSIONS
 
 # Initialize Automake
-AM_INIT_AUTOMAKE([foreign dist-bzip2])
+AM_INIT_AUTOMAKE([gnits 1.14 dist-xz no-dist-gzip std-options -Wall color-tests silent-rules tar-pax])
 AM_MAINTAINER_MODE
 
 # Checks for programs.
+AC_PROG_AWK
 AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_INSTALL
+AC_PROG_LN_S
+AC_PROG_MAKE_SET
+AM_PROG_AR
+AC_PROG_MKDIR_P
 AC_PROG_YACC
 AC_PROG_LEX
 AC_PROG_RANLIB
@@ -156,9 +163,9 @@ AC_ARG_ENABLE([debug-mwmh],AC_HELP_STRING([--enable-debug-mwmh],[enable Motif/MW
 
 
 # Checks for pkg-config packages
-PKG_CHECK_MODULES([CTWM], [x11 xext xt xmu ice sm xproto])
+PKG_CHECK_MODULES([ETWM], [x11 xext xt xmu ice sm xproto])
 
-CTWM_LIBS="$CTWM_LIBS -ljpeg"
+ETWM_LIBS="$ETWM_LIBS -ljpeg"
 
 
 AC_CONFIG_FILES([Makefile])

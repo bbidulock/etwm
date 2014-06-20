@@ -4,8 +4,8 @@ ETWM
 ====
 
 This is a fork of the original ctwm, a copy of which can be obtained
-from (http://github.com/bbidulock/etwm).  This fork is hosted on GitHub
-at (http://github.com/bbidulock/etwm).  What it will eventually include
+from (http://github.com/bbidulock/@PACKAGE@).  This fork is hosted on GitHub
+at (http://github.com/bbidulock/@PACKAGE@).  What it will eventually include
 is as follows:
 
  - autoconf build system (instead of imake);
@@ -24,10 +24,10 @@ Release
 This repository is currently in development and the first release has
 not yet been made, but should be soon.  The latest development version
 and the eventual release versions can be obtained from the GitHub
-repository at  (http://github.com/bbidulock/etwm), using a command such
+repository at  (http://github.com/bbidulock/@PACKAGE@), using a command such
 as:
 
-    $> git clone http://github.com/bbidulock/etwm.git
+    $> git clone http://github.com/bbidulock/@PACKAGE@.git
 
 Please see the `NEWS' file for release notes and history of user visible
 changes for the current version, and the `ChangeLog' file for a more
@@ -51,13 +51,13 @@ Quick Start:
 The quickest and easiest was to get ETWM up an running is to run the
 following commands:
 
-    $> git clone http://github.com/bbidulock/etwm.git etwm
-    $> cd etwm
+    $> git clone http://github.com/bbidulock/@PACKAGE@.git @PACKAGE@
+    $> cd @PACKAGE@
     $> ./autogen.sh
     $> ./configure --prefix=/usr
     $> make V=0
     $> make DESTDIR="$pkgdir" install
-    $> install -Dm644 COPYING "$pkgdir/usr/share/licenses/etwm/COPYING"
+    $> install -Dm644 COPYING "$pkgdir/usr/share/licenses/@PACKAGE@/COPYING"
 
 This will configure, compile and install ETWM the quickest.  For those
 who like to spend the extra 15 seconds reading ./configure --help, some
@@ -69,9 +69,9 @@ Configuring ETWM:
 -----------------
 
 Configuring ETWM is very similar to configuring TWM, ETWM or VTWM.  The
-`etwm(1)' manual page contains valuable information on configuration.  A
-theme system based loosely on `etwm-themes' will available with the
-release of the XDE package.  Until then, the `etwm-themes' package
+`@PACKAGE@(1)' manual page contains valuable information on configuration.  A
+theme system based loosely on `@PACKAGE@-themes' will available with the
+release of the XDE package.  Until then, the `@PACKAGE@-themes' package
 should work fine with ETWM, although it will not take advantage of all
 of ETWM's features.
 

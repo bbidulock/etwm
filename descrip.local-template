@@ -1,4 +1,4 @@
-# This is the local configuration file for MMS/MMK for ctwm.
+# This is the local configuration file for MMS/MMK for etwm.
 
 ######################################################################
 #
@@ -22,7 +22,7 @@ X11SM=sys$sysroot:[decw$include.sm]
 # X11SMLIB=X11LIB:SM.OLB
 X11SMLIB=SYS$SHARE:DECW$SMSHR/SHARE
 
-# ctwm exit style:
+# etwm exit style:
 #	0 - Just exit with error code 20.
 #	1 - run sys$system:decw$endsession.exe on exit
 EXIT_ENDSESSION = 0
@@ -114,8 +114,8 @@ USER_XPMINCDIR = [-.XPM-3_4J.LIB]
 JPEG = 1
 
 # ----------------------------------------------------------------------
-# Feature: Using M4 to process the ctwm configuration file
-# If you want to process the ctwm configuration file with m4, define
+# Feature: Using M4 to process the etwm configuration file
+# If you want to process the etwm configuration file with m4, define
 # USE_M4.
 #
 USE_M4 =
@@ -137,7 +137,7 @@ USE_GNU_REGEX =
 
 # ----------------------------------------------------------------------
 # Feature: General debugging
-# If you want to get all kinds of debugging output from CTWM, define
+# If you want to get all kinds of debugging output from ETWM, define
 # DEBUG.
 #
 DEBUG =

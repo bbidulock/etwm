@@ -1,18 +1,502 @@
-# created with git log --stat=76 | fmt -sct -w80
+# created with git log --stat=76 -M -C|fmt -sct -w80
+
+commit 8d5e89f93ddf1a6c229d9040b65e5fa8b213d5d9
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Thu May 15 07:22:42 2014 -0600
+
+    set backing_store and win_gravity before reparenting
+
+ add_window.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+commit f123411c54c085924ee8cdc3fc7c576f485a006f
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Sun Apr 20 10:22:48 2014 -0600
+
+    remove compiler warnings
+
+ Makefile.am |  3 ++-
+ ctwm.c      |  2 +-
+ ewmh.c      | 52 +++++++++++++++++++++++++++-------------------------
+ menus.c     | 13 ++++++++-----
+ mwmh.c      | 10 +++++-----
+ parse.c     |  3 ++-
+ util.c      |  5 +++--
+ wmh.c       | 14 +++++++-------
+ 8 files changed, 55 insertions(+), 47 deletions(-)
+
+commit 41bce81f0d765a39488a9d5acf6656eda5b1b4ab
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Sun Apr 20 09:57:11 2014 -0600
+
+    got rid of memory errors and most of the leaks
+
+     - using valgrind
+     - still a bunch of leaks in gram.y caused by
+       blindly allocating a string
+     - 55 leaks in my rc file
+
+ ewmh.c    |  15 +++++--
+ gram.y    | 140 ++++++++++++++++++++++++++++++++++++++++------------------
+ parse.c   |   4 +-
+ util.c    |  19 ++++++--
+ wmh.c     |  11 +++--
+ workmgr.c |   4 ++
+ 6 files changed, 136 insertions(+), 57 deletions(-)
+
+commit 046e43e792460193dd83bd3de7ce190aa38e5dcd
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Wed Dec 18 18:19:56 2013 -0700
+
+    update state on iconify or deiconify
+
+ menus.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+commit 938224b787acc2b8035a62283bbd4ac801742173
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Mon Dec 16 07:35:21 2013 -0700
+
+    better window state, decor, layer handling
+
+ add_window.c |   76 ++--
+ events.c     |    2 +
+ ewmh.c       |   67 ++--
+ ewmh.h       |    9 +-
+ ewmh_ctwm.c  | 1180 ++++++++++++++++++++++++++++++++++++------------------
+ menus.c      |    4 +-
+ mwmh_ctwm.c  |    6 +-
+ twm.h        |    3 +
+ util.c       |   15 +-
+ wmh.c        |   12 +-
+ wmh.h        |    2 +-
+ wmh_ctwm.c   |  128 +++++-
+ 12 files changed, 1014 insertions(+), 490 deletions(-)
+
+commit 14405fedd2c2074694d05092bae688df9b6248bd
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Sun Dec 15 20:42:34 2013 -0700
+
+    correct bug in unsigned loops
+
+ menus.c | 43 +++++++++++++++++++++++--------------------
+ 1 file changed, 23 insertions(+), 20 deletions(-)
+
+commit 45e39707e894cd0ab34831f29d094ecb5a460116
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Sun Dec 15 08:25:31 2013 -0700
+
+    compiler warnings and dynamic titles
+
+ add_window.c |   2 +-
+ events.c     |   6 +-
+ ewmh.c       | 956 +++++++++++++++++++++++++++++++++++++++++++++----------
+ ewmh_ctwm.c  | 364 +++++++++++++++++++--
+ menus.c      |  10 +-
+ mwmh.c       |  48 ++-
+ mwmh_ctwm.c  |   1 -
+ wmh.c        | 124 +++++++-
+ wmh_ctwm.c   |  10 +-
+ workmgr.c    |   9 +-
+ 10 files changed, 1306 insertions(+), 224 deletions(-)
+
+commit 68c0e107394b77d552cb4b8d8c45105f0b1e6b2d
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Sun Dec 15 01:41:18 2013 -0700
+
+    handle name and icon name updates
+
+ .indent.pro |  1 +
+ events.c    |  4 ++--
+ ewmh.c      |  6 +++---
+ ewmh.h      |  2 +-
+ ewmh_ctwm.c | 43 ++++++++++++++++++++++++++++++++++++++-----
+ 5 files changed, 45 insertions(+), 11 deletions(-)
+
+commit 3c0588c182943a29bcf045a18df77d57708aff04
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Sun Dec 15 00:39:31 2013 -0700
+
+    working up init of windows for EWMH WMH MWMH
+
+ .indent.pro  |   2 +
+ add_window.c |  10 ++
+ events.c     |   6 +-
+ ewmh.c       | 317 ++++++++++++++++++++++++++++++++++++++++++++-----------
+ ewmh.h       |   7 +-
+ ewmh_ctwm.c  |  80 --------------
+ mwmh.c       | 231 +++++++++++++++++++++++++++++++++-------
+ mwmh.h       |  20 +++-
+ mwmh_ctwm.c  | 135 +++++++++++++++++++----
+ wmh.c        | 281 +++++++++++++++++++++++++++++++-----------------
+ wmh.h        |  10 +-
+ wmh_ctwm.c   | 100 ++++++++++++------
+ 12 files changed, 854 insertions(+), 345 deletions(-)
+
+commit 7bc7faf0355997f609701d5a160ea311a5f2e21a
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Sat Dec 14 20:36:24 2013 -0700
+
+     debug message
+
+ mwmh.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+commit 9f1adcc06ce3302dd3ecdb82b2bd54f880e4b15a
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Sat Dec 14 16:56:22 2013 -0700
+
+     spelling
+
+ wmh.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+commit 4735e0a1e5fbad2cb75802c5c68f26ead0d7a8d5
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Sat Dec 14 16:35:32 2013 -0700
+
+    current workspace handling
+
+ events.c    | 4 ++++
+ mwmh_ctwm.c | 4 ++--
+ wmh_ctwm.c  | 9 +++++----
+ workmgr.c   | 4 ++++
+ 4 files changed, 15 insertions(+), 6 deletions(-)
+
+commit 2e8995632d5fdb7f8f185f4e9422e235664390d9
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Sat Dec 14 07:31:45 2013 -0700
+
+    xinerama virtual screens was a bad idea
+
+ vscreen.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 193ecb9131f40245bbab129bcccc96168b5d4216
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Sat Dec 14 07:27:44 2013 -0700
+
+    changes to core to support EWMH, WMH and MWMH
+
+ Makefile.am  |  36 ++++-
+ add_window.c |   2 +-
+ configure.ac | 143 +++++++++++++++--
+ ctwm.c       | 204 +++++++++++++++++++++++-
+ ctwm.h       |   4 +
+ events.c     |  74 ++++++++-
+ list.h       |   2 +
+ menus.c      | 476 ++++++++++++++++++++++++++++++++++++++++++++++++++-----
+ menus.h      |   4 +-
+ parse.c      |  15 +-
+ screen.h     |  52 +++++-
+ twm.h        | 113 ++++++++++++-
+ util.c       | 241 ++++++++++++++++++++++++++--
+ util.h       |   5 +
+ vscreen.c    | 116 ++++++++++++--
+ workmgr.c    | 185 ++++++++++++++++++---
+ workmgr.h    |   3 +
+ 17 files changed, 1546 insertions(+), 129 deletions(-)
+
+commit 1e0f63486eab6e8be24f28e62b8bad6a770e0edc
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Sat Dec 14 07:27:18 2013 -0700
+
+    Corrections to initialization
+
+ ewmh.c      | 206 +++++++++++++++++++++++++++++----------------------
+ ewmh.h      |   3 +-
+ ewmh_ctwm.c |  34 ++++++---
+ mwmh.c      |  99 +++++++++++++++++++++----
+ mwmh.h      |   2 +
+ wmh.c       | 225 ++++++++++++++++++++++++++++++++++++--------------------
+ wmh.h       |   2 +
+ 7 files changed, 377 insertions(+), 194 deletions(-)
+
+commit 569c6a4c51b5aad4db9417d4d4235a867f53cbff
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Thu Dec 12 04:31:59 2013 -0700
+
+    working up NetWM WinWM Motif support
+
+ ewmh.c      | 940 ++++++++++++++++++++++++++++++++------------------------
+ ewmh.h      |  53 +++-
+ ewmh_ctwm.c | 758 ++++++++++++++++++++++++++++++++-------------
+ mwmh.c      |   1 -
+ mwmh.h      |  26 +-
+ mwmh_ctwm.c | 109 ++++---
+ wmh.c       |  12 +-
+ wmh.h       |   4 +-
+ wmh_ctwm.c  |  63 +++-
+ 9 files changed, 1256 insertions(+), 710 deletions(-)
+
+commit 837470c39319c38d4b92332404df25da9ecd6d0b
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Tue Dec 10 13:03:35 2013 -0700
+
+    more types for indentation
+
+ .indent.pro | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit 828a764e94aadb7a6462bf38b059830981e9751c
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Tue Dec 10 13:00:19 2013 -0700
+
+    more EWMH, WMH, MOTIF functionality
+
+     - added showing desktop support
+
+       This slightly modifies the f.showbackground function to show
+       the desktop on all monitors (virtual screens), instead of
+       just the current monitor (virtual screen).
+
+       This begs the question that EWMH/WMH/MOTIF cannot support
+       multiple desktops on multiple virtual screens (just real
+       screens), so we need to syncrhonize desktop changes accross
+       virtual screens.
+
+ ewmh.c      |  10 +-
+ ewmh_ctwm.c | 573 +++++++++++++++++++++++++++++++++++++++++++++++++++-----
+ mwmh_ctwm.c |  26 ++-
+ wmh_ctwm.c  | 168 ++++++++++++-----
+ 4 files changed, 674 insertions(+), 103 deletions(-)
+
+commit bfd5e891070a23187178542bdacd6b6598fe0239
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Mon Dec 9 23:41:13 2013 -0700
+
+    bit corrections
+
+ ewmh_ctwm.c | 60 ++++++++++++++++++++++++++---------------------------
+ wmh.h       | 64 ++++++++++++++++++++++++++++-----------------------------
+ wmh_ctwm.c  | 26 +++++++++++------------
+ 3 files changed, 75 insertions(+), 75 deletions(-)
+
+commit e3a3113ca99a1577deccd878789965210fd2ea71
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Mon Dec 9 23:36:03 2013 -0700
+
+    bits a little different add more MWM DTWM function
+
+ ewmh.c      | 118 ++++++++++++------------
+ ewmh.h      | 210 +++++++++++++++++++++----------------------
+ ewmh_ctwm.c |   5 +-
+ mwmh.c      | 271 ++++++++++++++++++++++++++++++++++++++++++++++----------
+ mwmh.h      |  35 ++++++--
+ mwmh_ctwm.c | 175 +++++++++++++++++++++++++++++++++++-
+ wmh.h       |   8 +-
+ 7 files changed, 597 insertions(+), 225 deletions(-)
+
+commit 98c22a1c3c69f4affc618883ea3d673725894537
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Mon Dec 9 18:14:03 2013 -0700
+
+    added types
+
+ .indent.pro | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+commit fafbb34572eff40c0e876b94ac2de34e0c0c3eb3
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Mon Dec 9 18:13:38 2013 -0700
+
+    add support for Motif/MWMH per dtwm
+
+ ewmh.c      |  32 +-
+ ewmh.h      |  17 +-
+ ewmh_ctwm.c |   6 +
+ mwmh.c      | 992 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ mwmh.h      | 284 ++++++++++++++++
+ mwmh_ctwm.c | 102 ++++++
+ wmh.c       |  13 +-
+ wmh.h       |   1 +
+ wmh_ctwm.c  |   9 +
+ 9 files changed, 1419 insertions(+), 37 deletions(-)
+
+commit 350b432b382bf147d1a6efdaef5990b760e0b23f
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Fri Dec 6 05:52:32 2013 -0700
+
+    always create window list properties
+
+ ewmh.c | 65 ++++++++++++++++++++++++++------------------------------------
+ wmh.c  | 20 +++++++++----------
+ 2 files changed, 36 insertions(+), 49 deletions(-)
+
+commit 00b660bfa05fb77c1b6a8821ef2c17c2c4c0c59d
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Fri Dec 6 05:29:28 2013 -0700
+
+    corrections to _NET_CLIENT_LIST_STACKING
+
+ ewmh.c      |  5 ++---
+ ewmh.h      |  2 ++
+ ewmh_ctwm.c | 52 ++++++++++++++++++++++++----------------------------
+ 3 files changed, 28 insertions(+), 31 deletions(-)
+
+commit bc3bc133105e297310bdf554f36a9df4922b359f
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Thu Dec 5 23:24:30 2013 -0700
+
+    used XineramaRoot to avoid virtual roots
+
+ ewmh.c      | 64 ++++++++++++++++++++++++++++-----------------------------
+ ewmh.h      |  2 ++
+ ewmh_ctwm.c | 17 +++++++++++++--
+ wmh.c       | 50 ++++++++++++++++++++++----------------------
+ wmh.h       |  2 ++
+ wmh_ctwm.c  | 12 +++++++++++
+ 6 files changed, 88 insertions(+), 59 deletions(-)
+
+commit d8e562c443c96d15048f7fd4bdec554c26bdd91f
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:   Thu Dec 5 22:54:34 2013 -0700
+
+    Add NetWM/EWMH and WinWM/WMH files and compliance
+
+     ewmh.c, ewmh.h - implementation of NetWM/EWMH
+     ewmh_ctwm.c	- adaptation of EWMH to CTWM
+     wmh.c, wmh.h	- implementation of WinWM/WMH (GNOME1)
+     wmh_ctwm.c - adaptation of WMH to CTWM
+     COMPLIANCE - compliance statement for NetWM/EWMH WinWM/WMH
+     .indent.pro	- GNU indent specification for above source files
+
+ .indent.pro |	240 ++
+ COMPLIANCE  |	177 ++
+ ewmh.c      | 6648 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ ewmh.h      |	725 ++++++
+ ewmh_ctwm.c | 1632 ++++++++++++++
+ wmh.c	     | 2465 +++++++++++++++++++++
+ wmh.h	     |	335 +++
+ wmh_ctwm.c  |	773 +++++++
+ 8 files changed, 12995 insertions(+)
+
+commit 4e288496dc0a1cc17af122019af5e0d968f41a96
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:	Thu Dec 5 22:51:35 2013 -0700
+
+    add a monitor number to structure
+
+ vscreen.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit 5ed00c7f1a6e0ed56b7330c7e38eca282aa68fa6
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:	Thu Dec 5 22:50:31 2013 -0700
+
+    better ignores
+
+ .gitignore | 39 ++++++++++-----------------------------
+ 1 file changed, 10 insertions(+), 29 deletions(-)
+
+commit 2dfc463bda68d2473f57dd8e4d6f00fc2fb5c8b1
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:	Thu Dec 5 22:49:08 2013 -0700
+
+    use autoconf version
+
+ version.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+commit 105eebb438c20786252736dc6081f17d7a596842
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:	Thu Dec 5 22:48:10 2013 -0700
+
+    autoconf correction
+
+ session.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 2c84c3c5e494c77971ffe43f7de914c94cd59814
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:	Thu Dec 5 22:46:59 2013 -0700
+
+    add missing includes
+
+ menus.h | 3 +++
+ 1 file changed, 3 insertions(+)
+
+commit 61179efceb112e3467e97979af663961de950f5e
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:	Thu Dec 5 22:45:07 2013 -0700
+
+    remove unused variable
+
+ icons.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
+
+commit 05c42f8ed9c8b48b5104b95bf89160ca8b5ec5bc
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:	Thu Dec 5 22:43:46 2013 -0700
+
+    remove unused variable
+
+ add_window.c | 3 ---
+ 1 file changed, 3 deletions(-)
+
+commit 1bd86df59b744a425ff84a3e2401442c16fc2997
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:	Fri Nov 22 10:00:57 2013 -0700
+
+    add ICCCM 2.0 manager selection compliance
+
+ ctwm.c   | 70 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ events.c | 25 ++++++++++++++++++++++
+ events.h |  1 +
+ twm.h	  |  1 +
+ 4 files changed, 96 insertions(+), 1 deletion(-)
+
+commit 44f3b12f3997d7f32df196aaedecc2e20c401e13
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:	Fri Nov 22 05:33:43 2013 -0700
+
+    add manager atom
+
+     - also _XA_WM_CLIENT_MACHINE => XA_WM_CLIENT_MACHINE
+
+ .gitignore | 3 +++
+ ctwm.c     | 4 ++--
+ menus.c    | 2 +-
+ screen.h   | 1 +
+ twm.h	    | 1 -
+ 5 files changed, 7 insertions(+), 4 deletions(-)
+
+commit 6c2b33603052b5ad4ed4da65961dd005b861ba7c
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:	Fri Nov 22 04:59:54 2013 -0700
+
+    autoconf build system
+
+ .gitignore   |  45 +++++++++++++
+ Makefile.am  | 197 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ configure.ac |  55 ++++++++++++++++
+ 3 files changed, 297 insertions(+)
+
+commit d886de5fbfe848b10eb8af8249e2151640500207
+Author: Brian Bidulock <bidulock@openss7.org>
+Date:	Fri Nov 22 04:52:03 2013 -0700
+
+    start filling out autoconf files
+
+ AUTHORS   |	8 +
+ COPYING   |  133 ++
+ ChangeLog | 4533 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ NEWS	   |   10 +
+ README    |   79 +
+ 5 files changed, 4763 insertions(+)
 
 commit 8a8aa3a2ba187fc33161ea165faf4c72cca01f83
 Author: Brian Bidulock <bidulock@openss7.org>
-Date:   Thu Nov 21 05:39:14 2013 -0700
+Date:	Thu Nov 21 05:39:14 2013 -0700
 
     moved old readme file
 
- README      | 111 --------------------------------------------------------
- README.ctwm | 111 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 111 insertions(+), 111 deletions(-)
+ README => README.ctwm | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
 
 commit ed1a39f3509d9bc7186aeaa7b8b522fe824d75ac
 Author: rhialto <rhialto@falu.nl>
-Date:   Fri Sep 13 14:19:31 2013 +0000
+Date:	Fri Sep 13 14:19:31 2013 +0000
 
     3 - Selected a number of cleanups from Stefan Monnier
     <monnier@IRO.UMontreal.CA>, including rate-limiting of animations using
@@ -36,7 +520,7 @@ Date:   Fri Sep 13 14:19:31 2013 +0000
  iconmgr.h    |   3 +
  icons.c      |  17 ++--
  icons.h      |   4 +-
- lex.l        |   3 -
+ lex.l	      |   3 -
  list.c       |   7 +-
  list.h       |   2 +-
  menus.c      | 282 ++++++++++++++++++++++++++++++++++++-------------------
@@ -47,7 +531,7 @@ Date:   Fri Sep 13 14:19:31 2013 +0000
  resize.h     |   1 -
  screen.h     |  23 +++--
  session.c    |  39 +++++---
- twm.h        |  44 ++++++---
+ twm.h	      |  44 ++++++---
  types.h      |  20 ++--
  util.c       | 247 ++++++++++++++++++++++++++++++++++--------------
  util.h       |  33 +++++--
@@ -59,7 +543,7 @@ Date:   Fri Sep 13 14:19:31 2013 +0000
 
 commit 691ee3f073de96ba94b9bbb35a57e6e1b2bef3ca
 Author: rhialto <rhialto@falu.nl>
-Date:   Sun Jun 23 16:23:03 2013 +0000
+Date:	Sun Jun 23 16:23:03 2013 +0000
 
     Add an option (default off) to map and unmap workspaces in the "best"
     order when switching workspaces.
@@ -4392,27 +4876,27 @@ Date:	Sun Feb 2 16:58:55 2003 +0000
 
     CTWM version 2.0
 
- CHANGES	 |  117 +++-
- Imakefile	 |    5 +-
- Imakefile.X11R4 |   57 ++
- add_window.c	 |   11 +-
- add_window.h	 |    1 +
- ctwm.c		 |   18 +-
- ctwm.man	 |  170 +++--
- events.c	 |  123 +++-
- events.h	 |    1 +
- gram.y		 |   44 +-
- iconmgr.c	 |   23 +-
- menus.c	 |   63 +-
- parse.c	 |   45 ++
- parse.h	 |    5 +
- resize.c	 |    7 +-
- screen.h	 |    5 +-
- twm.h		 |    8 +-
- version.c	 |    2 +-
- workmgr.c	 | 1811 +++++++++++++++++++++++++++++++++++++--------------
- workmgr.h	 |  130 ++--
- 20 files changed, 1955 insertions(+), 691 deletions(-)
+ CHANGES		      |  117 ++-
+ Imakefile		      |    5 +-
+ Imakefile => Imakefile.X11R4 |   20 +-
+ add_window.c		      |   11 +-
+ add_window.h		      |    1 +
+ ctwm.c			      |   18 +-
+ ctwm.man		      |  170 ++--
+ events.c		      |  123 ++-
+ events.h		      |    1 +
+ gram.y			      |   44 +-
+ iconmgr.c		      |   23 +-
+ menus.c		      |   63 +-
+ parse.c		      |   45 +
+ parse.h		      |    5 +
+ resize.c		      |    7 +-
+ screen.h		      |    5 +-
+ twm.h			      |    8 +-
+ version.c		      |    2 +-
+ workmgr.c		      | 1811 +++++++++++++++++++++++++++-----------
+ workmgr.h		      |  130 ++-
+ 20 files changed, 1906 insertions(+), 703 deletions(-)
 
 commit 39d3c8b643aedc66f9aeb941f196dbd7a07d988f
 Author: lecom <lecom@sic.epfl.ch>

@@ -1,4 +1,4 @@
-# Description file for CTWM.
+# Description file for ETWM.
 
 .INCLUDE descrip.local
 
@@ -126,7 +126,7 @@ LD = link
 LDFLAGS = /NOTRACE
 
 # All the files we distribute
-DISTFILES = readme.* changes. *.txt *.doc *.*mms imakefile.* *.com *.c *.c_vms *.h *.h_vms *.y *.l *.ctwmrc *.*orig *.bm [.xpm]*.*
+DISTFILES = readme.* changes. *.txt *.doc *.*mms imakefile.* *.com *.c *.c_vms *.h *.h_vms *.y *.l *.etwmrc *.*orig *.bm [.xpm]*.*
 
 # Some files we distribute in the source-only archive
 SRCDISTEXTRA = *.*diff
@@ -201,12 +201,12 @@ setup : version.opt
 		extra_includes = "/INCLUDE=(" + extra_includes + ")"
 	! Consider that the default CFLAGS contains `/OBJECT=$*.OBJ'
 	CFLAGS = "$(CFLAGS)" - "/OBJECT=SETUP.OBJ" + "$(MORE_CFLAGS)"
-	do_option = ",OPTION=""$(GOAL)CTWM.''opt_ext'"",OPTIONCMD="",$(GOAL)CTWM.''opt_ext'/OPT"""
+	do_option = ",OPTION=""$(GOAL)ETWM.''opt_ext'"",OPTIONCMD="",$(GOAL)ETWM.''opt_ext'/OPT"""
 	if __decc then CFLAGS = "/DECC/PREFIX=ALL " + CFLAGS
 	if __decc .and. __axp then CFLAGS = CFLAGS + "/L_DOUBLE=64"
 
-!ctwm.hlp : ctwm.rnh
-!	runoff ctwm.rnh
+!etwm.hlp : etwm.rnh
+!	runoff etwm.rnh
 
 mostlyclean :
 	- delete/log *.*_obj;*
@@ -221,7 +221,7 @@ clean : mostlyclean
 !######################## Only for distributors #############################
 
 !The clauses following are not meant to look at if you don't intend to make
-!a ctwm distribution.  With time, this section will most probably be filled
+!a etwm distribution.  With time, this section will most probably be filled
 !with one hack after the other.  I'll try to put some comments so you won't
 !get too much lost...					   /Richard Levitte
 
@@ -229,7 +229,7 @@ dist_tar :	setup hackfiles versions real_dist_tar unhackfiles FRC
 	@ !
 
 real_dist_tar :
-	- tar -cvf ctwm'vmsver'-src.tar $(DISTFILES) $(SRCDISTEXTRA)
+	- tar -cvf etwm'vmsver'-src.tar $(DISTFILES) $(SRCDISTEXTRA)
 
 dist_zip :	setup hackfiles versions zip.comment-link real_dist_zip -
 		unhackfiles FRC
@@ -238,7 +238,7 @@ dist_zip :	setup hackfiles versions zip.comment-link real_dist_zip -
 real_dist_zip :
 	- define/user sys$input zip.comment-link
 	- define/user sys$output zip.log
-	- zip -"Vz" ctwm'vmsver'.zip $(DISTFILES) $(ZIPDISTEXTRA) -x $(NODIST)
+	- zip -"Vz" etwm'vmsver'.zip $(DISTFILES) $(ZIPDISTEXTRA) -x $(NODIST)
 
 zip_src :	setup hackfiles versions zip.comment real_zip_src unhackfiles -
 		FRC
@@ -247,7 +247,7 @@ zip_src :	setup hackfiles versions zip.comment real_zip_src unhackfiles -
 real_zip_src :
 	- define/user sys$input zip.comment
 	- define/user sys$output zip.log
-	- zip -"z" ctwm'vmsver'-src.zip $(DISTFILES) $(SRCDISTEXTRA) -x $(NODIST)
+	- zip -"z" etwm'vmsver'-src.zip $(DISTFILES) $(SRCDISTEXTRA) -x $(NODIST)
 
 hackfiles : LEX.C_VMS GRAM.C_VMS GRAM.H_VMS 
 	- purge LEX.C
@@ -396,7 +396,7 @@ version.opt : version.c descrip.mms
 	@- delete version.tmp;*
 	@ version = f$extract(0,10,f$element(1,"""",line))
 	open/write foo version.opt
-	write foo "NAME=""CTWM"""
+	write foo "NAME=""ETWM"""
 	write foo "IDENT=""V''version'"""
 	close foo
 
@@ -418,7 +418,7 @@ versions : version.opt FRC
 zip.comment : versions descrip.mms
 	- open/write foo zip.comment
 	- write foo ""
-	- write foo "CTWM ''version' -- Neat window manager for Un*x and VMS"
+	- write foo "ETWM ''version' -- Neat window manager for Un*x and VMS"
 	- write foo ""
 	- write foo "This version runs on both OpenVMS/VAX and OpenVMS/AXP."
 	- write foo ""
@@ -427,7 +427,7 @@ zip.comment : versions descrip.mms
 zip.comment-link : versions descrip.mms
 	- open/write foo zip.comment-link
 	- write foo ""
-	- write foo "CTWM ''version' -- Neat window manager for Un*x and VMS"
+	- write foo "ETWM ''version' -- Neat window manager for Un*x and VMS"
 	- write foo ""
 	- write foo "This version runs on both OpenVMS/VAX and OpenVMS/AXP."
 	- write foo ""

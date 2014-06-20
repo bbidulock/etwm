@@ -1,9 +1,9 @@
 /* 
- *  [ ctwm ]
+ *  [ etwm ]
  *
  *  Copyright 1992 Claude Lecommandeur.
  *            
- * Permission to use, copy, modify  and distribute this software  [ctwm] and
+ * Permission to use, copy, modify  and distribute this software  [etwm] and
  * its documentation for any purpose is hereby granted without fee, provided
  * that the above  copyright notice appear  in all copies and that both that
  * copyright notice and this permission notice appear in supporting documen-
@@ -24,15 +24,15 @@
  * Author:  Claude Lecommandeur [ lecom@sic.epfl.ch ][ April 1992 ]
  */
 
-Bool	CtwmIsRunning			(Display *display, int scrnum);
-char	**CtwmListWorkspaces		(Display *display, int scrnum);
-char	*CtwmCurrentWorkspace		(Display *display, int scrnum);
-int	CtwmChangeWorkspace		(Display *display, int scrnum,
+Bool	EtwmIsRunning			(Display *display, int scrnum);
+char	**EtwmListWorkspaces		(Display *display, int scrnum);
+char	*EtwmCurrentWorkspace		(Display *display, int scrnum);
+int	EtwmChangeWorkspace		(Display *display, int scrnum,
 					 char	*workspace);
-char	**CtwmCurrentOccupation		(Display *display, Window window);
-int	CtwmSetOccupation		(Display *display, Window window,
+char	**EtwmCurrentOccupation		(Display *display, Window window);
+int	EtwmSetOccupation		(Display *display, Window window,
 					 char **occupation);
-int	CtwmAddToCurrentWorkspace	(Display *display, Window window);
+int	EtwmAddToCurrentWorkspace	(Display *display, Window window);
 
 #ifdef USEM4
 extern int KeepTmpFile;			/* JMO 3/28/90 for m4 */

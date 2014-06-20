@@ -1,9 +1,9 @@
 /* 
- *  [ ctwm ]
+ *  [ etwm ]
  *
  *  Copyright 1992 Claude Lecommandeur.
  *            
- * Permission to use, copy, modify  and distribute this software  [ctwm] and
+ * Permission to use, copy, modify  and distribute this software  [etwm] and
  * its documentation for any purpose is hereby granted without fee, provided
  * that the above  copyright notice appear  in all copies and that both that
  * copyright notice and this permission notice appear in supporting documen-
@@ -231,9 +231,9 @@ VirtualScreen *getVScreenOf (int x, int y)
 /*
  * Returns the order that virtual screens are displayed for the vscreen
  * list.  This is stored this way so everything ends up in the right place
- * on a ctwm restart.
+ * on a etwm restart.
  */
-Bool CtwmGetVScreenMap (Display *display, Window rootw,
+Bool EtwmGetVScreenMap (Display *display, Window rootw,
 			char *outbuf, int *outbuf_len)
 {
     unsigned char       *prop;
@@ -242,8 +242,8 @@ Bool CtwmGetVScreenMap (Display *display, Window rootw,
     Atom                actual_type;
     int                 actual_format;
 
-    if (_XA_WM_CTWM_VSCREENMAP == None) return (False);
-    if (XGetWindowProperty (display, rootw, _XA_WM_CTWM_VSCREENMAP, 0L, 512, 
+    if (_XA_WM_ETWM_VSCREENMAP == None) return (False);
+    if (XGetWindowProperty (display, rootw, _XA_WM_ETWM_VSCREENMAP, 0L, 512, 
                         False, XA_STRING, &actual_type, &actual_format, &len,
                         &bytesafter, &prop) != Success) return (False);
     if (len == 0) return (False);
@@ -253,14 +253,14 @@ Bool CtwmGetVScreenMap (Display *display, Window rootw,
     return (True); 
 }
 
-Bool CtwmSetVScreenMap(Display *display, Window rootw,
+Bool EtwmSetVScreenMap(Display *display, Window rootw,
 		       struct VirtualScreen *firstvs)
 {
     char			buf[1024];
     int				tally = 0;
     struct VirtualScreen	*vs;
 
-    if(_XA_WM_CTWM_VSCREENMAP == None) return(False);
+    if(_XA_WM_ETWM_VSCREENMAP == None) return(False);
 
     memset(buf, 0, sizeof(buf));
     for (vs = firstvs; vs; vs = vs->next) {
@@ -273,7 +273,7 @@ Bool CtwmSetVScreenMap(Display *display, Window rootw,
 
     if(! tally) return(False);
 
-    XChangeProperty(display, rootw, _XA_WM_CTWM_VSCREENMAP, XA_STRING, 8,
+    XChangeProperty(display, rootw, _XA_WM_ETWM_VSCREENMAP, XA_STRING, 8,
 	PropModeReplace, (unsigned char *)buf, strlen(buf));
     return(True);
 }

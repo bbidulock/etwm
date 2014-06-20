@@ -1,7 +1,7 @@
 
 
 
-CTWM(1)                  USER COMMANDS                    CTWM(1)
+ETWM(1)                  USER COMMANDS                    ETWM(1)
 
 ***********************
 VMS specific:
@@ -13,14 +13,14 @@ VMS specific:
 
 
 NAME
-     ctwm - Tab Window Manager for the X Window System
+     etwm - Tab Window Manager for the X Window System
 
 SYNTAX
-     ctwm [-display dpy] [-s] [-f initfile] [-v]  [-n]  [-k]  [-w
+     etwm [-display dpy] [-s] [-f initfile] [-v]  [-n]  [-k]  [-w
      [win-id]]
 
 DESCRIPTION
-     Ctwm is a window manager for the X Window System.   It  pro-
+     Etwm is a window manager for the X Window System.   It  pro-
      vides    titlebars,    shaped   windows,   virtual   screens
      (workspaces), several forms of icon management, user-defined
      macro  functions,  click-to-type and pointer-driven keyboard
@@ -29,17 +29,17 @@ DESCRIPTION
      distribution slightly modified to  accommodate  the  use  of
      several virtual screens (workspaces). It is heavily inspired
      from the Hewlett-Packard vuewm window manager. In  addition,
-     ctwm can use coloured, shaped icons and background root pix-
+     etwm can use coloured, shaped icons and background root pix-
      maps in XPM format [from Arnaud Le Hors],any  format  under-
      stood  by  the  imconv package [from the San Diego Supercom-
-     puter Center] and xwd files. Ctwm can  be  compiled  to  use
+     puter Center] and xwd files. Etwm can  be  compiled  to  use
      both, either or none of the above icon/pixmap formats.
 
      This program  is  usually  started  by  the  user's  session
      manager  or  startup  script.   When  used  from  xdm(1)  or
-     xinit(1) without a session manager, ctwm is frequently  exe-
+     xinit(1) without a session manager, etwm is frequently  exe-
      cuted  in  the foreground as the last client.  When run this
-     way, exiting ctwm causes the session to be terminated  (i.e.
+     way, exiting etwm causes the session to be terminated  (i.e.
      logged out).
 
      By  default,  application  windows  are  surrounded   by   a
@@ -69,7 +69,7 @@ DESCRIPTION
      position.   Just  clicking  in the title or highlight region
      raises the window without moving it.
 
-     When new windows are created, ctwm will honor any  size  and
+     When new windows are created, etwm will honor any  size  and
      location  information requested by the user (usually through
      -geometry command line argument or resources for the indivi-
      dual  applications).  Otherwise,  an outline of the window's
@@ -85,77 +85,77 @@ DESCRIPTION
      make it long enough to touch the bottom the screen.
 
 OPTIONS
-     Ctwm accepts the following command line options:
+     Etwm accepts the following command line options:
 
      -display dpy
              This option specifies the X server to use.
 
      -s      This option indicates that only the  default  screen
              (as specified by -display or by the DISPLAY environ-
-             ment variable) should be managed.  By default,  ctwm
+             ment variable) should be managed.  By default,  etwm
              will attempt to manage all screens on the display.
 
 ***********************
 VMS specific:
   filename.num -> filename_num
-  and see note below for .ctwmrc
+  and see note below for .etwmrc
 ***********************
 
      -f filename
              This option specifies the name of the  startup  file
-             to  use.   Ctwm will first try to load filename.num,
+             to  use.   Etwm will first try to load filename.num,
              where num is the screen number.   If  it  fails,  it
-             will  try  to  load filename.  By default, ctwm will
+             will  try  to  load filename.  By default, etwm will
              look in the user's home directory  for  files  named
-             .ctwmrc.num  (where  num  is  a  screen  number)  or
-             .ctwmrc.
+             .etwmrc.num  (where  num  is  a  screen  number)  or
+             .etwmrc.
 
-     -v      This option indicates that ctwm should  print  error
+     -v      This option indicates that etwm should  print  error
              messages  whenever  an  unexpected  X Error event is
              received.  This can be useful when debugging  appli-
              cations but can be distracting in regular use.
 
-     -n      This option indicates that ctwm  should  not  filter
-             the  startup file through m4. Available only if ctwm
+     -n      This option indicates that etwm  should  not  filter
+             the  startup file through m4. Available only if etwm
              is compiled with the USEM4 flag.
 
-     -k      This option indicates  that  ctwm  should  keep  the
+     -k      This option indicates  that  etwm  should  keep  the
              result  of filtering your startup file through m4 in
-             /tmp. Available only if ctwm is  compiled  with  the
+             /tmp. Available only if etwm is  compiled  with  the
              USEM4 flag.
 
 
      -version
-             ctwm just prints its version number.
+             etwm just prints its version number.
 
 
-     -info   ctwm prints its detailed version  and  compile  time
+     -info   etwm prints its detailed version  and  compile  time
              options.
 
 
      -w [win-id]
-             If -w is specified without a win-id value, ctwm does
+             If -w is specified without a win-id value, etwm does
              not  take  over  the  whole  screen(s),  instead  it
              creates a new window that becomes its  root  window.
              if the win-id value is given, it is considered to be
-             the id of an existing window, in  which  case,  ctwm
+             the id of an existing window, in  which  case,  etwm
              will  try to use this window as root window. You can
-             run any number of instantiation of ctwm at the  same
-             time.  You  can  even  have embedded ctwm instantia-
+             run any number of instantiation of etwm at the  same
+             time.  You  can  even  have embedded etwm instantia-
              tions. This is totally  useless,  but  I  like.  The
              f.adoptwindow  function  can  be  used to capture an
-             existing window belonging to another ctwm. A  possi-
+             existing window belonging to another etwm. A  possi-
              ble  use  of such mode can be to test new configura-
-             tion file without restarting ctwm.
+             tion file without restarting etwm.
 
-     -W      This option tells ctwm not to  display  any  welcome
+     -W      This option tells etwm not to  display  any  welcome
              when starting.
 
 
 CUSTOMIZATION
-     Much of ctwm's appearance and behavior can be controlled  by
+     Much of etwm's appearance and behavior can be controlled  by
      providing  a  startup file in one of the following locations
-     (searched in order for each screen being managed  when  ctwm
+     (searched in order for each screen being managed  when  etwm
      begins):
 
 ***********************
@@ -163,10 +163,10 @@ VMS specific:
   Instead of $HOME/.[c]twmrc[.#] use DECW$USER_DEFAULTS:[C]TWM.RC[_#]
   -- where the logical DECW$USER_DEFAULTS usually points to
      SYS$LOGINROOT:[DECW$DEFAULTS], eg mphv2$user2:[bloggs.decw$defaults].
-  and /usr/lib/X11/twm/system.ctwmrc => DECW$SYSTEM_DEFAULTS:SYSTEM.CTWMRC
+  and /usr/lib/X11/twm/system.etwmrc => DECW$SYSTEM_DEFAULTS:SYSTEM.ETWMRC
 ***********************
 
-     $HOME/.ctwmrc.screennumber
+     $HOME/.etwmrc.screennumber
              The screennumber is a small positive number (e.g. 0,
              1,  etc.)  representing  the screen number (e.g. the
              last number  in  the  DISPLAY  environment  variable
@@ -175,27 +175,27 @@ VMS specific:
              intended  for  displays  with  multiple  screens  of
              differing visual types.
 
-     $HOME/.ctwmrc
+     $HOME/.etwmrc
              This is the usual  name  for  an  individual  user's
              startup file.
 
      $HOME/.twmrc
              The users twm startup file.
 
-     /usr/lib/X11/twm/system.ctwmrc
-             If none of the preceding files are found, ctwm  will
+     /usr/lib/X11/twm/system.etwmrc
+             If none of the preceding files are found, etwm  will
              look in this file for a default configuration.  This
              is often tailored by the site administrator to  pro-
              vide  convenient  menus  or  familiar  bindings  for
              novice users.
 
-     If no startup files are found, ctwm will  use  the  built-in
-     defaults described above.  The only resource used by ctwm is
+     If no startup files are found, etwm will  use  the  built-in
+     defaults described above.  The only resource used by etwm is
      bitmapFilePath for a colon-separated list of directories  to
      search  when looking for bitmap files (for more information,
      see the Athena Widgets manual and xrdb(1)).
 
-     Ctwm startup files are logically broken up into three  types
+     Etwm startup files are logically broken up into three  types
      of  specifications:   Variables, Bindings, Menus.  The Vari-
      ables section must come first and is used  to  describe  the
      fonts,  colors,  cursors,  border  widths,  icon  and window
@@ -219,7 +219,7 @@ VMS specific:
 ***********************
 
 M4 PREPROCESSING
-     ctwm uses m4(1) to pre-process its setup files.   When  ctwm
+     etwm uses m4(1) to pre-process its setup files.   When  etwm
      starts  up,  it  opens  a file for input as described above.
      But, it processes that file through m4  before  parsing  it.
      So, you can use m4 macro's to perform operations at runtime.
@@ -235,16 +235,16 @@ M4 PREPROCESSING
 
      will define the lower half,  and  right-hand  third  of  the
      screen.   The above makes use of symbols that are predefined
-     in m4 by ctwm.  The symbols WIDTH and HEIGHT are  calculated
-     by  ctwm  and  written  into a temporary file for m4 to use.
-     The following symbols are predefined by ctwm:
+     in m4 by etwm.  The symbols WIDTH and HEIGHT are  calculated
+     by  etwm  and  written  into a temporary file for m4 to use.
+     The following symbols are predefined by etwm:
 
      SERVERHOST              This variable is set to the name  of
                              the  machine  that  is running the X
                              server.
 
      CLIENTHOST              The  machine  that  is  running  the
-                             clients.  (ie, ctwm)
+                             clients.  (ie, etwm)
 
      HOSTNAME                The canonical hostname  running  the
                              clients.    (ie.  a  fully-qualified
@@ -293,14 +293,14 @@ M4 PREPROCESSING
 
      TWM_TYPE                Tells which twm offshoot is running.
                              It  will always be set to the string
-                             "ctwm" in  this  program.   This  is
+                             "etwm" in  this  program.   This  is
                              useful  for protecting parts of your
-                             .twmrc file that ctwm  proper  won't
+                             .twmrc file that etwm  proper  won't
                              understand (like WorkSpaces) so that
                              it is still usable  with  other  twm
                              programs.
 
-     TWM_VERSION             Tells which ctwm version is  running
+     TWM_VERSION             Tells which etwm version is  running
                              in  the  form  of  a  floating point
                              number.
 
@@ -316,11 +316,11 @@ M4 PREPROCESSING
                              *Color,  and  'No' on StaticGray and
                              GrayScale.
 
-     XPM                     Is defined only if ctwm was compiled
+     XPM                     Is defined only if etwm was compiled
                              with XPM.
 
      TWM_CAPTIVE             This will be either 'Yes'  or  'No'.
-                             'Yes' if the current ctwm is captive
+                             'Yes' if the current etwm is captive
                              (flag -w), 'No' in the other case.
 
      You may well find that if  you  research  the  m4(1)  manual
@@ -328,13 +328,13 @@ M4 PREPROCESSING
      useful and powerful tool.  But, if you use any of  the  sym-
      bols  which  are predefined by m4, you are in severe danger!
      For example, the Sun m4 predefines shift, so if you use that
-     name in your .ctwmrc, you are out of luck.
+     name in your .etwmrc, you are out of luck.
 
      The availability of the m4 preprocessing is subject  to  the
      compilation define USEM4.
 
 VARIABLES
-     Many of the aspects of ctwm's user interface are  controlled
+     Many of the aspects of etwm's user interface are  controlled
      by  variables  that  may  be set in the user's startup file.
      Some of the options are enabled or disabled  simply  by  the
      presence  of  a  particular  keyword.  Other options require
@@ -385,20 +385,20 @@ VMS specific:
      (the question mark used for non-existent bitmap files).
 
      The following variables may be specified at  the  top  of  a
-     ctwm  startup file.  Lists of Window name prefix strings are
+     etwm  startup file.  Lists of Window name prefix strings are
      indicated by win-list.   Optional  arguments  are  shown  in
      square brackets:
 
      AlwaysOnTop { win-list }
              This variable specifies a list of windows (all  win-
-             dows  if  the  list is defaulted) that ctwm will try
+             dows  if  the  list is defaulted) that etwm will try
              its best to maintain on top of others. This  doesn't
              work in all case.
 
 
      AlwaysShowWindowWhenMovingFromWorkspaceManager
              When ReallyMoveInWorkspaceManager is present and the
-             user  is moving a window from the WorkSpaceMap, ctwm
+             user  is moving a window from the WorkSpaceMap, etwm
              display the actual window only  if  it  crosses  the
              current active workspace. If AlwaysShowWindowWhenMo-
              vingFromWorkspaceManager is present, the actual win-
@@ -425,7 +425,7 @@ VMS specific:
              cally  change  their  occupation  when their name or
              icon name changes. The new occupation will be recal-
              culated  from the Occupy and OccupyAll fields in the
-             .ctwmrc file.
+             .etwmrc file.
 
 
      AutoRaise { win-list }
@@ -453,7 +453,7 @@ VMS specific:
              This allows the resizing of windows that extend  off
              the  edge  of  the screen.  If the pointer is in the
              center of the window, or if the resize is  begun  by
-             pressing a titlebutton, ctwm will still wait for the
+             pressing a titlebutton, etwm will still wait for the
              pointer  to  cross  a  window   edge   (to   prevent
              accidents).   This option is particularly useful for
              people who like  the  press-drag-release  method  of
@@ -470,7 +470,7 @@ VMS specific:
      BeNiceToColormap
              By defaults new colors  are  allocated  for  shadows
              when  a  3D look is used, but when you specify BeNi-
-             ceToColormap  ctwm  uses  stipling  instead  of  new
+             ceToColormap  etwm  uses  stipling  instead  of  new
              colors,  the  effect  is less beautiful, but accept-
              able. In this case ClearShadowContrast and  DarkSha-
              dowContrast have no effects.
@@ -495,14 +495,14 @@ VMS specific:
 
 
      BorderResizeCursors
-             This variable specifies that ctwm should use  resiz-
+             This variable specifies that etwm should use  resiz-
              ing  cursors  when  the  pointer  is  on  the window
              border. To be used preferably when you have bound  a
              button to f.resize in the frame context.
 
 
      BorderShadowDepth pixels
-             This variable specifies the depth of the shadow ctwm
+             This variable specifies the depth of the shadow etwm
              uses for 3D window borders, when UseThreeDBorders is
              selected.
 
@@ -528,7 +528,7 @@ VMS specific:
              border  surrounding  all  client  window  frames  if
              ClientBorderWidth  has  not  been  specified.   This
              value is also used to set the border size of windows
-             created by ctwm (such as  the  icon  manager).   The
+             created by etwm (such as  the  icon  manager).   The
              default is 2.
 
      ButtonIndent pixels
@@ -549,7 +549,7 @@ VMS specific:
 
 
      ClearShadowContrast contrast
-             Indicates to ctwm how to calculate the clear  shadow
+             Indicates to etwm how to calculate the clear  shadow
              color  for  3D  items.   The  value  is  a comprised
              between 0 and 100. The formula used is :
 
@@ -606,7 +606,7 @@ VMS specific:
              moves.  The default is 400 milliseconds.
 
      Cursors { cursor-list }
-             This variable specifies the glyphs that ctwm  should
+             This variable specifies the glyphs that etwm  should
              use for various pointer cursors.  Each cursor may be
              defined either from the cursor font or from two bit-
              map  files.   Shapes  from  the  cursor  font may be
@@ -646,7 +646,7 @@ VMS specific:
 
 
      DarkShadowContrast contrast
-                 Indicates to ctwm hos to calculate the dark sha-
+                 Indicates to etwm hos to calculate the dark sha-
              dow  color  for  3D items.  The value is a comprised
              between 0 and 100. The formula used is :
 
@@ -690,7 +690,7 @@ VMS specific:
 
 
      DontPaintRootWindow
-             This variable tells ctwm not to paint the root  win-
+             This variable tells etwm not to paint the root  win-
              dow,  whatever you told in the Workspaces specifica-
              tion.  This  is  useful  to  have  pixmaps  in   the
              Workspace Map but not on the root window.
@@ -712,7 +712,7 @@ VMS specific:
 
 
      DontWarpCursorInWMap
-             Tells ctwm not to warp the cursor to the correspond-
+             Tells etwm not to warp the cursor to the correspond-
              ing  actual  window when you click in a small window
              in the workspace map.
 
@@ -786,7 +786,7 @@ VMS specific:
 
      IconJustification string
              Where string is either "left", "center" or  "right".
-             Tells ctwm how to justify the icon image against the
+             Tells etwm how to justify the icon image against the
              icon title (if any).
 
      IconManagerBackground string [{ win-list }]
@@ -868,7 +868,7 @@ VMS specific:
 
 
      IconManagerShadowDepth pixels
-             This variable specifies the depth of the shadow ctwm
+             This variable specifies the depth of the shadow etwm
              uses for 3D IconManager entries, when UseThreeDIcon-
              Managers is selected.
 
@@ -899,7 +899,7 @@ VMS specific:
              filled in from left from the right. Icons  are  laid
              out within the region in a grid with cells gridwidth
              pixels  wide  and  gridheight  pixels    high.   The
-             optional win-list argument tells ctwm that if such a
+             optional win-list argument tells etwm that if such a
              window is iconified, and there  is  enough  room  in
              this  icon  region for its icon, then place it here.
              The optionnal iconjust, iconregjust and iconregalign
@@ -910,7 +910,7 @@ VMS specific:
 
      IconRegionAlignement string
              Where string is either "top", "center"  "bottom"  or
-             "border".   Tells  ctwm  how  to  align icons inside
+             "border".   Tells  etwm  how  to  align icons inside
              their place in the IconRegion.  This keyword needs a
              string  value.  The  acceptable  values are : "top",
              "center", "bottom"  and  "border".  If  "border"  is
@@ -921,7 +921,7 @@ VMS specific:
 
      IconRegionJustification string
              Where string is either "left", "center"  "right"  or
-             "border".   Tells  ctwm  how to justify icons inside
+             "border".   Tells  etwm  how to justify icons inside
              their place in the IconRegion.  This keyword needs a
              string  value.  The  acceptable values are : "left",
              "center",  "right"  and  "border".  If  "border"  is
@@ -1003,7 +1003,7 @@ VMS specific:
              Specify the appearence of the map window correspond-
              ing  to  the  workspaces  other  than  the   current
              workspace  when  no  root background information has
-             been provided to ctwm in the WorkSpace command.  Not
+             been provided to etwm in the WorkSpace command.  Not
              used in others cases.
 
      MapWindowForeground color [{ win-list }]
@@ -1017,7 +1017,7 @@ VMS specific:
              colors are used.
 
      MaxIconTitleWidth width
-             The integer argument tells ctwm the maximun width to
+             The integer argument tells etwm the maximun width to
              use  for  an  icon title. If an icon title is larger
              than width, it is truncated.
 
@@ -1049,7 +1049,7 @@ VMS specific:
              is "black".
 
      MenuShadowDepth pixels
-             This variable specifies the depth of the shadow ctwm
+             This variable specifies the depth of the shadow etwm
              uses for 3D menus, when UseThreeDMenus is selected.
 
      MenuTitleBackground string
@@ -1092,7 +1092,7 @@ VMS specific:
              default).
 
      NoBackingStore
-             This variable indicates that ctwm's menus should not
+             This variable indicates that etwm's menus should not
              request  backing  store  to  minimize  repainting of
              menus.  This is typically used with servers that can
              repaint faster than they can handle backing store.
@@ -1108,13 +1108,13 @@ VMS specific:
              italize the first letter of their icon name.
 
      NoDefaults
-             This variable indicates that ctwm should not  supply
+             This variable indicates that etwm should not  supply
              the  default titlebuttons and bindings.  This option
              should only be used if the startup file  contains  a
              completely new set of bindings and definitions.
 
      NoGrabServer
-             This variable indicates that ctwm  should  not  grab
+             This variable indicates that etwm  should  not  grab
              the  server  when popping up menus and moving opaque
              windows.
 
@@ -1136,7 +1136,7 @@ VMS specific:
              not have icon titles.
 
      NoIconManagerFocus
-             This variable indicates that ctwm will not  set  the
+             This variable indicates that etwm will not  set  the
              focus  on  the corresponding window when the pointer
              is in an IconManager.
 
@@ -1207,12 +1207,12 @@ VMS specific:
              be put on specific windows.
 
      NoTitleFocus
-             This variable indicates that  ctwm  should  not  set
+             This variable indicates that  etwm  should  not  set
              keyboard  input  focus  to  each  window  as  it  is
-             entered.  Normally, ctwm  sets  the  focus  so  that
+             entered.  Normally, etwm  sets  the  focus  so  that
              focus  and  key  events  from  the titlebar and icon
              managers are delivered to the application.   If  the
-             pointer  is  moved  quickly  and  ctwm  is  slow  to
+             pointer  is  moved  quickly  and  etwm  is  slow  to
              respond, input can be directed  to  the  old  window
              instead  of  the new.  This option is typically used
              to prevent this ``input lag''  and  to  work  around
@@ -1337,7 +1337,7 @@ VMS specific:
 
 
      PixmapDirectory path
-             This variable specifies the path where ctwm looks to
+             This variable specifies the path where etwm looks to
              find non-X11 bitmap files.  Whenever you want to use
              a image file that is not an X11  bitmap,  specify  :
              xpm:filename (for xpm files) or xwd:filename for xwd
@@ -1359,7 +1359,7 @@ VMS specific:
   PixmapDirectory	"mphv2$user2:[bloggs.xpm]"
 **************
   
-             N.B This is only valid if your version of  ctwm  has
+             N.B This is only valid if your version of  etwm  has
              been compiled with the XPM and IMCONV options.
 
 
@@ -1396,14 +1396,14 @@ VMS specific:
              with no specified geometry should  be  placed  in  a
              pseudo-random  location  instead  of having the user
              drag out an outline.  The  argument  "on"  or  "all"
-             tells  ctwm  do do this for all such windows, "off",
+             tells  etwm  do do this for all such windows, "off",
              not to do this, and "unmapped",  only  for  unmapped
              windows,  e.g.   iconified  or  not  visible  in the
              current workspace.
 
 
      ReallyMoveInWorkspaceManager
-             This keyword tells ctwm to move  the  actual  window
+             This keyword tells etwm to move  the  actual  window
              when  the  user  is  moving the small windows in the
              WorkSpaceMap window. If not present the WorkSpaceMap
              can  be used only to modify the occupation of a win-
@@ -1417,7 +1417,7 @@ VMS specific:
 
 
      RestartPreviousState
-             This variable indicates that ctwm should attempt  to
+             This variable indicates that etwm should attempt  to
              use  the WM_STATE property on client windows to tell
              which windows should be iconified and  which  should
              be  left  visible.  This is typically used to try to
@@ -1426,7 +1426,7 @@ VMS specific:
 
 
      ReverseCurrentWorkspace string
-             This variable specifies tells ctwm  to  reverse  the
+             This variable specifies tells etwm  to  reverse  the
              background  and  foreground colors in the small win-
              dows in the workspace map for the current workspace.
 
@@ -1470,7 +1470,7 @@ VMS specific:
 
      ShowIconManager
              This variable indicates that the icon manager window
-             should  be  displayed  when ctwm is started.  It can
+             should  be  displayed  when etwm is started.  It can
              always be brought up using the  f.showiconmgr  func-
              tion.
 
@@ -1487,7 +1487,7 @@ VMS specific:
 
 
      SqueezeTitle [{ squeeze-list }]
-             This variable indicates that ctwm should attempt  to
+             This variable indicates that etwm should attempt  to
              use  the  SHAPE  extension  to make titlebars occupy
              only as much screen space as they need, rather  than
              extending  all the way across the top of the window.
@@ -1541,7 +1541,7 @@ VMS specific:
 
 
      StayUpMenus
-             Tells ctwm to use stayup  menus.  These  menus  will
+             Tells etwm to use stayup  menus.  These  menus  will
              stay on the screen when ButtonUp, if either the menu
              has not yet been entered  by  the  pointer,  or  the
              current item is a f.title.
@@ -1575,7 +1575,7 @@ VMS specific:
 
 
      TitleButtonShadowDepth pixels
-             This variable specifies the depth of the shadow ctwm
+             This variable specifies the depth of the shadow etwm
              uses  for  3D title buttons, when UseThreeDTitles is
              selected.
 
@@ -1609,7 +1609,7 @@ VMS specific:
 
 
      TitleShadowDepth pixels
-             This variable specifies the depth of the shadow ctwm
+             This variable specifies the depth of the shadow etwm
              uses   for   3D   titles,  when  UseThreeDTitles  is
              selected.
 
@@ -1625,7 +1625,7 @@ VMS specific:
 
      TransientOnTop percentage
              The parameter (required) is a percentage  and  tells
-             ctwm to put transient (and non-group leader) windows
+             etwm to put transient (and non-group leader) windows
              always on top of their leader if and only  if  their
              surface is smaller than this fraction of the surface
              of their leader. The surface  of  a  window  is  its
@@ -1649,12 +1649,12 @@ VMS specific:
 
 
      UsePPosition string
-             This variable specifies whether or not  ctwm  should
+             This variable specifies whether or not  etwm  should
              honor program-requested locations (given by the PPo-
              sition flag in the WM_NORMAL_HINTS property) in  the
              absence  of a user-specified position.  The argument
              string may have one of  three  values:   "off"  (the
-             default)  indicating  that  ctwm  should  ignore the
+             default)  indicating  that  etwm  should  ignore the
              program-supplied position, "on" indicating that  the
              position  should  be used, and "non-zero" indicating
              that the position should used if it  is  other  than
@@ -1671,7 +1671,7 @@ VMS specific:
 
 
      UseThreeDBorders
-             Tells ctwm to use  3D-looking  window  borders.  The
+             Tells etwm to use  3D-looking  window  borders.  The
              width  ot  the  3D borders is ThreeDBorderWidth. The
              color of the 3D border is BorderTileBackground,  and
              if  NoHighlight  is  not selected, the border of the
@@ -1679,15 +1679,15 @@ VMS specific:
 
 
      UseThreeDIconManagers
-             Tells ctwm to use 3D-looking IconManagers if any.
+             Tells etwm to use 3D-looking IconManagers if any.
 
 
      UseThreeDMenus
-             Tells ctwm to use 3D-looking menus.
+             Tells etwm to use 3D-looking menus.
 
 
      UseThreeDTitles
-             Tells ctwm to  use  3D-looking  windows  titles.  In
+             Tells etwm to  use  3D-looking  windows  titles.  In
              which  case  the  default  values of TitleButtonBor-
              derWidth, FramePadding, TitlePadding  and  ButtonIn-
              dent  are  set  to  0.  There are plenty of built-in
@@ -1703,7 +1703,7 @@ VMS specific:
 
 
      UseThreeDWMap
-             Tells ctwm to use 3D for the small  windows  in  the
+             Tells etwm to use 3D for the small  windows  in  the
              workspace map.
 
 
@@ -1721,7 +1721,7 @@ VMS specific:
 
 
      WarpRingOnScreen
-             Tells ctwm that f.warpring  warps  pointer  only  to
+             Tells etwm that f.warpring  warps  pointer  only  to
              windows visible in the current workspace.
 
 
@@ -1844,7 +1844,7 @@ VMS specific:
              or'ed  with  the  contents  of  the  user's  typical
              screen.  Setting this variable to 1 often gives nice
              results if adjacent colors in the  default  colormap
-             are  distinct.   By  default,  ctwm  will attempt to
+             are  distinct.   By  default,  etwm  will attempt to
              cause temporary lines to appear at the opposite  end
              of the colormap from the graphics.
 
@@ -1984,12 +1984,12 @@ BINDINGS
           "Down"    = m | s   : all          : f.downiconmgr
 
 
-     Ctwm provides many more window manipulation primitives  than
+     Etwm provides many more window manipulation primitives  than
      can  be  conveniently  stored in a titlebar, menu, or set of
      key bindings.  Although a small set of defaults are supplied
      (unless  the  NoDefaults is specified), most users will want
      to have their most common operations bound to key and button
-     strokes.  To do this, ctwm associates names with each of the
+     strokes.  To do this, etwm associates names with each of the
      primitives and provides user-defined functions for  building
      higher  level primitives and menus for interactively select-
      ing among groups of functions.
@@ -2021,12 +2021,12 @@ BINDINGS
      f.adoptwindow
              This function ask for the user to  select  a  window
              with  the  mouse,  and  then adopt this window is it
-             doesn't belong to the current ctwm. Useful only with
+             doesn't belong to the current etwm. Useful only with
              the -w flag.
 
      f.altcontext
              Set the alternate context. The next  key  or  button
-             event  ctwm  reveives  will be interpreted using the
+             event  etwm  reveives  will be interpreted using the
              alternate context. To define bindings in the  alter-
              nate  context,  use the keyword alter in the context
              field of the binding command.  For example:
@@ -2039,7 +2039,7 @@ BINDINGS
      f.altkeymap  number
              Set the alternate keymap number, where number is  an
              integer  between  1  and 5 included. The next key or
-             button event ctwm reveives will be interpreted using
+             button event etwm reveives will be interpreted using
              this  alternate  keymap.  To  define  bindings in an
              alternate keymap, use  the  keyword  a  followed  by
              number in the modifier field of the binding command.
@@ -2097,7 +2097,7 @@ BINDINGS
      f.colormap string
              This function rotates the colormaps  (obtained  from
              the WM_COLORMAP_WINDOWS property on the window) that
-             ctwm will display when the pointer is in  this  win-
+             etwm will display when the pointer is in  this  win-
              dow.   The  argument string may have one of the fol-
              lowing values: "next", "prev",  and  "default".   It
              should  be noted here that in general, the installed
@@ -2246,8 +2246,8 @@ BINDINGS
 
      f.hypermove
              Use this function to "move" a window between 2  cap-
-             tives ctwm (or between a captive and the root ctwm).
-             Of  course 2 Ctwm's are completely different univer-
+             tives etwm (or between a captive and the root etwm).
+             Of  course 2 Etwm's are completely different univer-
              ses. You have to go in hyperspace to  achieve  this,
              hence the name.
 
@@ -2346,7 +2346,7 @@ BINDINGS
 
      f.nextworkspace
              Goto the next workspace in the list, using the order
-             given in the .ctwmrc file.
+             given in the .etwmrc file.
 
 
      f.nop   This function does nothing  and  is  typically  used
@@ -2380,7 +2380,7 @@ BINDINGS
 
      f.prevworkspace
              Goto the previous workspace in the list,  using  the
-             order given in the .ctwmrc file.
+             order given in the .etwmrc file.
 
 
      f.pin   Valid only in a root menu. Make a menu permanent  on
@@ -2389,8 +2389,8 @@ BINDINGS
              non-permanent.
 
 
-     f.quit  This function causes ctwm to  restore  the  window's
-             borders  and  exit.   If  ctwm  is  the first client
+     f.quit  This function causes etwm to  restore  the  window's
+             borders  and  exit.   If  etwm  is  the first client
              invoked from xdm,  this  will  result  in  a  server
              reset.
 
@@ -2428,7 +2428,7 @@ BINDINGS
 
 
      f.restart
-             This function kills and restarts ctwm.
+             This function kills and restarts etwm.
 
 
      f.restoregeometry
@@ -2669,7 +2669,7 @@ MENUS
      functions, or additional menus.
 
      There is 3 special menus. TwmWindows contains the  names  of
-     all  of  the client and ctwm-supplied windows in the current
+     all  of  the client and etwm-supplied windows in the current
      workspace.  Selecting an entry will cause the WindowFunction
      to  be  executed  on  that window.  If WindowFunction hasn't
      been  set,  the  window  will  be  deiconified  and  raised.
@@ -2678,7 +2678,7 @@ MENUS
      entries  have  submenus  containing the names of all windows
      occupying this workspace, selecting such an  entry  executes
      f.warpto on this window. And finally, TwmAllWindows contains
-     the names of all the windows  ctwm  manages.  Selectting  an
+     the names of all the windows  etwm  manages.  Selectting  an
      entry executes f.warpto on this window.
 
      If an entry name begins with a '*' (star), this  star  won't
@@ -2690,7 +2690,7 @@ MENUS
      understand.
 
 ICONS
-     Ctwm supports several different ways of manipulating  iconi-
+     Etwm supports several different ways of manipulating  iconi-
      fied  windows.  The common pixmap-and-text style may be laid
      out by hand or automatically arranged as  described  by  the
      IconRegion  variable.   In  addition,  a  terse grid of icon
@@ -2736,9 +2736,9 @@ VMS specific:
   see notes above
 ***********************
 
-      $HOME/.ctwmrc.<screen number>
-      $HOME/.ctwmrc
-      /usr/lib/X11/twm/system.ctwmrc
+      $HOME/.etwmrc.<screen number>
+      $HOME/.etwmrc
+      /usr/lib/X11/twm/system.etwmrc
       $HOME/.twmrc
 
 ENVIRONMENT VARIABLES
@@ -2747,7 +2747,7 @@ ENVIRONMENT VARIABLES
              come up on the proper screen.
 
      HOME    This variable is used as the prefix for  files  that
-             begin with a tilde and for locating the ctwm startup
+             begin with a tilde and for locating the etwm startup
              file.
 
 SEE ALSO

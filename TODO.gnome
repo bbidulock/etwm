@@ -12,4 +12,4 @@ Why doesn't the workspace window work for some GTK apps?
 - transient problem.  Why are all GTK windows transient?  Is this a WM bug, 
   or a GTK problem?  Investigate.
 Cleanup on exit - remove properties from root window.
-Write a small utility app using libctwm so that any CTWM will work with GNOME.
+Write a small utility app using libetwm so that any ETWM will work with GNOME.

@@ -25,11 +25,11 @@
 /**    OR PERFORMANCE OF THIS SOFTWARE.                                     **/
 /*****************************************************************************/
 /* 
- *  [ ctwm ]
+ *  [ etwm ]
  *
  *  Copyright 1992 Claude Lecommandeur.
  *            
- * Permission to use, copy, modify  and distribute this software  [ctwm] and
+ * Permission to use, copy, modify  and distribute this software  [etwm] and
  * its documentation for any purpose is hereby granted without fee, provided
  * that the above  copyright notice appear  in all copies and that both that
  * copyright notice and this permission notice appear in supporting documen-
@@ -60,7 +60,7 @@
  * 27-Oct-87 Thomas E. LaStrange	File created
  * 10-Oct-90 David M. Sternlicht        Storing saved colors on root
  *
- * Do the necessary modification to be integrated in ctwm.
+ * Do the necessary modification to be integrated in etwm.
  * Can no longer be used for the standard twm.
  *
  * 22-April-92 Claude Lecommandeur.
@@ -85,7 +85,7 @@
 #include <fcntl.h>
 #endif
 #include "twm.h"
-#include "ctwm.h"
+#include "etwm.h"
 #include "add_window.h"
 #include "gc.h"
 #include "parse.h"
@@ -589,7 +589,7 @@ int main(int argc, char **argv, char **environ)
 		_XA_WM_CURRENTWORKSPACE,
 		_XA_WM_NOREDIRECT,
 		_XA_WM_OCCUPATION,
-		_XA_WM_CTWM_VSCREENMAP,
+		_XA_WM_ETWM_VSCREENMAP,
 		_OL_WIN_ATTR
 	    };
 
@@ -620,9 +620,9 @@ int main(int argc, char **argv, char **environ)
 	    hname.nitems = strnlen(hostname, 64);
 
 	    class_hint.res_name = NULL;
-	    class_hint.res_class = "CTWM";
+	    class_hint.res_class = "ETWM";
 
-	    Xutf8SetWMProperties(dpy, selwin, Version, "ctwm",
+	    Xutf8SetWMProperties(dpy, selwin, Version, "etwm",
 		    argv, argc, NULL, NULL, &class_hint);
 	    XSetWMClientMachine(dpy, selwin, &hname);
 	    XChangeProperty(dpy, selwin, _XA_WM_PROTOCOLS, XA_ATOM, 32, PropModeReplace,
@@ -864,7 +864,7 @@ int main(int argc, char **argv, char **environ)
 
 	Scr->WindowMask = (Window) 0;
 	screenmasked = 0;
-	if (ShowWelcomeWindow && (welcomefile = getenv ("CTWM_WELCOME_FILE"))) {
+	if (ShowWelcomeWindow && (welcomefile = getenv ("ETWM_WELCOME_FILE"))) {
 	    screenmasked = 1;
 	    MaskScreen (welcomefile);
 	}
@@ -1542,12 +1542,12 @@ SIGNAL_T Crash (int signum)
     if (captive) RemoveFromCaptiveList ();
     XCloseDisplay(dpy);
 
-    fprintf (stderr, "\nCongratulations, you have found a bug in ctwm\n");
+    fprintf (stderr, "\nCongratulations, you have found a bug in etwm\n");
     fprintf (stderr, "If a core file was generated in your directory,\n");
     fprintf (stderr, "can you please try extract the stack trace,\n");
     fprintf (stderr, "and mail the results, and a description of what you were doing,\n");
-    fprintf (stderr, "to ctwm-bugs@free.lp.se.  Thank you for your support.\n");
-    fprintf (stderr, "...exiting ctwm now.\n\n");
+    fprintf (stderr, "to etwm-bugs@free.lp.se.  Thank you for your support.\n");
+    fprintf (stderr, "...exiting etwm now.\n\n");
 
     abort ();
 }
@@ -1573,7 +1573,7 @@ void DoRestart(Time t)
     fprintf (stderr, "%s:  restarting:  %s\n",
 	     ProgramName, *Argv);
 #ifdef VMS
-    exit (1);			/* Trust CTWM.COM  /Richard Levitte */
+    exit (1);			/* Trust ETWM.COM  /Richard Levitte */
 #else
     execvp(*Argv, Argv);
 #endif
@@ -1583,8 +1583,8 @@ void DoRestart(Time t)
 #ifdef __WAIT_FOR_CHILDS
 /*
  * Handler for SIGCHLD. Needed to avoid zombies when an .xinitrc
- * execs ctwm as the last client. (All processes forked off from
- * within .xinitrc have been inherited by ctwm during the exec.)
+ * execs etwm as the last client. (All processes forked off from
+ * within .xinitrc have been inherited by etwm during the exec.)
  * Jens Schweikhardt <jens@kssun3.rus.uni-stuttgart.de>
  */
 SIGNAL_T
@@ -1654,7 +1654,7 @@ Atom _XA_WM_WORKSPACESLIST;
 Atom _XA_WM_CURRENTWORKSPACE;
 Atom _XA_WM_NOREDIRECT;
 Atom _XA_WM_OCCUPATION;
-Atom _XA_WM_CTWM_VSCREENMAP;
+Atom _XA_WM_ETWM_VSCREENMAP;
 Atom _XA_MANAGER;
 Atom _OL_WIN_ATTR;
 Atom _XA_KDE_WM_CHANGE_STATE;
@@ -1692,7 +1692,7 @@ void InternUsefulAtoms (void)
     _XA_WM_CURRENTWORKSPACE = XInternAtom (dpy, "WM_CURRENTWORKSPACE", False);
     _XA_WM_OCCUPATION = XInternAtom (dpy, "WM_OCCUPATION", False);
 
-    _XA_WM_CTWM_VSCREENMAP  = XInternAtom (dpy, "WM_CTWM_VSCREENMAP", False);
+    _XA_WM_ETWM_VSCREENMAP  = XInternAtom (dpy, "WM_ETWM_VSCREENMAP", False);
 #ifdef GNOME
     _XA_WM_WORKSPACESLIST   = XInternAtom (dpy, "_WIN_WORKSPACE_NAMES", False);
 #else /* GNOME */
@@ -1723,20 +1723,20 @@ static Window CreateRootWindow (int x, int y,
     int		scrnum;
     Window	ret;
     XWMHints	wmhints;
-    Atom	_XA_WM_CTWM_ROOT;
+    Atom	_XA_WM_ETWM_ROOT;
 
     scrnum = DefaultScreen (dpy);
     ret = XCreateSimpleWindow (dpy, RootWindow (dpy, scrnum),
 			x, y, width, height, 2, WhitePixel (dpy, scrnum),
 			BlackPixel (dpy, scrnum));
-    XSetStandardProperties (dpy, ret, "Captive ctwm", NULL, None, NULL, 0, NULL);
+    XSetStandardProperties (dpy, ret, "Captive etwm", NULL, None, NULL, 0, NULL);
     wmhints.initial_state = NormalState;
     wmhints.input         = True;
     wmhints.flags         = InputHint | StateHint;
     XSetWMHints (dpy, ret, &wmhints);
 
-    _XA_WM_CTWM_ROOT = XInternAtom (dpy, "WM_CTWM_ROOT", False);
-    XChangeProperty (dpy, ret, _XA_WM_CTWM_ROOT, XA_WINDOW, 32, 
+    _XA_WM_ETWM_ROOT = XInternAtom (dpy, "WM_ETWM_ROOT", False);
+    XChangeProperty (dpy, ret, _XA_WM_ETWM_ROOT, XA_WINDOW, 32, 
 		     PropModeReplace, (unsigned char *) &ret, 4);
     XSelectInput (dpy, ret, StructureNotifyMask);
     XMapWindow (dpy, ret);

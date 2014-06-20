@@ -1,4 +1,4 @@
-Stuff for ctwm: (By Peter Chang - peterc@v2.ph.man.ac.uk 3/5/94)
+Stuff for etwm: (By Peter Chang - peterc@v2.ph.man.ac.uk 3/5/94)
 ===============
 
 Differences: No xwd colour bitmaps, no m4 preparsing, nor other Unix things,
@@ -14,32 +14,32 @@ used lib$wait instead of select() for timing routines
 [ A lot of things had to be declared to compile with no warning at all when
   you compile with DEC C				/Richard Levitte ]
 
-ctwm.c:
+etwm.c:
 - PIXMAP_DIRECTORY changed to "DECW$BITMAPS:"
 - changed home to "[]" if getenv("HOME"); returns NULL
-- hopefully Done() should exit gracefully from ctwm (by running
+- hopefully Done() should exit gracefully from etwm (by running
   decw$endsession)
   [ I have changed this to be optional.  Either DECW$ENDSESSION.EXE is
-    run, or ctwm exits with the status code 20.  This is correctly handled
-    by CTWM.COM						/Richard Levitte ]
+    run, or etwm exits with the status code 20.  This is correctly handled
+    by ETWM.COM						/Richard Levitte ]
 - still no restart code
   [ This is no longer true.  See my comment below.	/Richard Levitte ]
 
 events.c:
-- changed CtwmNextEvent to wait for an event flag set by the
+- changed EtwmNextEvent to wait for an event flag set by the
   AnimateHandler(). Bit of a hack, won't handle X events until the flags is
   set. Question: have I done this properly? See util.c.
 
 menus.c:
 - still no restart code
-  [ This is no longer true.  ctwm will simply exit with status code 1.
-    Since CTWM.COM checks for exactly that code to restart, things are
+  [ This is no longer true.  etwm will simply exit with status code 1.
+    Since ETWM.COM checks for exactly that code to restart, things are
     nicely taken care of				/Richard Levitte ]
 
 parse.c:
-- SYSTEM_INIT_FILE changed to "DECW$SYSTEM_DEFAULTS:SYSTEM.CTWMRC"
+- SYSTEM_INIT_FILE changed to "DECW$SYSTEM_DEFAULTS:SYSTEM.ETWMRC"
 - user config files should reside in "DECW$USER_DEFAULTS" (not "HOME")
-  and now called ctwm.rc, ctwm.rc_(screen no), etc.
+  and now called etwm.rc, etwm.rc_(screen no), etc.
 
 util.c:
 - ExpandPixmapPath() now looks for "~foo.bar" = file at home or sys$login,
@@ -49,10 +49,10 @@ util.c:
   Use two local events flag for the timing - a) for the sys$setimr()
   b) when the timer is sprung, the second flag is set.
   There are two variations, I tried to use:
-      1) The 2nd flag is used by CtwmNextEvent() [in event.c] in a
+      1) The 2nd flag is used by EtwmNextEvent() [in event.c] in a
          sys$waitfr() call which waits for this flag alone, ignoring
 	 X events, I think.
-      2) The 2nd flag [from cluster 0, = 17] is used by CtwmNextEvent()
+      2) The 2nd flag [from cluster 0, = 17] is used by EtwmNextEvent()
          in a sys$wflor() call which waits for either this flag or the
 	 ef associated with the X display.
   At the moment, I can't get method to work, it seems to ignore timer events.

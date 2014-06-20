@@ -1,9 +1,9 @@
 
-                                   CTWM
+                                   ETWM
                                    ----
 
 
-    CTWM is an extension to twm, that support multiple virtual screens,
+    ETWM is an extension to twm, that support multiple virtual screens,
 and a lot of other goodies.
 
     You can use and manage up to  32 virtual screens called workspaces.
@@ -29,12 +29,12 @@ and pixmaps for the buttons and background root windows.
 workmgr.[ch]  were built from scratch,  but the twm ones are slightly
 modified.  I tried to  minimize  the  modifications,  and it is  even
 possible  (but not sure)  that certain  future twm  patches could  be
-applied to ctwm sources files. But don't rely on this.
+applied to etwm sources files. But don't rely on this.
 
     I certainly introduced many bugs with these modifications. So, be
 tolerant.
 
-    If you are happy with ctwm, or find bugs, send me a note to :
+    If you are happy with etwm, or find bugs, send me a note to :
 
             Claude.Lecommandeur@epfl.ch
 
@@ -52,5 +52,5 @@ rplay package replace #undef USE_SOUND, by #define USE_SOUND.
     There is a man,  but not quite complete  (any volunteer ?).  Many
 useful informations are only in the CHANGES file, so, read it.
 
-    There is a  mailing list :  ctwm@cognac.epfl.ch,  subscribe  at :
-ctwm-request@cognac.epfl.ch.
+    There is a  mailing list :  etwm@cognac.epfl.ch,  subscribe  at :
+etwm-request@cognac.epfl.ch.

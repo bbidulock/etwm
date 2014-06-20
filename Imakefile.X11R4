@@ -70,11 +70,11 @@ LOCAL_LIBRARIES = $(M4LIB) $(IMCONVLIB) $(XPMLIB) $(XMULIB) $(XTOOLLIB) $(XLIB) 
         DEFINES = $(SIGNAL_DEFINES) $(M4DEFINES) $(IMCONVDEFINES) $(XPMDEFINES) $(SOUND_DEFS) -DX11R4
  EXTRA_INCLUDES = $(M4INCDIR) $(IMCONVINCDIR) $(XPMINCDIR) $(SOUND_INCLUDES)
 
-           SRCS = gram.c lex.c deftwmrc.c add_window.c gc.c list.c ctwm.c \
+           SRCS = gram.c lex.c deftwmrc.c add_window.c gc.c list.c etwm.c \
 		parse.c menus.c events.c resize.c util.c version.c iconmgr.c \
 		cursor.c icons.c workmgr.c ${SOUNDSRC}
 
-           OBJS = gram.o lex.o deftwmrc.o add_window.o gc.o list.o ctwm.o \
+           OBJS = gram.o lex.o deftwmrc.o add_window.o gc.o list.o etwm.o \
 		parse.o menus.o events.o resize.o util.o version.o iconmgr.o \
 		cursor.o icons.o workmgr.o ${SOUNDOBJ}
 
@@ -107,19 +107,19 @@ LOCAL_LIBRARIES = $(M4LIB) $(IMCONVLIB) $(XPMLIB) $(XMULIB) $(XTOOLLIB) $(XLIB) 
 		3dcircle.xpm 3ddimple.xpm 3ddot.xpm 3dfeet.xpm 3dleopard.xpm \
 		3dpie.xpm 3dpyramid.xpm 3dslant.xpm
 
-AllTarget(ctwm)
+AllTarget(etwm)
 
-SpecialObjectRule(parse.o,parse.c,'-DSYSTEM_INIT_FILE="'$(TWMDIR)'/system.ctwmrc"')
-SpecialObjectRule(ctwm.o,ctwm.c,'-DPIXMAP_DIRECTORY="'$(TWMDIR)'/images"')
+SpecialObjectRule(parse.o,parse.c,'-DSYSTEM_INIT_FILE="'$(TWMDIR)'/system.etwmrc"')
+SpecialObjectRule(etwm.o,etwm.c,'-DPIXMAP_DIRECTORY="'$(TWMDIR)'/images"')
 #if !HasPutenv
 SpecialObjectRule(util.o,util.c,-DNOPUTENV)
 #endif
 
 depend:: lex.c gram.c deftwmrc.c 
 
-NormalLibraryTarget(ctwm, libctwm.o)
-ComplexProgramTarget(ctwm)
-InstallNonExecFile(system.ctwmrc,$(TWMDIR))
+NormalLibraryTarget(etwm, libetwm.o)
+ComplexProgramTarget(etwm)
+InstallNonExecFile(system.etwmrc,$(TWMDIR))
 #ifdef XPM
 install:: xpm
 	MakeDir($(DESTDIR)$(TWMDIR)/images)
@@ -137,15 +137,15 @@ gram.h gram.c: gram.y
 clean::
 	$(RM) y.tab.h y.tab.c lex.yy.c gram.h gram.c lex.c deftwmrc.c 
 
-deftwmrc.c:  system.ctwmrc
+deftwmrc.c:  system.etwmrc
 	$(RM) $@
 	echo '/* ' >>$@
 	echo ' * This file is generated automatically from the default' >>$@
-	echo ' * twm bindings file system.ctwmrc by the twm Imakefile.' >>$@
+	echo ' * twm bindings file system.etwmrc by the twm Imakefile.' >>$@
 	echo ' */' >>$@
 	echo '' >>$@
 	echo 'char *defTwmrc[] = {' >>$@
 	sed -e '/^#/d' -e 's/"/\\"/g' -e 's/^/    "/' -e 's/$$/",/' \
-		system.ctwmrc >>$@
+		system.etwmrc >>$@
 	echo '    (char *) 0 };' >>$@
 

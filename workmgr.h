@@ -1,9 +1,9 @@
 /* 
- *  [ ctwm ]
+ *  [ etwm ]
  *
  *  Copyright 1992 Claude Lecommandeur.
  *            
- * Permission to use, copy, modify  and distribute this software  [ctwm] and
+ * Permission to use, copy, modify  and distribute this software  [etwm] and
  * its documentation for any purpose is hereby granted without fee, provided
  * that the above  copyright notice appear  in all copies and that both that
  * copyright notice and this permission notice appear in supporting documen-
@@ -145,7 +145,7 @@ struct OccupyWindow {
   int	       	tmpOccupation;
 };
 
-struct CaptiveCTWM {
+struct CaptiveETWM {
   Window	root;
   String	name;
 };
@@ -215,15 +215,15 @@ Bool AnimateRoot (void);
 void AddToCaptiveList (void);
 void RemoveFromCaptiveList (void);
 Bool RedirectToCaptive (Window window);
-void SetPropsIfCaptiveCtwm (TwmWindow *win);
-Window CaptiveCtwmRootWindow (Window window);
+void SetPropsIfCaptiveEtwm (TwmWindow *win);
+Window CaptiveEtwmRootWindow (Window window);
 
 void MoveToNextWorkSpace (VirtualScreen *vs, TwmWindow *twm_win);
 void MoveToPrevWorkSpace (VirtualScreen *vs, TwmWindow *twm_win);
 void MoveToNextWorkSpaceAndFollow (VirtualScreen *vs, TwmWindow *twm_win);
 void MoveToPrevWorkSpaceAndFollow (VirtualScreen *vs, TwmWindow *twm_win);
 
-CaptiveCTWM GetCaptiveCTWMUnderPointer (void);
+CaptiveETWM GetCaptiveETWMUnderPointer (void);
 void SetNoRedirect (Window window);
 
 extern void ShowBackground (VirtualScreen *vs);

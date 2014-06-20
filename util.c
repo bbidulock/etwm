@@ -25,11 +25,11 @@
 /**    OR PERFORMANCE OF THIS SOFTWARE.                                     **/
 /*****************************************************************************/
 /* 
- *  [ ctwm ]
+ *  [ etwm ]
  *
  *  Copyright 1992 Claude Lecommandeur.
  *            
- * Permission to use, copy, modify  and distribute this software  [ctwm] and
+ * Permission to use, copy, modify  and distribute this software  [etwm] and
  * its documentation for any purpose is hereby granted without fee, provided
  * that the above  copyright notice appear  in all copies and that both that
  * copyright notice and this permission notice appear in supporting documen-
@@ -59,7 +59,7 @@
  *
  * 28-Oct-87 Thomas E. LaStrange	File created
  *
- * Do the necessary modification to be integrated in ctwm.
+ * Do the necessary modification to be integrated in etwm.
  * Can no longer be used for the standard twm.
  *
  * 22-April-92 Claude Lecommandeur.
@@ -3673,7 +3673,7 @@ static Image *LoadXwdImage (char *filename, ColorPair cp)
 file_opened:
     len = fread ((char *) &header, sizeof (header), 1, file);
     if (len != 1) {
-	fprintf (stderr, "ctwm: cannot read %s\n", filename);
+	fprintf (stderr, "etwm: cannot read %s\n", filename);
 #ifdef USE_SIGNALS
 	if (ispipe && anim) StartAnimation ();
 #endif
@@ -3681,7 +3681,7 @@ file_opened:
     }
     if (*(char *) &swaptest) swaplong ((char *) &header, sizeof (header));
     if (header.file_version != XWD_FILE_VERSION) {
-	fprintf(stderr,"ctwm: XWD file format version mismatch : %s\n", filename);
+	fprintf(stderr,"etwm: XWD file format version mismatch : %s\n", filename);
 	return (None);
     }
     win_name_size = header.header_size - sizeof (header);
@@ -3695,7 +3695,7 @@ file_opened:
     }
 
     if (header.pixmap_format == XYPixmap) {
-	fprintf (stderr,"ctwm: XYPixmap XWD file not supported : %s\n", filename);
+	fprintf (stderr,"etwm: XYPixmap XWD file not supported : %s\n", filename);
 	return (None);
     }
     w       = header.pixmap_width;

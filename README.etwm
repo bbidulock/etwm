@@ -1,9 +1,9 @@
 
-                                   CTWM
+                                   ETWM
                                    ----
 
 
-CTWM is an extension to twm, originally written by Claude Lecommandeur
+ETWM is an extension to twm, originally written by Claude Lecommandeur
 (see README.Claude for his README), that support multiple virtual
 screens, and a lot of other goodies.
 
@@ -29,20 +29,20 @@ Main features are :
 
 The sources files were once the twm ones with only workmgr.[ch] added
 (written from scratch by Claude Lecommandeur).  There were also some
-modifications to some twm files.  This was back in CTWM version 1, by
+modifications to some twm files.  This was back in ETWM version 1, by
 now, there are a bit more changes and a few more additions.  It's
 possible, thought it's doubtful, that twm patches can still be
 applied...  with great care.
 
-If you are happy with ctwm, please send me a not to richard@levitte.org.
+If you are happy with etwm, please send me a not to richard@levitte.org.
 If you find bugs, please send a report (one per bug, please!) to
-ctwm-bugs@free.lp.se.
+etwm-bugs@free.lp.se.
 
 				----------
 
 Configuration:
 
-Ctwm is built using xmkmf, which read Imakefile.  That file includes
+Etwm is built using xmkmf, which read Imakefile.  That file includes
 Imakefile.local, which is meant for local configuration, and WHICH
 YOU MUST CREATE.  For your comfort, the file Imakefile.local-template
 can simply be copied to Imakefile.local, then changed.
@@ -96,16 +96,16 @@ Many useful informations are only in the CHANGES file, so please read it.
 
 Mailing lists:
 
-There is a mailing list for discussions ctwm@free.lp.se.  Subscribe at
+There is a mailing list for discussions etwm@free.lp.se.  Subscribe at
 minimalist@free.lp.se.
 
 Repository:
 
-CTWM development uses monotone (see http://www.venge.net/monotone) for
+ETWM development uses monotone (see http://www.venge.net/monotone) for
 version control.  The current central server is free.lp.se, and the
-branch to pull is "free.lp.se:X.ctwm".
+branch to pull is "free.lp.se:X.etwm".
 
 Further information:
 
-http://ctwm.free.lp.se/
+http://etwm.free.lp.se/
 

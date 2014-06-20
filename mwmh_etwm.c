@@ -15,7 +15,7 @@
 /** @brief Get the root window for screen.
   * @param scr - screen
   *
-  * CTWM messes around with scr->Root: it sets it to the virtual root when
+  * ETWM messes around with scr->Root: it sets it to the virtual root when
   * virtual roots are being used.
   */
 Window
@@ -363,7 +363,7 @@ TwmGetWorkspaceList(ScreenInfo *scr, Atom **list, int *count)
     int number = 0, n = 0;
     Atom *atoms = NULL;
 
-    /* There are no desktop atoms unless the workspace manager is active.  CTWM
+    /* There are no desktop atoms unless the workspace manager is active.  ETWM
        reverse to TWM behaviour otherwise. */
     if (!scr->workSpaceManagerActive) {
 	n = 1;

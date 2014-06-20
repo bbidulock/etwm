@@ -13,7 +13,7 @@
 /** @brief Get the root window for screen.
   * @param scr - screen
   *
-  * CTWM messes around with scr->Root: it sets it to the virtual root when
+  * ETWM messes around with scr->Root: it sets it to the virtual root when
   * virtual roots are being used.
   */
 Window
@@ -46,12 +46,12 @@ TwmCanChangeDesktop(TwmWindow *twin)
 
 /** @file
   *
-  * This file provides implementation of NetWM/EWMH hook functions for CTWM.
+  * This file provides implementation of NetWM/EWMH hook functions for ETWM.
   * The NetWM/EWMH functions in ewmh.c are written to be independent of the TWM
   * variant that uses them.  These hook functions allow the NetWM/EWMH module to
   * interrogate and perform actions on the TWM variant of window manager.
-  * Implementation modules are provided for TWM, VTWM, CTWM and ETWM.  This is
-  * the implementation module for CTWM.
+  * Implementation modules are provided for TWM, VTWM, ETWM and ETWM.  This is
+  * the implementation module for ETWM.
   */
 
 /** @brief Get the client window list.
@@ -173,7 +173,7 @@ TwmSetNumberOfDesktops(ScreenInfo *scr, int number)
 /** @brief Get the desktop geometry.
   * @param geometry - where to return geometry
   *
-  * Get the desktop geometry.  CTWM does not support large virtual desktops, so
+  * Get the desktop geometry.  ETWM does not support large virtual desktops, so
   * this is always the root window size of the current screen.
   */
 void
@@ -190,7 +190,7 @@ TwmGetDesktopGeometry(ScreenInfo *scr, struct NetSize *geometry)
 /** @brief Set the desktop geometry.
   * @param geometry - the desktop geometry
   *
-  * Set the desktop geometry.  CTWM does not support large virtual desktops, so
+  * Set the desktop geometry.  ETWM does not support large virtual desktops, so
   * this request is never honored.
   */
 void
@@ -213,7 +213,7 @@ TwmSetDesktopGeometry(ScreenInfo *scr, struct NetSize *geometry)
   * x-y position of the upper left corner of the viewport on the virtual
   * desktop.
   *
-  * CTWM does not support large virtual desktops, so this is always (0,0) for
+  * ETWM does not support large virtual desktops, so this is always (0,0) for
   * any desktop.
   */
 void
@@ -235,7 +235,7 @@ TwmGetDesktopViewport(ScreenInfo *scr, int desktop, struct NetPosition *viewport
   *
   * Get the list of viewports, one for each desktop.
   *
-  * CTWM does not support large virtual desktops, so this is always (0,0) for
+  * ETWM does not support large virtual desktops, so this is always (0,0) for
   * each desktop.
   */
 void
@@ -268,7 +268,7 @@ TwmGetDesktopViewports(ScreenInfo *scr, struct NetPosition **viewport, int *view
   * x-y coordinates of the upper left corner of the viewport on the virtual
   * desktop.
   *
-  * CTWM does not support large virtual desktops, so this is always (0,0) and
+  * ETWM does not support large virtual desktops, so this is always (0,0) and
   * this request is never honored.
   */
 void
@@ -287,10 +287,10 @@ TwmSetDesktopViewport(ScreenInfo *scr, int desktop, struct NetPosition *viewport
   * @param scr - screen
   * @param current - where to return the current desktop index.
   *
-  * There is only one desktop when the workspace manager is not active.  CTWM
+  * There is only one desktop when the workspace manager is not active.  ETWM
   * reverts to TWM mode in that case.
   *
-  * Unfortunaely CTWM behaves as follows:
+  * Unfortunaely ETWM behaves as follows:
   *
   * - each virtual screen display a different desktop;
   *
@@ -400,7 +400,7 @@ TwmGetDesktopNames(ScreenInfo *scr, char ***names, int *count)
     fprintf(stderr, "%s for root 0x%08lx\n", __FUNCTION__, TwmNetRoot(scr));
     fflush(stderr);
 #endif
-    /* There are no desktop names unless the workspace manager is active.  CTWM 
+    /* There are no desktop names unless the workspace manager is active.  ETWM 
        reverts to TWM behaviour otherwise. */
     if (!scr->workSpaceManagerActive)
 	return;
@@ -578,7 +578,7 @@ TwmGetWorkareas(ScreenInfo *scr, struct NetGeometry **workarea, int *workareas)
   * @param vroot - where to store the list of virtual roots
   * @param vroots - where to store the number of virtual roots
   *
-  * From code inspection it does not appear that CTWM uses any virtual roots,
+  * From code inspection it does not appear that ETWM uses any virtual roots,
   * except possibly on non-Xinerama multi-head captive configurations (is this
   * really supported?).  This function should normall return zero virtual roots.
   */
@@ -825,7 +825,7 @@ TwmMoveResizeWindow(TwmWindow *twin, unsigned gravity, unsigned mask,
 	g.height = changes->height + twin->title_height + 2 * twin->frame_bw3D;
     }
     /* Forget the zoom on a window that will be resized in either dimension.
-       This is what core CTWM does.  That is probably not right.  There are a
+       This is what core ETWM does.  That is probably not right.  There are a
        couple of other things that can be done here:
 
        - deny changes to a zoomed dimension. - forget only the zoom in the
@@ -1119,7 +1119,7 @@ TwmSetWMName(ScreenInfo *scr, TwmWindow *twin, char *name)
   * removal of the property.  The caller must eventually free any name returned
   * with free().
   *
-  * CTWM does not alter visible names, so this function simply returns the name
+  * ETWM does not alter visible names, so this function simply returns the name
   * if it is available, otherwise untitled.
   */
 void
@@ -1175,7 +1175,7 @@ TwmSetWMIconName(TwmWindow *twin, char *name)
   * results in removal of the property.  The caller must eventually free any
   * name returned with free().
   *
-  * CTWM does not alter visible names, so this function simply returns the icon
+  * ETWM does not alter visible names, so this function simply returns the icon
   * name if it is available, otherwise the name, or untitled.
   */
 void
@@ -1335,70 +1335,70 @@ TwmIniWMWindowType(TwmWindow *twin, unsigned type)
 	func.functions = 0;	/* no functions */
 	decor.decorations = 0;	/* no decorations */
 	list.lists = 0;		/* no lists */
-	layer = CTWM_LAYER_DESKTOP;
+	layer = ETWM_LAYER_DESKTOP;
     }
     if (type & _NET_WM_WINDOW_TYPE_DOCK) {
 	func.functions = 0;	/* no functions */
 	decor.decorations = 0;	/* no decorations */
 	list.lists = 0;		/* no lists */
-	layer = CTWM_LAYER_DOCK;
+	layer = ETWM_LAYER_DOCK;
     }
     if (type & _NET_WM_WINDOW_TYPE_TOOLBAR) {
-	layer = CTWM_LAYER_NORMAL;
+	layer = ETWM_LAYER_NORMAL;
     }
     if (type & _NET_WM_WINDOW_TYPE_MENU) {
-	layer = CTWM_LAYER_NORMAL;
+	layer = ETWM_LAYER_NORMAL;
     }
     if (type & _NET_WM_WINDOW_TYPE_UTILITY) {
-	layer = CTWM_LAYER_NORMAL;
+	layer = ETWM_LAYER_NORMAL;
     }
     if (type & _NET_WM_WINDOW_TYPE_SPLASH) {
 	func.functions = 0;	/* no functions */
 	decor.decorations = 0;	/* no decorations */
 	list.lists = 0;		/* no lists */
-	layer = CTWM_LAYER_ABOVE_DOCK;
+	layer = ETWM_LAYER_ABOVE_DOCK;
     }
     if (type & _NET_WM_WINDOW_TYPE_DIALOG) {
-	layer = CTWM_LAYER_NORMAL;
+	layer = ETWM_LAYER_NORMAL;
     }
     if (type & _NET_WM_WINDOW_TYPE_DROPDOWN_MENU) {
 	func.functions = 0;	/* no functions */
 	decor.decorations = 0;	/* no decorations */
 	list.lists = 0;		/* no lists */
-	layer = CTWM_LAYER_MENU;
+	layer = ETWM_LAYER_MENU;
     }
     if (type & _NET_WM_WINDOW_TYPE_POPUP_MENU) {
 	func.functions = 0;	/* no functions */
 	decor.decorations = 0;	/* no decorations */
 	list.lists = 0;		/* no lists */
-	layer = CTWM_LAYER_MENU;
+	layer = ETWM_LAYER_MENU;
     }
     if (type & _NET_WM_WINDOW_TYPE_TOOLTIP) {
 	func.functions = 0;	/* no functions */
 	decor.decorations = 0;	/* no decorations */
 	list.lists = 0;		/* no lists */
-	layer = CTWM_LAYER_ABOVE_DOCK;
+	layer = ETWM_LAYER_ABOVE_DOCK;
     }
     if (type & _NET_WM_WINDOW_TYPE_NOTIFICATION) {
 	func.functions = 0;	/* no functions */
 	decor.decorations = 0;	/* no decorations */
 	list.lists = 0;		/* no lists */
-	layer = CTWM_LAYER_ABOVE_DOCK;
+	layer = ETWM_LAYER_ABOVE_DOCK;
     }
     if (type & _NET_WM_WINDOW_TYPE_COMBO) {
 	func.functions = 0;	/* no functions */
 	decor.decorations = 0;	/* no decorations */
 	list.lists = 0;		/* no lists */
-	layer = CTWM_LAYER_MENU;
+	layer = ETWM_LAYER_MENU;
     }
     if (type & _NET_WM_WINDOW_TYPE_DND) {
 	func.functions = 0;	/* no functions */
 	decor.decorations = 0;	/* no decorations */
 	list.lists = 0;		/* no lists */
-	layer = CTWM_LAYER_MENU;
+	layer = ETWM_LAYER_MENU;
     }
     if (type & _NET_WM_WINDOW_TYPE_NORMAL) {
-	layer = CTWM_LAYER_NORMAL;
+	layer = ETWM_LAYER_NORMAL;
     }
     twin->func = func;
     twin->decor = decor;
@@ -1431,70 +1431,70 @@ TwmSetWMWindowType(ScreenInfo *scr, TwmWindow *twin, unsigned type)
 	func.functions = 0;	/* no functions */
 	decor.decorations = 0;	/* no decorations */
 	list.lists = 0;		/* no lists */
-	layer = CTWM_LAYER_DESKTOP;
+	layer = ETWM_LAYER_DESKTOP;
     }
     if (type & _NET_WM_WINDOW_TYPE_DOCK) {
 	func.functions = 0;	/* no functions */
 	decor.decorations = 0;	/* no decorations */
 	list.lists = 0;		/* no lists */
-	layer = CTWM_LAYER_DOCK;
+	layer = ETWM_LAYER_DOCK;
     }
     if (type & _NET_WM_WINDOW_TYPE_TOOLBAR) {
-	layer = CTWM_LAYER_NORMAL;
+	layer = ETWM_LAYER_NORMAL;
     }
     if (type & _NET_WM_WINDOW_TYPE_MENU) {
-	layer = CTWM_LAYER_NORMAL;
+	layer = ETWM_LAYER_NORMAL;
     }
     if (type & _NET_WM_WINDOW_TYPE_UTILITY) {
-	layer = CTWM_LAYER_NORMAL;
+	layer = ETWM_LAYER_NORMAL;
     }
     if (type & _NET_WM_WINDOW_TYPE_SPLASH) {
 	func.functions = 0;	/* no functions */
 	decor.decorations = 0;	/* no decorations */
 	list.lists = 0;		/* no lists */
-	layer = CTWM_LAYER_ABOVE_DOCK;
+	layer = ETWM_LAYER_ABOVE_DOCK;
     }
     if (type & _NET_WM_WINDOW_TYPE_DIALOG) {
-	layer = CTWM_LAYER_NORMAL;
+	layer = ETWM_LAYER_NORMAL;
     }
     if (type & _NET_WM_WINDOW_TYPE_DROPDOWN_MENU) {
 	func.functions = 0;	/* no functions */
 	decor.decorations = 0;	/* no decorations */
 	list.lists = 0;		/* no lists */
-	layer = CTWM_LAYER_MENU;
+	layer = ETWM_LAYER_MENU;
     }
     if (type & _NET_WM_WINDOW_TYPE_POPUP_MENU) {
 	func.functions = 0;	/* no functions */
 	decor.decorations = 0;	/* no decorations */
 	list.lists = 0;		/* no lists */
-	layer = CTWM_LAYER_MENU;
+	layer = ETWM_LAYER_MENU;
     }
     if (type & _NET_WM_WINDOW_TYPE_TOOLTIP) {
 	func.functions = 0;	/* no functions */
 	decor.decorations = 0;	/* no decorations */
 	list.lists = 0;		/* no lists */
-	layer = CTWM_LAYER_ABOVE_DOCK;
+	layer = ETWM_LAYER_ABOVE_DOCK;
     }
     if (type & _NET_WM_WINDOW_TYPE_NOTIFICATION) {
 	func.functions = 0;	/* no functions */
 	decor.decorations = 0;	/* no decorations */
 	list.lists = 0;		/* no lists */
-	layer = CTWM_LAYER_ABOVE_DOCK;
+	layer = ETWM_LAYER_ABOVE_DOCK;
     }
     if (type & _NET_WM_WINDOW_TYPE_COMBO) {
 	func.functions = 0;	/* no functions */
 	decor.decorations = 0;	/* no decorations */
 	list.lists = 0;		/* no lists */
-	layer = CTWM_LAYER_MENU;
+	layer = ETWM_LAYER_MENU;
     }
     if (type & _NET_WM_WINDOW_TYPE_DND) {
 	func.functions = 0;	/* no functions */
 	decor.decorations = 0;	/* no decorations */
 	list.lists = 0;		/* no lists */
-	layer = CTWM_LAYER_MENU;
+	layer = ETWM_LAYER_MENU;
     }
     if (type & _NET_WM_WINDOW_TYPE_NORMAL) {
-	layer = CTWM_LAYER_NORMAL;
+	layer = ETWM_LAYER_NORMAL;
     }
     twin->func = func;
     if (twin->decor.decorations != decor.decorations) {
@@ -1546,8 +1546,8 @@ TwmSetWMWindowType(ScreenInfo *scr, TwmWindow *twin, unsigned type)
   * @param twin - TWM window
   * @param flags - where to store the state flags
   *
-  * Note that not all state is maintained by CTWM.  There are some state bits in
-  * which CTWM is just not interested at all.  These bits are maintained in the
+  * Note that not all state is maintained by ETWM.  There are some state bits in
+  * which ETWM is just not interested at all.  These bits are maintained in the
   * twin->ewmh.state bitmask itself.
   */
 void
@@ -1615,16 +1615,16 @@ TwmGetWMState(ScreenInfo *scr, TwmWindow *twin, unsigned *flags)
     if (twin->fullscreen)
 	state |= _NET_WM_STATE_FULLSCREEN;
 
-    if (twin->ontoppriority == CTWM_LAYER_ONTOP)
+    if (twin->ontoppriority == ETWM_LAYER_ONTOP)
 	state |= _NET_WM_STATE_ABOVE;
 
-    if (twin->ontoppriority == CTWM_LAYER_BELOW)
+    if (twin->ontoppriority == ETWM_LAYER_BELOW)
 	state |= _NET_WM_STATE_BELOW;
 
-    if (twin->ontoppriority == CTWM_LAYER_ABOVE_DOCK)
+    if (twin->ontoppriority == ETWM_LAYER_ABOVE_DOCK)
 	state |= _NET_WM_STATE_STAYS_ON_TOP;
 
-    if (twin->ontoppriority == CTWM_LAYER_DESKTOP)
+    if (twin->ontoppriority == ETWM_LAYER_DESKTOP)
 	state |= _NET_WM_STATE_STAYS_AT_BOTTOM;
 
     if (twin->ewmh.state & _NET_WM_STATE_DEMANDS_ATTENTION)
@@ -1956,25 +1956,25 @@ TwmChgWMState(ScreenInfo *scr, TwmWindow *twin, int action1, int action2, unsign
 		continue;
 	    switch (action) {
 	    case _NET_WM_STATE_REMOVE:
-		if (layer == CTWM_LAYER_ONTOP) {
-		    if (twin->initial_layer != CTWM_LAYER_ONTOP)
+		if (layer == ETWM_LAYER_ONTOP) {
+		    if (twin->initial_layer != ETWM_LAYER_ONTOP)
 			layer = twin->initial_layer;
 		    else
-			layer = CTWM_LAYER_NORMAL;
+			layer = ETWM_LAYER_NORMAL;
 		}
 		break;
 	    case _NET_WM_STATE_ADD:
-		if (layer != CTWM_LAYER_ONTOP)
-		    layer = CTWM_LAYER_ONTOP;
+		if (layer != ETWM_LAYER_ONTOP)
+		    layer = ETWM_LAYER_ONTOP;
 		break;
 	    case _NET_WM_STATE_TOGGLE:
-		if (layer == CTWM_LAYER_ONTOP) {
-		    if (twin->initial_layer != CTWM_LAYER_ONTOP)
+		if (layer == ETWM_LAYER_ONTOP) {
+		    if (twin->initial_layer != ETWM_LAYER_ONTOP)
 			layer = twin->initial_layer;
 		    else
-			layer = CTWM_LAYER_NORMAL;
+			layer = ETWM_LAYER_NORMAL;
 		} else
-		    layer = CTWM_LAYER_ONTOP;
+		    layer = ETWM_LAYER_ONTOP;
 		break;
 	    }
 	    continue;
@@ -1983,25 +1983,25 @@ TwmChgWMState(ScreenInfo *scr, TwmWindow *twin, int action1, int action2, unsign
 		continue;
 	    switch (action) {
 	    case _NET_WM_STATE_REMOVE:
-		if (layer == CTWM_LAYER_BELOW) {
-		    if (twin->initial_layer != CTWM_LAYER_BELOW)
+		if (layer == ETWM_LAYER_BELOW) {
+		    if (twin->initial_layer != ETWM_LAYER_BELOW)
 			layer = twin->initial_layer;
 		    else
-			layer = CTWM_LAYER_NORMAL;
+			layer = ETWM_LAYER_NORMAL;
 		}
 		break;
 	    case _NET_WM_STATE_ADD:
-		if (layer != CTWM_LAYER_BELOW)
-		    layer = CTWM_LAYER_BELOW;
+		if (layer != ETWM_LAYER_BELOW)
+		    layer = ETWM_LAYER_BELOW;
 		break;
 	    case _NET_WM_STATE_TOGGLE:
-		if (layer == CTWM_LAYER_BELOW) {
-		    if (twin->initial_layer != CTWM_LAYER_BELOW)
+		if (layer == ETWM_LAYER_BELOW) {
+		    if (twin->initial_layer != ETWM_LAYER_BELOW)
 			layer = twin->initial_layer;
 		    else
-			layer = CTWM_LAYER_NORMAL;
+			layer = ETWM_LAYER_NORMAL;
 		} else
-		    layer = CTWM_LAYER_BELOW;
+		    layer = ETWM_LAYER_BELOW;
 		break;
 	    }
 	    continue;
@@ -2089,25 +2089,25 @@ TwmChgWMState(ScreenInfo *scr, TwmWindow *twin, int action1, int action2, unsign
 		continue;
 	    switch (action) {
 	    case _NET_WM_STATE_REMOVE:
-		if (layer == CTWM_LAYER_DESKTOP) {
-		    if (twin->initial_layer != CTWM_LAYER_DESKTOP)
+		if (layer == ETWM_LAYER_DESKTOP) {
+		    if (twin->initial_layer != ETWM_LAYER_DESKTOP)
 			layer = twin->initial_layer;
 		    else
-			layer = CTWM_LAYER_NORMAL;
+			layer = ETWM_LAYER_NORMAL;
 		}
 		break;
 	    case _NET_WM_STATE_ADD:
-		if (layer != CTWM_LAYER_DESKTOP)
-		    layer = CTWM_LAYER_DESKTOP;
+		if (layer != ETWM_LAYER_DESKTOP)
+		    layer = ETWM_LAYER_DESKTOP;
 		break;
 	    case _NET_WM_STATE_TOGGLE:
-		if (layer == CTWM_LAYER_DESKTOP) {
-		    if (twin->initial_layer != CTWM_LAYER_DESKTOP)
+		if (layer == ETWM_LAYER_DESKTOP) {
+		    if (twin->initial_layer != ETWM_LAYER_DESKTOP)
 			layer = twin->initial_layer;
 		    else
-			layer = CTWM_LAYER_NORMAL;
+			layer = ETWM_LAYER_NORMAL;
 		} else
-		    layer = CTWM_LAYER_DESKTOP;
+		    layer = ETWM_LAYER_DESKTOP;
 		break;
 	    }
 	    continue;
@@ -2116,25 +2116,25 @@ TwmChgWMState(ScreenInfo *scr, TwmWindow *twin, int action1, int action2, unsign
 		continue;
 	    switch (action) {
 	    case _NET_WM_STATE_REMOVE:
-		if (layer == CTWM_LAYER_ABOVE_DOCK) {
-		    if (twin->initial_layer != CTWM_LAYER_ABOVE_DOCK)
+		if (layer == ETWM_LAYER_ABOVE_DOCK) {
+		    if (twin->initial_layer != ETWM_LAYER_ABOVE_DOCK)
 			layer = twin->initial_layer;
 		    else
-			layer = CTWM_LAYER_NORMAL;
+			layer = ETWM_LAYER_NORMAL;
 		}
 		break;
 	    case _NET_WM_STATE_ADD:
-		if (layer != CTWM_LAYER_ABOVE_DOCK)
-		    layer = CTWM_LAYER_ABOVE_DOCK;
+		if (layer != ETWM_LAYER_ABOVE_DOCK)
+		    layer = ETWM_LAYER_ABOVE_DOCK;
 		break;
 	    case _NET_WM_STATE_TOGGLE:
-		if (layer == CTWM_LAYER_ABOVE_DOCK) {
-		    if (twin->initial_layer != CTWM_LAYER_ABOVE_DOCK)
+		if (layer == ETWM_LAYER_ABOVE_DOCK) {
+		    if (twin->initial_layer != ETWM_LAYER_ABOVE_DOCK)
 			layer = twin->initial_layer;
 		    else
-			layer = CTWM_LAYER_NORMAL;
+			layer = ETWM_LAYER_NORMAL;
 		} else
-		    layer = CTWM_LAYER_ABOVE_DOCK;
+		    layer = ETWM_LAYER_ABOVE_DOCK;
 		break;
 	    }
 	    continue;

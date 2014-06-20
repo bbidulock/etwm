@@ -128,12 +128,12 @@ LOCAL_LIBRARIES = $(M4LIB) $(IMCONVLIB) $(XPMLIB) $(JPEGLIB) $(XMULIB) $(XTOOLLI
 
  EXTRA_INCLUDES = $(M4INCDIR) $(IMCONVINCDIR) $(XPMINCDIR) $(JPEGINCDIR) $(SOUNDINCDIR)
 
-           SRCS = gram.c lex.c deftwmrc.c add_window.c gc.c list.c ctwm.c \
+           SRCS = gram.c lex.c deftwmrc.c add_window.c gc.c list.c etwm.c \
 		parse.c menus.c events.c resize.c util.c version.c iconmgr.c \
 		cursor.c icons.c workmgr.c windowbox.c clicktofocus.c \
 		vscreen.c session.c $(GNOMESRC) $(SOUNDSRC)
 
-           OBJS = gram.o lex.o deftwmrc.o add_window.o gc.o list.o ctwm.o \
+           OBJS = gram.o lex.o deftwmrc.o add_window.o gc.o list.o etwm.o \
 		parse.o menus.o events.o resize.o util.o version.o iconmgr.o \
 		cursor.o icons.o workmgr.o windowbox.o clicktofocus.o \
 		vscreen.o session.o $(GNOMEOBJ) $(SOUNDOBJ)
@@ -167,17 +167,17 @@ LOCAL_LIBRARIES = $(M4LIB) $(IMCONVLIB) $(XPMLIB) $(JPEGLIB) $(XMULIB) $(XTOOLLI
 		3dcircle.xpm 3ddimple.xpm 3ddot.xpm 3dfeet.xpm 3dleopard.xpm \
 		3dpie.xpm 3dpyramid.xpm 3dslant.xpm
 
-SpecialObjectRule(parse.o,parse.c,'-DSYSTEM_INIT_FILE="$(DESTDIR)$(CONFDIR)/system.ctwmrc"' '-DPIXMAP_DIRECTORY="$(DESTDIR)$(PIXMAPDIR)"')
-SpecialObjectRule(ctwm.o,ctwm.c,'-DPIXMAP_DIRECTORY="$(DESTDIR)$(PIXMAPDIR)"')
+SpecialObjectRule(parse.o,parse.c,'-DSYSTEM_INIT_FILE="$(DESTDIR)$(CONFDIR)/system.etwmrc"' '-DPIXMAP_DIRECTORY="$(DESTDIR)$(PIXMAPDIR)"')
+SpecialObjectRule(etwm.o,etwm.c,'-DPIXMAP_DIRECTORY="$(DESTDIR)$(PIXMAPDIR)"')
 #if !HasPutenv
 SpecialObjectRule(util.o,util.c,-DNOPUTENV)
 #endif
 
 depend:: lex.c gram.c deftwmrc.c 
 
-NormalLibraryTarget(ctwm, libctwm.o)
-ComplexProgramTarget(ctwm)
-InstallNonExecFile(system.ctwmrc,$(CONFDIR))
+NormalLibraryTarget(etwm, libetwm.o)
+ComplexProgramTarget(etwm)
+InstallNonExecFile(system.etwmrc,$(CONFDIR))
 #ifdef XPM
 install::
 	MakeDir($(DESTDIR)$(PIXMAPDIR))
@@ -196,16 +196,16 @@ clean::
 	$(RM) y.tab.h y.tab.c lex.yy.c gram.h gram.c lex.c deftwmrc.c
 	$(RM) *.[chy].flc *.orig *.rej
 
-deftwmrc.c:  system.ctwmrc
+deftwmrc.c:  system.etwmrc
 	$(RM) $@
 	echo '/* ' >>$@
 	echo ' * This file is generated automatically from the default' >>$@
-	echo ' * twm bindings file system.ctwmrc by the twm Imakefile.' >>$@
+	echo ' * twm bindings file system.etwmrc by the twm Imakefile.' >>$@
 	echo ' */' >>$@
 	echo '' >>$@
 	echo 'char *defTwmrc[] = {' >>$@
 	sed -e '/^#/d' -e 's/"/\\"/g' -e 's/^/    "/' -e 's/$$/",/' \
-		system.ctwmrc >>$@
+		system.etwmrc >>$@
 	echo '    (char *) 0 };' >>$@
 
 GET_VERSION="`grep '^\#define VERSION_ID' version.c | sed -e 's/^[^"]*"\([^"]*\)".*$$/\1/'`"
@@ -221,28 +221,28 @@ dist:	clean Makefile gram.h gram.c lex.c deftwmrc.c
 	       \! -name Imakefile.local \! -name descrip.local \
 	       \! -name '*.o.info' \! -name '*.flc' \! -name semantic.cache \
 	       \! -name y.output \
-		| sort > ../ctwm-$$version.list; \
-	tar --no-recursion --files-from ../ctwm-$$version.list -cvf - | \
-	tardy --user_number=0  --user_name=ctwm \
-	      --group_number=0 --group_name=ctwm \
-	      --prefix=ctwm-$$version - |\
-	gzip --best >../ctwm-$$version.tar.gz; \
-	rm -f ../ctwm-$$version.list; \
-	ls -l ../ctwm-$$version.tar.gz
+		| sort > ../etwm-$$version.list; \
+	tar --no-recursion --files-from ../etwm-$$version.list -cvf - | \
+	tardy --user_number=0  --user_name=etwm \
+	      --group_number=0 --group_name=etwm \
+	      --prefix=etwm-$$version - |\
+	gzip --best >../etwm-$$version.tar.gz; \
+	rm -f ../etwm-$$version.list; \
+	ls -l ../etwm-$$version.tar.gz
 
 rpm: hack_spec dist unhack_spec do_rpm
 hack_spec:
 	if grep 'Debian' /etc/issue > /dev/null 2> /dev/null; then \
-	    mv ctwm.spec ctwm.spec.Redhat; \
-	    sed -e '/^BuildRequires:/d' < ctwm.spec.Redhat > ctwm.spec; \
+	    mv etwm.spec etwm.spec.Redhat; \
+	    sed -e '/^BuildRequires:/d' < etwm.spec.Redhat > etwm.spec; \
 	fi
 unhack_spec:
 	if grep 'Debian' /etc/issue > /dev/null 2> /dev/null; then \
-	    mv ctwm.spec.Redhat ctwm.spec; \
+	    mv etwm.spec.Redhat etwm.spec; \
 	fi
 do_rpm:
 	version=$(GET_VERSION); \
-	rpmbuild -ta ../ctwm-$$version.tar.gz
+	rpmbuild -ta ../etwm-$$version.tar.gz
 
 # Make all source files depend on this file, so there will be no more
 # surprises.

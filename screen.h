@@ -19,11 +19,11 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 /* 
- *  [ ctwm ]
+ *  [ etwm ]
  *
  *  Copyright 1992 Claude Lecommandeur.
  *            
- * Permission to use, copy, modify  and distribute this software  [ctwm] and
+ * Permission to use, copy, modify  and distribute this software  [etwm] and
  * its documentation for any purpose is hereby granted without fee, provided
  * that the above  copyright notice appear  in all copies and that both that
  * copyright notice and this permission notice appear in supporting documen-
@@ -520,15 +520,15 @@ extern int FirstScreen;
 #define RP_ALL 1
 #define RP_UNMAPPED 2
 
-#define CTWM_LAYER_DESKTOP	(0L<<2)	    /* desktop layer */
-#define CTWM_LAYER_BELOW	(1L<<2)	    /* windows set below (stuck to desktop) */
-#define CTWM_LAYER_NORMAL	(2L<<2)	    /* normal windows */
-#define CTWM_LAYER_ONTOP	(3L<<2)	    /* windows set above (stuck to screen) */
-#define CTWM_LAYER_DOCK		(4L<<2)	    /* docks and panels (not set below) */
-#define CTWM_LAYER_ABOVE_DOCK	(5L<<2)	    /* fullscreen windows */
-#define CTWM_LAYER_MENU		(6L<<2)	    /* popup menus, dnd menus, tooltips and such */
+#define ETWM_LAYER_DESKTOP	(0L<<2)	    /* desktop layer */
+#define ETWM_LAYER_BELOW	(1L<<2)	    /* windows set below (stuck to desktop) */
+#define ETWM_LAYER_NORMAL	(2L<<2)	    /* normal windows */
+#define ETWM_LAYER_ONTOP	(3L<<2)	    /* windows set above (stuck to screen) */
+#define ETWM_LAYER_DOCK		(4L<<2)	    /* docks and panels (not set below) */
+#define ETWM_LAYER_ABOVE_DOCK	(5L<<2)	    /* fullscreen windows */
+#define ETWM_LAYER_MENU		(6L<<2)	    /* popup menus, dnd menus, tooltips and such */
 
-#define ONTOP_DEFAULT		CTWM_LAYER_NORMAL
-#define ONTOP_MAX		CTWM_LAYER_MENU
+#define ONTOP_DEFAULT		ETWM_LAYER_NORMAL
+#define ONTOP_MAX		ETWM_LAYER_MENU
 
 #endif /* _SCREEN_ */

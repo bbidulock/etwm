@@ -12,7 +12,7 @@
 /** @brief Get the root window for screen.
   * @param scr - screen
   *
-  * CTWM messes around with scr->Root: it sets it to the virtual root when
+  * ETWM messes around with scr->Root: it sets it to the virtual root when
   * virtual roots are being used.
   */
 Window
@@ -42,12 +42,12 @@ TwmWinCanChangeWorkspace(TwmWindow *twin)
 
 /** @file
   *
-  * This file provides implementation of WinWM/WMH hook functions for CTWM.  The
+  * This file provides implementation of WinWM/WMH hook functions for ETWM.  The
   * WinWM/WMH functions in wmh.c are written to be independent of the TWM
   * variant that uses them.  These hook functions allow the WinWM/WMH module to
   * interrogate and perform actions on the TWM variant of window manager.
-  * Implementation modules are provided for TWM, VTWM, CTWM and ETWM.  This is
-  * the implementation module for CTWM.
+  * Implementation modules are provided for TWM, VTWM, ETWM and ETWM.  This is
+  * the implementation module for ETWM.
   */
 
 /** @brief Get the client window list.
@@ -114,7 +114,7 @@ TwmSetWorkspaceCount(ScreenInfo *scr, int count)
 /** @brief Get the active workspace.
   * @param workspace - where to return the workspace
   *
-  * There is only one workspace when the workspace manager is not active.  CTWM
+  * There is only one workspace when the workspace manager is not active.  ETWM
   * reverts to TWM mode in that case.
   */
 void
@@ -154,7 +154,7 @@ TwmGetWorkspace(ScreenInfo *scr, int *workspace)
 /** @brief Set the active workspace.
   * @param workspace - the workspace to activate.
   *
-  * There is only one desktop when the workspace manager is not active.  CTWM
+  * There is only one desktop when the workspace manager is not active.  ETWM
   * reverts to TWM mode in that case.
   */
 void
@@ -188,7 +188,7 @@ TwmGetWorkspaceNames(ScreenInfo *scr, char ***names, int *count)
     int number = 0, n = 0;
     char **list = NULL, *name;
 
-    /* There are no workspace names unless the workspace manager is active.  CTWM 
+    /* There are no workspace names unless the workspace manager is active.  ETWM 
        reverts to TWM behaviour otherwise. */
     if (!scr->workSpaceManagerActive)
 	return;
@@ -243,7 +243,7 @@ TwmSetWorkspaceNames(ScreenInfo *scr, char **names, int count)
   * @param twin - the TWM window
   * @param layer - where to return the layer
   *
-  * CTWM does not really have layers; however, it does have an ontop priority
+  * ETWM does not really have layers; however, it does have an ontop priority
   * that has the same effect as layers.  It originally only used two levels:
   * ONTOP_DEFAULT (8) for normal windows and ONTOP_MAX (16) for windows that are
   * specified as being ontop.
@@ -330,7 +330,7 @@ extern void SetupFrame(TwmWindow *tmp_win, int x, int y, int w, int h, int bw,
   * @param twin - the TWM window
   * @param layer - the layer for the window
   *
-  * CTWM does not really have layers; however, it does have an ontop priority
+  * ETWM does not really have layers; however, it does have an ontop priority
   * that has the same effect as layers.
   */
 void
@@ -635,7 +635,7 @@ TwmSetWinState(ScreenInfo *scr, TwmWindow *twin, unsigned mask, unsigned state)
 		/* Hidden means not on taskbar but window visible.  What we
 		   really want to do here is remove this item from the icon
 		   manager. */
-		/* TODO: set or reset this as far as CTWM is concerned. */
+		/* TODO: set or reset this as far as ETWM is concerned. */
 		twin->list.list.task = (state & m) ? 0 : 1;
 		break;
 	    case WIN_STATE_SHADED_BIT:
@@ -649,11 +649,11 @@ TwmSetWinState(ScreenInfo *scr, TwmWindow *twin, unsigned mask, unsigned state)
 		/* Can't be set by application: owner of transient is hidden. */
 		break;
 	    case WIN_STATE_FIXED_POSITION_BIT:
-		/* TODO: set or reset this as far as CTWM is concerned. */
+		/* TODO: set or reset this as far as ETWM is concerned. */
 		twin->func.function.move = (state & m) ? 0 : 1;
 		break;
 	    case WIN_STATE_ARRANGE_IGNORE_BIT:
-		/* TODO: set or reset this as far as CTWM is concerned. */
+		/* TODO: set or reset this as far as ETWM is concerned. */
 		twin->list.list.window = (state & m) ? 0 : 1;
 		break;
 	    default:
@@ -809,7 +809,7 @@ TwmSetWinHints(TwmWindow *twin, unsigned hints)
 /** @brief Get the area count.
   * @param count - where to return the count.
   *
-  * CTWM does not support large desktops, so the area count is always 1 column
+  * ETWM does not support large desktops, so the area count is always 1 column
   * by 1 row.
   */
 void
@@ -823,7 +823,7 @@ TwmGetWinAreaCount(ScreenInfo *scr, struct WinLayout *count)
   * @param cols - columns in the area
   * @param rows - rows in the area
   *
-  * CTWM does not support large desktops, so the area count is always 1 column
+  * ETWM does not support large desktops, so the area count is always 1 column
   * by 1 row, and cannot be changed.
   */
 void
@@ -835,7 +835,7 @@ TwmSetWinAreaCount(ScreenInfo *scr, struct WinLayout *count)
 /** @brief Get the active area.
   * @param area - where to return the active area.
   *
-  * CTWM does not support large desktops, so the area count is always 1 column
+  * ETWM does not support large desktops, so the area count is always 1 column
   * by 1 row and the active area is always column 0 and row 0.
   */
 void
@@ -849,7 +849,7 @@ TwmGetWinArea(ScreenInfo *scr, struct WinArea *area)
   * @param col - column of the active area
   * @param row - row of the active area
   *
-  * CTWM does not support large desktops, so the area count is always 1 column
+  * ETWM does not support large desktops, so the area count is always 1 column
   * by 1 row and the active area is always column 0 and row 0 and cannot be
   * changed.
   */
@@ -1035,7 +1035,7 @@ TwmSetMaximizedGeometry(ScreenInfo *scr, TwmWindow *twin, struct WinGeometry *ma
   * @param vroots - where to store list of virtual root windows
   * @param count - where to store count of virtual roots in the list
   *
-  * From code inspection it does not appear that CTWM uses any virtual roots,
+  * From code inspection it does not appear that ETWM uses any virtual roots,
   * except possibly on non-Xinerama multi-head captive configurations (is this
   * really supported?).  This function should normall return zero virtual roots.
   */

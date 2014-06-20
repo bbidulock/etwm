@@ -1,9 +1,9 @@
 /*
- *  [ ctwm ]
+ *  [ etwm ]
  *
  *  Copyright 1992 Claude Lecommandeur.
  *
- * Permission to use, copy, modify  and distribute this software  [ctwm] and
+ * Permission to use, copy, modify  and distribute this software  [etwm] and
  * its documentation for any purpose is hereby granted without fee, provided
  * that the above  copyright notice appear  in all copies and that both that
  * copyright notice and this permission notice appear in supporting documen-
@@ -106,7 +106,7 @@ static void WMapRedrawWindow		(Window window, int width, int height,
 					 ColorPair cp, char *label);
 void safecopy                           (char *dest, char *src, int size);
 
-static Atom _XA_WM_CTWMSLIST;
+static Atom _XA_WM_ETWMSLIST;
 
 int       fullOccupation    = 0;
 int       useBackgroundInfo = False;
@@ -169,7 +169,7 @@ void ConfigureWorkSpaceManager (void) {
 	/*
 	 * Make sure this is all properly initialized to nothing.  Otherwise
 	 * bad and undefined behavior can show up in certain cases (e.g.,
-	 * with no Workspaces {} defined in .ctwmrc, the only defined
+	 * with no Workspaces {} defined in .etwmrc, the only defined
 	 * workspace will be random memory bytes, which can causes crashes on
 	 * e.g.  f.menu "TwmWindows".)
 	 */
@@ -199,7 +199,7 @@ void CreateWorkSpaceManager (void)
     NewFontCursor (&handCursor, "top_left_arrow");
 
     vsmaplen = sizeof(vsmapbuf);
-    if(CtwmGetVScreenMap(dpy, Scr->Root, vsmapbuf, &vsmaplen) == True)
+    if(EtwmGetVScreenMap(dpy, Scr->Root, vsmapbuf, &vsmaplen) == True)
 	vsmap = strtok(vsmapbuf, ",");
     else
 	vsmap = NULL;
@@ -711,7 +711,7 @@ void GotoWorkSpace (VirtualScreen *vs, WorkSpace *ws)
     }
 
     /* keep track of the order of the workspaces across restarts */
-    CtwmSetVScreenMap(dpy, Scr->Root, Scr->vScreenList);
+    EtwmSetVScreenMap(dpy, Scr->Root, Scr->vScreenList);
 
     XSync (dpy, 0);
     if (Scr->ClickToFocus || Scr->SloppyFocus) set_last_window (newws);
@@ -874,8 +874,8 @@ void SetupOccupation (TwmWindow *twm_win,
     }
 
     if (XGetCommand (dpy, twm_win->w, &cliargv, &cliargc)) {
-	XrmParseCommand (&db, table, 1, "ctwm", &cliargc, cliargv);
-	status = XrmGetResource (db, "ctwm.workspace", "Ctwm.Workspace", &str_type, &value);
+	XrmParseCommand (&db, table, 1, "etwm", &cliargc, cliargv);
+	status = XrmGetResource (db, "etwm.workspace", "Etwm.Workspace", &str_type, &value);
 	if ((status == True) && (value.size != 0)) {
 	    strncpy (wrkSpcList, value.addr, value.size);
 	    twm_win->occupation = GetMaskFromResource (twm_win, wrkSpcList);
@@ -1080,7 +1080,7 @@ Bool RedirectToCaptive (Window window)
     char		*str_type;
     XrmValue		value;
     int			ret;
-    Atom		_XA_WM_CTWM_ROOT;
+    Atom		_XA_WM_ETWM_ROOT;
     char		*atomname;
     Window		newroot;
     XWindowAttributes	wa;
@@ -1088,21 +1088,21 @@ Bool RedirectToCaptive (Window window)
 
     if (DontRedirect (window)) return (False);
     if (!XGetCommand (dpy, window, &cliargv, &cliargc)) return (False);
-    XrmParseCommand (&db, table, 1, "ctwm", &cliargc, cliargv);
+    XrmParseCommand (&db, table, 1, "etwm", &cliargc, cliargv);
     if (db == NULL) {
         if (cliargv) XFreeStringList (cliargv);
 	return False;
     }
     ret = False;
-    status = XrmGetResource (db, "ctwm.redirect", "Ctwm.Redirect", &str_type, &value);
+    status = XrmGetResource (db, "etwm.redirect", "Etwm.Redirect", &str_type, &value);
     if ((status == True) && (value.size != 0)) {
-	char cctwm [64];
-	safecopy (cctwm, value.addr, sizeof(cctwm));
-	atomname = (char*) malloc (strlen ("WM_CTWM_ROOT_") + strlen (cctwm) + 1);
-	sprintf (atomname, "WM_CTWM_ROOT_%s", cctwm);
-	_XA_WM_CTWM_ROOT = XInternAtom (dpy, atomname, False);
+	char cetwm [64];
+	safecopy (cetwm, value.addr, sizeof(cetwm));
+	atomname = (char*) malloc (strlen ("WM_ETWM_ROOT_") + strlen (cetwm) + 1);
+	sprintf (atomname, "WM_ETWM_ROOT_%s", cetwm);
+	_XA_WM_ETWM_ROOT = XInternAtom (dpy, atomname, False);
 	
-	if (XGetWindowProperty (dpy, Scr->Root, _XA_WM_CTWM_ROOT,
+	if (XGetWindowProperty (dpy, Scr->Root, _XA_WM_ETWM_ROOT,
 		0L, 1L, False, AnyPropertyType, &actual_type, &actual_format,
 		&nitems, &bytesafter, &prop) == Success) {
 	    if (actual_type == XA_WINDOW && actual_format == 32 &&
@@ -1116,7 +1116,7 @@ Bool RedirectToCaptive (Window window)
 	    }
 	}
     }
-    status = XrmGetResource (db, "ctwm.rootWindow", "Ctwm.RootWindow", &str_type, &value);
+    status = XrmGetResource (db, "etwm.rootWindow", "Etwm.RootWindow", &str_type, &value);
     if ((status == True) && (value.size != 0)) {
 	char rootw [32];
 	unsigned long int scanned;
@@ -1485,7 +1485,7 @@ static void Vanish (VirtualScreen *vs, TwmWindow *tmp_win)
 
 #if 0
     /*
-     * The purpose of this is in the event of a ctwm death/restart,
+     * The purpose of this is in the event of a etwm death/restart,
      * geometries of windows that were on unmapped workspaces will show
      * up where they belong.
      * XXX - I doubt its usefulness, since still-mapped windows won't
@@ -3568,11 +3568,11 @@ static char **GetCaptivesList (int scrnum)
     int			i, l;
     Window		root;
 
-    _XA_WM_CTWMSLIST = XInternAtom (dpy, "WM_CTWMSLIST", True);
-    if (_XA_WM_CTWMSLIST == None) return ((char**)0);
+    _XA_WM_ETWMSLIST = XInternAtom (dpy, "WM_ETWMSLIST", True);
+    if (_XA_WM_ETWMSLIST == None) return ((char**)0);
 
     root = RootWindow (dpy, scrnum);
-    if (XGetWindowProperty (dpy, root, _XA_WM_CTWMSLIST, 0L, 512,
+    if (XGetWindowProperty (dpy, root, _XA_WM_ETWMSLIST, 0L, 512,
 			False, XA_STRING, &actual_type, &actual_format, &len,
 			&bytesafter, &prop) != Success) return ((char**) 0);
     if (len == 0) return ((char**) 0);
@@ -3606,11 +3606,11 @@ static void SetCaptivesList (int scrnum, char **clist)
     char		*s, *slist;
     Window		root = RootWindow (dpy, scrnum);
 
-    _XA_WM_CTWMSLIST = XInternAtom (dpy, "WM_CTWMSLIST", False);
+    _XA_WM_ETWMSLIST = XInternAtom (dpy, "WM_ETWMSLIST", False);
     cl  = clist; len = 0;
     while (*cl) { len += strlen (*cl++) + 1; }
     if (len == 0) {
-	XDeleteProperty (dpy, root, _XA_WM_CTWMSLIST);
+	XDeleteProperty (dpy, root, _XA_WM_ETWMSLIST);
 	return;
     }
     slist = (char*) malloc (len * sizeof (char));
@@ -3621,7 +3621,7 @@ static void SetCaptivesList (int scrnum, char **clist)
 	*s++ = '\0';
 	cl++;
     }
-    XChangeProperty (dpy, root, _XA_WM_CTWMSLIST, XA_STRING, 8, 
+    XChangeProperty (dpy, root, _XA_WM_ETWMSLIST, XA_STRING, 8, 
 		     PropModeReplace, (unsigned char *) slist, len);
 }
 
@@ -3635,7 +3635,7 @@ void AddToCaptiveList (void)
     int		i, count;
     char	**clist, **cl, **newclist;
     int		busy [32];
-    Atom	_XA_WM_CTWM_ROOT;
+    Atom	_XA_WM_ETWM_ROOT;
     char	*atomname;
     int		scrnum = Scr->screen;
     Window	croot  = Scr->Root;
@@ -3648,9 +3648,9 @@ void AddToCaptiveList (void)
     while (cl && *cl) {
 	count++;
 	if (!captivename) {
-	    if (!strncmp (*cl, "ctwm-", 5)) {
+	    if (!strncmp (*cl, "etwm-", 5)) {
 		int r, n;
-		r = sscanf (*cl, "ctwm-%d", &n);
+		r = sscanf (*cl, "etwm-%d", &n);
 		cl++;
 		if (r != 1) continue;
 		if ((n < 0) || (n > 31)) continue;
@@ -3659,7 +3659,7 @@ void AddToCaptiveList (void)
 	    continue;
 	}
 	if (!strcmp (*cl, captivename)) {
-	    fprintf (stderr, "A captive ctwm with name %s is already running\n", captivename);
+	    fprintf (stderr, "A captive etwm with name %s is already running\n", captivename);
 	    exit (1);
 	}
 	cl++;
@@ -3669,11 +3669,11 @@ void AddToCaptiveList (void)
 	    if (!busy [i]) break;
 	}
 	if (i == 32) { /* no one can tell we didn't try hard */
-	    fprintf (stderr, "Cannot find a suitable name for captive ctwm\n");
+	    fprintf (stderr, "Cannot find a suitable name for captive etwm\n");
 	    exit (1);
 	}
 	captivename = (char*) malloc (8);
-	sprintf (captivename, "ctwm-%d", i);
+	sprintf (captivename, "etwm-%d", i);
     }
     newclist = (char**) malloc ((count + 2) * sizeof (char*));
     for (i = 0; i < count; i++) {
@@ -3687,10 +3687,10 @@ void AddToCaptiveList (void)
     free (clist); free (newclist);
 
     root = RootWindow (dpy, scrnum);
-    atomname = (char*) malloc (strlen ("WM_CTWM_ROOT_") + strlen (captivename) +1);
-    sprintf (atomname, "WM_CTWM_ROOT_%s", captivename);
-    _XA_WM_CTWM_ROOT = XInternAtom (dpy, atomname, False);
-    XChangeProperty (dpy, root, _XA_WM_CTWM_ROOT, XA_WINDOW, 32, 
+    atomname = (char*) malloc (strlen ("WM_ETWM_ROOT_") + strlen (captivename) +1);
+    sprintf (atomname, "WM_ETWM_ROOT_%s", captivename);
+    _XA_WM_ETWM_ROOT = XInternAtom (dpy, atomname, False);
+    XChangeProperty (dpy, root, _XA_WM_ETWM_ROOT, XA_WINDOW, 32, 
 		     PropModeReplace, (unsigned char *) &croot, 4);
 }
 
@@ -3698,7 +3698,7 @@ void RemoveFromCaptiveList (void)
 {
     int	 count;
     char **clist, **cl, **newclist;
-    Atom _XA_WM_CTWM_ROOT;
+    Atom _XA_WM_ETWM_ROOT;
     char *atomname;
     int scrnum = Scr->screen;
     Window root = RootWindow (dpy, scrnum);
@@ -3722,28 +3722,28 @@ void RemoveFromCaptiveList (void)
     freeCaptiveList (clist);
     free (clist); free (newclist);
 
-    atomname = (char*) malloc (strlen ("WM_CTWM_ROOT_") + strlen (captivename) +1);
-    sprintf (atomname, "WM_CTWM_ROOT_%s", captivename);
-    _XA_WM_CTWM_ROOT = XInternAtom (dpy, atomname, True);
-    if (_XA_WM_CTWM_ROOT == None) return;
-    XDeleteProperty (dpy, root, _XA_WM_CTWM_ROOT);
+    atomname = (char*) malloc (strlen ("WM_ETWM_ROOT_") + strlen (captivename) +1);
+    sprintf (atomname, "WM_ETWM_ROOT_%s", captivename);
+    _XA_WM_ETWM_ROOT = XInternAtom (dpy, atomname, True);
+    if (_XA_WM_ETWM_ROOT == None) return;
+    XDeleteProperty (dpy, root, _XA_WM_ETWM_ROOT);
 }
 
-void SetPropsIfCaptiveCtwm (TwmWindow *win)
+void SetPropsIfCaptiveEtwm (TwmWindow *win)
 {
     Window	window = win->w;
     Window	frame  = win->frame;
-    Atom	_XA_WM_CTWM_ROOT;
+    Atom	_XA_WM_ETWM_ROOT;
 
-    if (!CaptiveCtwmRootWindow (window)) return;
-    _XA_WM_CTWM_ROOT = XInternAtom (dpy, "WM_CTWM_ROOT", True);
-    if (_XA_WM_CTWM_ROOT == None) return;
+    if (!CaptiveEtwmRootWindow (window)) return;
+    _XA_WM_ETWM_ROOT = XInternAtom (dpy, "WM_ETWM_ROOT", True);
+    if (_XA_WM_ETWM_ROOT == None) return;
 
-    XChangeProperty (dpy, frame, _XA_WM_CTWM_ROOT, XA_WINDOW, 32, 
+    XChangeProperty (dpy, frame, _XA_WM_ETWM_ROOT, XA_WINDOW, 32, 
 		     PropModeReplace, (unsigned char *) &window, 4);
 }
 
-Window CaptiveCtwmRootWindow (Window window)
+Window CaptiveEtwmRootWindow (Window window)
 {
     unsigned char	*prop;
     unsigned long	bytesafter;
@@ -3751,12 +3751,12 @@ Window CaptiveCtwmRootWindow (Window window)
     Atom		actual_type;
     int			actual_format;
     Window		ret;
-    Atom		_XA_WM_CTWM_ROOT;
+    Atom		_XA_WM_ETWM_ROOT;
 
-    _XA_WM_CTWM_ROOT = XInternAtom (dpy, "WM_CTWM_ROOT", True);
-    if (_XA_WM_CTWM_ROOT == None) return ((Window)0);
+    _XA_WM_ETWM_ROOT = XInternAtom (dpy, "WM_ETWM_ROOT", True);
+    if (_XA_WM_ETWM_ROOT == None) return ((Window)0);
 
-    if (XGetWindowProperty (dpy, window, _XA_WM_CTWM_ROOT, 0L, 1L,
+    if (XGetWindowProperty (dpy, window, _XA_WM_ETWM_ROOT, 0L, 1L,
 			False, XA_WINDOW, &actual_type, &actual_format, &len,
 			&bytesafter, &prop) != Success) return ((Window)0);
     if (len == 0) return ((Window)0);
@@ -3764,25 +3764,25 @@ Window CaptiveCtwmRootWindow (Window window)
     return (ret);
 }
 
-CaptiveCTWM GetCaptiveCTWMUnderPointer (void)
+CaptiveETWM GetCaptiveETWMUnderPointer (void)
 {
     int		scrnum = Scr->screen;
     Window	root;
     Window	child, croot;
-    CaptiveCTWM	cctwm;
+    CaptiveETWM	cetwm;
 
     root = RootWindow (dpy, scrnum);
     while (1) {
 	XQueryPointer (dpy, root, &JunkRoot, &child,
 			&JunkX, &JunkY, &JunkX, &JunkY, &JunkMask);
-	if (child && (croot = CaptiveCtwmRootWindow (child))) {
+	if (child && (croot = CaptiveEtwmRootWindow (child))) {
 	    root = croot;
 	    continue;
 	}
-	cctwm.root = root;
-	XFetchName (dpy, root, &cctwm.name);
-	if (!cctwm.name) cctwm.name = (char*) strdup ("Root");
-	return (cctwm);
+	cetwm.root = root;
+	XFetchName (dpy, root, &cetwm.name);
+	if (!cetwm.name) cetwm.name = (char*) strdup ("Root");
+	return (cetwm);
     }
 }
 
